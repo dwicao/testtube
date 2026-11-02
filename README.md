@@ -10,12 +10,10 @@ Requires Android 8.0 (API 26) or later.
 
 ## Features
 * [x] **Works with or without login** 
-* [x] **Subscriptions with or without an account**
-* [x] **Your YouTube subscriptions** 
+* [x] **Your YouTube subscriptions (if logged in)** 
 * [x] **Home for discovering**
 * [x] **Ad-free playback**
 * [x] **Swipe a video right to add it to the queue**
-* [x] **Description and Comments tabs (live chat for live streams)**
 * [x] **Sponsor-block**
 * [x] **AI video block**
 * [x] **In-app updates** 
