@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--
-        The Niix theme, in the niixa.org look: black, dark glass (#121218) with a thin pink edge,
+        The NiiX theme, in the niixa.org look: black, dark glass (#121218) with a thin pink edge,
         and pink #ff0a6c for whatever is selected, on or in progress. Dark only. Icons, labels and
         menu rows stay in the text colour. Used by Theme.TestTube.Niix (themes_niix.xml).
     -->
@@ -31,12 +31,12 @@
     <color name="niix_outline">#34343E</color>
     <color name="niix_outline_variant">#24242C</color>
 
-    <color name="niix_glass_bar">#C7000000</color>
+    <color name="niix_glass_bar">#AD000000</color>
     <color name="niix_glass_bar_solid">#000000</color>
     <!-- The thin pink edge of the glass (bars and dialogs) -->
     <color name="niix_glass_edge">#59FF0A6C</color>
-    <color name="niix_glass_dialog">#E6121218</color>
-    <color name="niix_glass_dialog_page">#F2000000</color>
+    <color name="niix_glass_dialog">#CC121218</color>
+    <color name="niix_glass_dialog_page">#D9000000</color>
 
     <color name="niix_nav_indicator">#29FF0A6C</color>
     <color name="niix_text_highlight">#66FF0A6C</color>

@@ -232,7 +232,7 @@ final class SettingsDialog {
 		AppCompatDelegate.setDefaultNightMode(theme.nightMode);
 		boolean night = theme.nightMode == AppCompatDelegate.MODE_NIGHT_YES
 						|| theme == AppSettings.Theme.SYSTEM && isNight(Resources.getSystem().getConfiguration());
-		// Dark and Niix are both night mode, but different themes: that needs a rebuild too
+		// Dark and NiiX are both night mode, but different themes: that needs a rebuild too
 		if (night == wasNight && theme.style == previous.style) return;
 		// Once the dialog is fully gone, not from inside its dismiss
 		activity.getWindow().getDecorView().post(() -> {

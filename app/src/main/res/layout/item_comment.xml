@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    One comment: the username (in the theme's colour for it, the pink in Niix), then when, likes
+    One comment: the username (in the theme's colour for it, the pink in NiiX), then when, likes
     and pinned in grey, then the text.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"

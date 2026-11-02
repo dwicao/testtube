@@ -297,7 +297,7 @@
     <string name="theme_dark">Dark</string>
     <string name="theme_light">Light</string>
     <string name="theme_system">System default</string>
-    <string name="theme_niix" translatable="false">Niix</string>
+    <string name="theme_niix" translatable="false">NiiX</string>
     <string name="settings_section_watched">Watched videos</string>
     <string name="settings_section_playback">Playback</string>
     <string name="settings_section_comments">Comments</string>

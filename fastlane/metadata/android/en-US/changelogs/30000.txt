@@ -1,5 +1,5 @@
 - New look: one consistent style, a clearer long-press menu, fewer background shades
-- New themes: Dark, Light and Niix (Settings → Appearance → Theme)
+- New themes: Dark, Light and NiiX (Settings → Appearance → Theme)
 - Frosted glass bars with lists scrolling under them (Android 12+), blurred dialogs and sheets
 - Swiping a video right now says "Add"
 - Fixed: comments without a name showed "null"

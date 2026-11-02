@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
     Home, Subscriptions, the Library and channel pages reach down under the mini player and the
-    bottom bar, which are frosted glass over them (BlurTarget, GlassBackground, BottomChrome).
+    bottom bar (frosted glass in NiiX, solid in Dark and Light; BlurTarget, GlassBackground,
+    BottomChrome).
     Shorts and the video page end above the bars.
 -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"

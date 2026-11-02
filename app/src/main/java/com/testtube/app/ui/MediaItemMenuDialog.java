@@ -84,7 +84,7 @@ public final class MediaItemMenuDialog {
 
 		ImageUtils.load(thumb, thumbUrl, R.drawable.ic_thumbnail_placeholder);
 		// The icons come in two sizes; every row shows them at one. They're in the text colour (the
-		// style), unless the theme has a colour of its own for them (pink in Niix).
+		// style), unless the theme has a colour of its own for them (pink in NiiX).
 		int iconRes = AppSettings.theme().menuIcon;
 		ColorStateList iconColor = iconRes != 0 ? ColorStateList.valueOf(ContextCompat.getColor(context, iconRes)) : null;
 		for (int id : MENU_ROWS) {

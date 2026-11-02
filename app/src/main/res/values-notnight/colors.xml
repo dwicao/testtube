@@ -2,7 +2,7 @@
 <resources>
     <!--
         Light theme. Same names as values/colors.xml (the Dark theme); only what differs is here.
-        Brand red, the overlays on video and the launcher icon are the same in both. The Niix
+        Brand red, the overlays on video and the launcher icon are the same in both. The NiiX
         theme is dark only and doesn't use these.
     -->
 
@@ -31,13 +31,12 @@
     <color name="outline">#9E9E9E</color>
     <color name="outline_variant">#DEDEDE</color>
 
-    <color name="glass_bar">#CCFFFFFF</color>
+    <color name="glass_bar">#FFFFFF</color>
     <color name="glass_bar_solid">#FFFFFF</color>
     <color name="glass_hairline">#14000000</color>
-    <color name="glass_dialog">#EBF2F2F2</color>
-    <color name="glass_sheet">#EBF2F2F2</color>
-    <!-- The page colour; the player's black would put dark text on black in the light theme -->
-    <color name="glass_dialog_page">#F2FFFFFF</color>
+    <color name="glass_dialog">#F2F2F2</color>
+    <color name="glass_sheet">#F2F2F2</color>
+    <color name="glass_dialog_page">#FFFFFF</color>
 
     <color name="nav_indicator">#14000000</color>
 

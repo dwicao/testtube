@@ -139,8 +139,9 @@ public final class GlassBackground extends Drawable {
 		if (bounds.isEmpty()) return;
 		drawnState = captureState().clone();
 		boolean blurred = false;
+		// A solid glass colour (Dark and Light) hides the blur anyway, so don't bother making one
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && canvas.isHardwareAccelerated()
-						&& blurRadiusPx > 0f) {
+						&& blurRadiusPx > 0f && Color.alpha(glassColor) < 255) {
 			if (blur == null) blur = new Blur(blurRadiusPx);
 			blurred = blur.draw(this, canvas, bounds);
 		}

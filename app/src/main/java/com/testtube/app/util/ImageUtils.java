@@ -72,7 +72,7 @@ public final class ImageUtils {
 		}
 		RequestManager glide = glide(view);
 		// The screen's theme, so a placeholder that takes its colour from the theme matches it.
-		// Glide would use the app's theme otherwise, which is the wrong bloody one in Niix.
+		// Glide would use the app's theme otherwise, which is the wrong bloody one in NiiX.
 		if (glide != null) request(glide, url, placeholder, view.getContext().getTheme()).into(view);
 	}
 

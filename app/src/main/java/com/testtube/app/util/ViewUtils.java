@@ -60,7 +60,7 @@ public final class ViewUtils {
 	}
 
 	/**
-	 * The theme's typeface (ttFontRegular: the system font, or JetBrains Mono in the Niix theme)
+	 * The theme's typeface (ttFontRegular: the system font, or JetBrains Mono in the NiiX theme)
 	 * in the given style, such as {@link Typeface#BOLD}. For text styled in code, because
 	 * {@code setTypeface(null, style)} quietly falls back to the system font. Pain in the ass.
 	 */

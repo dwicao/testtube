@@ -266,7 +266,7 @@ public final class AppSettings {
 		/** The activity theme, set before the screen is built. */
 		@StyleRes
 		public final int style;
-		/** The in-app logo (the Niix one has the pink play). */
+		/** The in-app logo (the NiiX one has the pink play). */
 		@DrawableRes
 		public final int logo;
 		/** The colour of the icons in menus, or 0 for the text colour. */

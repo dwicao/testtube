@@ -632,7 +632,7 @@ public final class WatchPanel {
 		@Override
 		public void onBindViewHolder(@NonNull CommentHolder holder, int position) {
 			FeedClient.Comment comment = data.get(position);
-			// The username has its own view, coloured by the theme (the pink in Niix). Some comments
+			// The username has its own view, coloured by the theme (the pink in NiiX). Some comments
 			// come without a name at all, and printing "null" there looked like shit.
 			String author = comment.author();
 			boolean hasAuthor = author != null && !author.isBlank();

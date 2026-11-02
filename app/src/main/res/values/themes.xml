@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!--
         The Dark and Light themes, following the phone unless one is chosen in the settings (the
-        colours come from values/colors.xml or values-notnight/colors.xml). The Niix theme builds
+        colours come from values/colors.xml or values-notnight/colors.xml). The NiiX theme builds
         on this one (themes_niix.xml). Every colour role, Material's and the app's own (attrs.xml),
         is mapped once here, so buttons, switches, sliders, tabs, progress bars, dialogs, sheets,
         menus and the bars share the same accent and surfaces without per-view colours.
@@ -113,8 +113,8 @@
     </style>
 
     <!--
-        Dialogs: a frosted surface, soft dim and a short fade-and-grow (the screen behind is blurred
-        on Android 12+, see values-v31)
+        Dialogs: the theme's surface (see-through in NiiX), soft dim and a short fade-and-grow (the
+        screen behind is blurred on Android 12+, see values-v31)
     -->
     <style name="Base.ThemeOverlay.TestTube.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="alertDialogStyle">@style/MaterialAlertDialog.TestTube</item>
@@ -167,8 +167,8 @@
     </style>
 
     <!--
-        The bottom bar. Its frosted background is set in code (GlassBackground), so it has no
-        shadow: a translucent bar would show the shadow through itself.
+        The bottom bar. Its background is set in code (GlassBackground, frosted in NiiX), so it has
+        no shadow: a translucent bar would show the shadow through itself.
     -->
     <style name="Widget.TestTube.BottomNav" parent="Widget.Material3.BottomNavigationView">
         <item name="android:minHeight">0dp</item>
@@ -211,7 +211,7 @@
         <item name="android:maxLines">1</item>
     </style>
 
-    <!-- One row of a menu: icon and label, a rounded highlight when touched (Niix tints the icon in code) -->
+    <!-- One row of a menu: icon and label, a rounded highlight when touched (NiiX tints the icon in code) -->
     <style name="Widget.TestTube.MenuRow" parent="">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">52dp</item>
@@ -245,7 +245,7 @@
 
     <!--
         Text. The app's own text appearances take their typeface from the theme (ttFontRegular,
-        ttFontMedium), so they follow the Niix theme's font as well.
+        ttFontMedium), so they follow the NiiX theme's font as well.
     -->
     <style name="TextAppearance.TestTube.NavLabel" parent="TextAppearance.Material3.LabelMedium">
         <item name="android:fontFamily">?attr/ttFontMedium</item>

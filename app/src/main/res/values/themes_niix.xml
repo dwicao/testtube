@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--
-        The Niix theme, in the niixa.org look: black, dark glass (#121218) with a thin pink edge,
+        The NiiX theme, in the niixa.org look: black, dark glass (#121218) with a thin pink edge,
         pink #ff0a6c for whatever is selected, on or in progress, and JetBrains Mono for all text.
         Dark only: choosing it sets the app to night mode (AppSettings.Theme.NIIX), and this theme
-        gives every colour role of the Dark theme a Niix value (colors_niix.xml).
+        gives every colour role of the Dark theme a NiiX value (colors_niix.xml).
     -->
     <style name="Theme.TestTube.Niix" parent="Theme.TestTube">
         <item name="colorPrimary">@color/niix_accent</item>

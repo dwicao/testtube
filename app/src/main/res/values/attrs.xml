@@ -2,7 +2,7 @@
 <resources>
     <!--
         The app's own colour roles, next to Material's (colorPrimary, colorSurface…). Each theme
-        (Dark and Light in themes.xml, Niix in themes_niix.xml) gives them a value, so layouts,
+        (Dark and Light in themes.xml, NiiX in themes_niix.xml) gives them a value, so layouts,
         drawables and code pick them up with ?attr/… and follow the chosen theme.
     -->
 

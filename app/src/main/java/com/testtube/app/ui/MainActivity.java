@@ -202,7 +202,7 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
-		// The chosen theme (Niix has its own). Before super.onCreate, or the damn thing gets built
+		// The chosen theme (NiiX has its own). Before super.onCreate, or the damn thing gets built
 		// with the manifest's theme first
 		setTheme(AppSettings.theme().style);
 		EdgeToEdge.enable(this);
@@ -263,7 +263,7 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 		aiChannels.start();
 		View.OnClickListener aboutClick = v -> SettingsDialog.showSettings(this, updates, aiChannels,
 						app.playerPreferences(), contentFilters, this::onShortsSettingChanged, this::onSettingsSaved);
-		// The chosen theme's logo (Niix has the pink play); the layout shows the standard one
+		// The chosen theme's logo (NiiX has the pink play); the layout shows the standard one
 		int logo = AppSettings.theme().logo;
 		((ImageView) browserView.findViewById(R.id.browser_logo)).setImageResource(logo);
 		((ImageView) browserView.findViewById(R.id.browser_start_logo)).setImageResource(logo);
@@ -737,8 +737,8 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 	}
 
 	/**
-	 * The mini player and the bottom bar become frosted glass over Home, Subscriptions, the Library
-	 * and channel pages, and those lists scroll on under them.
+	 * The mini player and the bottom bar float over Home, Subscriptions, the Library and channel
+	 * pages (frosted glass in NiiX, solid otherwise), and those lists scroll on under them.
 	 */
 	private void setupGlassBars(@NonNull View root) {
 		View miniBar = findViewById(R.id.mini_bar);

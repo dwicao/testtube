@@ -13,7 +13,7 @@ import com.testtube.app.R;
 import com.testtube.app.util.ViewUtils;
 
 /**
- * Every dialog of the app starts here, so it gets the theme's dialog look: in the Niix theme the
+ * Every dialog of the app starts here, so it gets the theme's dialog look: in the NiiX theme the
  * thin pink edge of niixa.org, drawn along the dialog's rounded outline.
  */
 public final class Dialogs {
@@ -39,7 +39,7 @@ public final class Dialogs {
 	private static MaterialAlertDialogBuilder withEdge(@NonNull MaterialAlertDialogBuilder builder) {
 		Drawable background = builder.getBackground();
 		Context themed = builder.getContext();
-		// Only the Niix theme has an edge; the others leave it transparent
+		// Only the NiiX theme has an edge; the others leave it transparent
 		int edge = ViewUtils.themeColor(themed, R.attr.ttGlassEdge);
 		if (Color.alpha(edge) != 0 && background instanceof MaterialShapeDrawable shape) {
 			shape.setStroke(EDGE_DP * themed.getResources().getDisplayMetrics().density, edge);

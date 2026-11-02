@@ -2,7 +2,7 @@
 <resources>
     <!--
         TestTube palette for the Dark theme (the default when the phone is dark). The Light theme
-        overrides the same names in values-notnight; the Niix theme has its own palette in
+        overrides the same names in values-notnight; the NiiX theme has its own palette in
         colors_niix.xml. Layouts, drawables and code never use these directly: they go through the
         theme (?attr/colorPrimary, ?attr/ttGlassBar…), so the chosen theme decides.
 
@@ -11,7 +11,7 @@
 
         The greys are TestTube's original dark palette:
         - page (surface #0F0F0F): every screen and the Library
-        - bars and sheets (surface_container_low #151515), under their glass
+        - bars and sheets (surface_container_low #151515), solid
         - cards on a page (surface_container #1B1B1B), dialogs (surface_container_high #222222)
         - small fills (surface_container_highest #2C2C2C): chips, pills, placeholders, toggles
           that are off, the playing queue row, the settings groups
@@ -48,16 +48,16 @@
     <color name="outline">#4A4A4A</color>
     <color name="outline_variant">#2E2E2E</color>
 
-    <!-- Frosted glass: the bottom bars, dialogs and sheets, over a blurred view of what is behind -->
-    <color name="glass_bar">#BF151515</color>
+    <!-- The bars, dialogs and sheets: solid in Dark and Light, only NiiX makes them see-through -->
+    <color name="glass_bar">#151515</color>
     <color name="glass_bar_solid">#151515</color>
     <color name="glass_hairline">#14FFFFFF</color>
     <!-- No line around dialogs -->
     <color name="glass_edge">#00000000</color>
-    <color name="glass_dialog">#EB222222</color>
-    <color name="glass_sheet">#EB151515</color>
+    <color name="glass_dialog">#222222</color>
+    <color name="glass_sheet">#151515</color>
     <!-- The long-press menu and the settings: the same grey as every other Dark dialog -->
-    <color name="glass_dialog_page">#EB222222</color>
+    <color name="glass_dialog_page">#222222</color>
 
     <!-- The selected bottom tab's pill -->
     <color name="nav_indicator">#26FFFFFF</color>
@@ -68,7 +68,7 @@
     <!-- The Library's pages, under the browser-style tabs; the selected tab has the same colour -->
     <color name="library_page">#1B1B1B</color>
 
-    <!-- Cards holding a group of settings (flat in the Light and Niix themes) -->
+    <!-- Cards holding a group of settings (flat in the Light and NiiX themes) -->
     <color name="settings_group">#2C2C2C</color>
 
     <!-- Revealed under a list row while it is swiped -->

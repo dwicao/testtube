@@ -3,7 +3,7 @@
 ## 3.0.0
 
 - New look: one consistent style everywhere. Buttons, icons and labels share one colour; the long-press menu is a single list of actions with icons and names; fewer background shades
-- New: three themes to choose from in Settings → Appearance → Theme: Dark, Light and Niix (black, dark glass with a pink edge, pink accents and JetBrains Mono, like niixa.org). System default follows the phone between Light and Dark
+- New: three themes to choose from in Settings → Appearance → Theme: Dark, Light and NiiX (black, dark glass with a pink edge, pink accents and JetBrains Mono, like niixa.org). System default follows the phone between Light and Dark
 - The mini player and bottom bar are frosted glass with the lists scrolling under them (Android 12+), dialogs and sheets blur what is behind them
 - Library: the selected tab's edge follows its rounded corners
 - Swiping a video right now says "Add"

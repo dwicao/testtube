@@ -13,9 +13,9 @@ import java.util.List;
 
 /**
  * The mini player and the bottom bar float over Home, Subscriptions, the Library and channel pages
- * as frosted glass, and those screens reach down under them. This keeps the end of each list (and
- * each centred message) clear of the bars: it pads them by the height the bars take up right now,
- * which changes as the mini player and the bottom bar show and hide.
+ * (as frosted glass in NiiX), and those screens reach down under them. This keeps the end of each
+ * list (and each centred message) clear of the bars: it pads them by the height the bars take up
+ * right now, which changes as the mini player and the bottom bar show and hide.
  */
 final class BottomChrome implements ViewTreeObserver.OnGlobalLayoutListener {
 	@NonNull
