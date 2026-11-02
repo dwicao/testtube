@@ -53,10 +53,22 @@ public class PlaybackService extends Service {
 	private boolean isSeeking = false;
 	private final Runnable resetSeekFlagRunnable = () -> isSeeking = false;
 	private boolean lastIsPlayingState = false;
+	private boolean inForeground;
+	private boolean lastWantsToPlay = true;
 	private volatile boolean destroyed = false;
 
+	/**
+	 * Starts the service for the first video. Later videos (autoplay in the background) find it
+	 * running already, and Android 12+ doesn't let an app in the background start it anyway.
+	 */
 	public static void start(@NonNull Context context) {
-		ContextCompat.startForegroundService(context, new Intent(context, PlaybackService.class));
+		try {
+			ContextCompat.startForegroundService(context, new Intent(context, PlaybackService.class));
+		} catch (IllegalStateException e) {
+			// ForegroundServiceStartNotAllowedException: in the background, and the bound service
+			// keeps playing in the foreground already
+			Log.w(TAG, "not started from the background: " + e.getMessage());
+		}
 	}
 
 	private static long playbackActionsFor(@NonNull QueueNav availability) {
@@ -291,6 +303,7 @@ public class PlaybackService extends Service {
 			} else {
 				startForeground(NOTIFICATION_ID, notification);
 			}
+			inForeground = true;
 		} catch (Exception e) {
 			// Not allowed from the background on newer Android; the notification still shows
 			Log.e(TAG, "startForeground failed: " + e.getMessage());
@@ -301,11 +314,17 @@ public class PlaybackService extends Service {
 
 	public void hideNotification() {
 		stopForeground(true);
+		inForeground = false;
 		if (notificationManager != null) notificationManager.cancel(NOTIFICATION_ID);
 		stopSelf();
 	}
 
-	public void updateProgress(long pos, float speed, boolean isPlaying) {
+	/**
+	 * @param wantsToPlay false only when paused; buffering and the step to the next video in the
+	 *                    queue keep the service in the foreground, which Android won't give back
+	 *                    to an app in the background
+	 */
+	public void updateProgress(long pos, float speed, boolean isPlaying, boolean wantsToPlay) {
 		if (isSeeking) return;
 		MediaSessionCompat session = mediaSession;
 		NotificationManager manager = notificationManager;
@@ -314,20 +333,25 @@ public class PlaybackService extends Service {
 		PlaybackStateCompat playbackState = buildPlaybackState(stateCompat, pos, speed, queueNavigationAvailability);
 		if (shouldAbort()) return;
 		session.setPlaybackState(playbackState);
-		if (isPlaying != lastIsPlayingState) {
+		// Only on changes: retrying a refused startForeground on every tick would be pointless
+		if (isPlaying != lastIsPlayingState || wantsToPlay != lastWantsToPlay) {
 			Notification updatedNotification = buildNotification(isPlaying);
 			if (updatedNotification != null && manager != null && !shouldAbort()) {
-				if (isPlaying) {
+				if (wantsToPlay && !inForeground) {
 					startInForeground(updatedNotification);
-				} else {
+				} else if (!wantsToPlay && inForeground) {
 					// Paused: no reason to keep the app running in the background. The
 					// notification stays, can be swiped away now, and play brings it back.
 					ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_DETACH);
+					inForeground = false;
+					manager.notify(NOTIFICATION_ID, updatedNotification);
+				} else {
 					manager.notify(NOTIFICATION_ID, updatedNotification);
 				}
 			}
 		}
 		lastIsPlayingState = isPlaying;
+		lastWantsToPlay = wantsToPlay;
 	}
 
 	public void updateQueueNavigationAvailability(@NonNull QueueNav availability) {
@@ -351,6 +375,7 @@ public class PlaybackService extends Service {
 	public void onTaskRemoved(Intent rootIntent) {
 		super.onTaskRemoved(rootIntent);
 		stopForeground(true);
+		inForeground = false;
 		stopSelf();
 	}
 
@@ -361,6 +386,7 @@ public class PlaybackService extends Service {
 		handler.removeCallbacksAndMessages(null);
 		executorService.shutdownNow();
 		stopForeground(true);
+		inForeground = false;
 		MediaSessionCompat session = mediaSession;
 		mediaSession = null;
 		if (session != null) {

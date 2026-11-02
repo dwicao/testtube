@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.testtube.app.R;
+import com.testtube.app.ui.Dialogs;
 import com.testtube.app.extractor.FeedClient;
 import com.testtube.app.extractor.LocalSubscriptions;
 import com.testtube.app.util.ToastUtils;
@@ -27,11 +28,11 @@ final class SubscriptionsDialog {
 	                 @NonNull Runnable importList, @NonNull Runnable exportList) {
 		LocalSubscriptions subscriptions = LocalSubscriptions.get();
 		List<LocalSubscriptions.Channel> channels = subscriptions.all();
-		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context)
+		MaterialAlertDialogBuilder builder = Dialogs.builder(context)
 						.setTitle(context.getString(R.string.subs_manage_title, channels.size()))
 						.setPositiveButton(R.string.subs_add_url, (dialog, which) -> askForChannel(context, client, changed, importList, exportList))
 						.setNeutralButton(R.string.subs_import_export, (dialog, which) ->
-										new MaterialAlertDialogBuilder(context)
+										Dialogs.builder(context)
 														.setItems(new String[]{context.getString(R.string.subs_import),
 																		context.getString(R.string.subs_export)}, (d, index) -> {
 															if (index == 0) importList.run();
@@ -57,7 +58,7 @@ final class SubscriptionsDialog {
 	                                    @NonNull LocalSubscriptions.Channel channel, @NonNull Runnable changed,
 	                                    @NonNull Runnable importList, @NonNull Runnable exportList) {
 		String name = channel.name().isBlank() ? channel.id() : channel.name();
-		new MaterialAlertDialogBuilder(context)
+		Dialogs.builder(context)
 						.setMessage(context.getString(R.string.subs_unfollow_confirm, name))
 						.setPositiveButton(R.string.subs_unfollow, (dialog, which) -> {
 							LocalSubscriptions.get().remove(channel.id());
@@ -76,7 +77,7 @@ final class SubscriptionsDialog {
 		input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
 		int padding = (int) (20 * context.getResources().getDisplayMetrics().density);
 		input.setPadding(padding, padding, padding, padding);
-		new MaterialAlertDialogBuilder(context)
+		Dialogs.builder(context)
 						.setTitle(R.string.subs_add_url)
 						.setView(input)
 						.setPositiveButton(android.R.string.ok, (dialog, which) -> {

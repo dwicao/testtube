@@ -21,9 +21,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.testtube.app.AppSettings;
 import com.testtube.app.R;
+import com.testtube.app.util.ViewUtils;
+import com.testtube.app.ui.Dialogs;
 import com.testtube.app.extractor.FeedCache;
 import com.testtube.app.extractor.FeedClient;
 import com.testtube.app.extractor.FeedItem;
@@ -128,6 +129,14 @@ public final class NativeBrowser {
 	@NonNull
 	private final Map<Mode, State> states = new EnumMap<>(Mode.class);
 	@NonNull
+	private final View topBar;
+	@NonNull
+	private final View startPage;
+	@NonNull
+	private final EditText startField;
+	@NonNull
+	private final View watermark;
+	@NonNull
 	private final TextView title;
 	@NonNull
 	private final ImageView logo;
@@ -164,7 +173,7 @@ public final class NativeBrowser {
 		subsManage = root.findViewById(R.id.browser_subs_manage);
 		subsManage.setOnClickListener(v -> {
 			if (host.accountEnabled()) {
-				new MaterialAlertDialogBuilder(root.getContext())
+				Dialogs.builder(root.getContext())
 								.setMessage(R.string.subs_logout_confirm)
 								.setPositiveButton(R.string.subs_logout, (dialog, which) -> host.logout())
 								.setNegativeButton(R.string.cancel, null)
@@ -185,6 +194,10 @@ public final class NativeBrowser {
 			else load(Mode.SUBSCRIPTIONS, true);
 		});
 		for (Mode value : Mode.values()) states.put(value, new State());
+		topBar = root.findViewById(R.id.browser_top_bar);
+		startPage = root.findViewById(R.id.browser_start);
+		startField = root.findViewById(R.id.browser_start_field);
+		watermark = root.findViewById(R.id.browser_watermark);
 		title = root.findViewById(R.id.browser_title);
 		logo = root.findViewById(R.id.browser_logo);
 		searchButton = root.findViewById(R.id.browser_search);
@@ -257,23 +270,63 @@ public final class NativeBrowser {
 				load(mode, !state.loaded);
 			}
 		});
-		refresh.setColorSchemeResources(R.color.accent);
-		refresh.setProgressBackgroundColorSchemeResource(R.color.surface_container_high);
+		refresh.setColorSchemeColors(ViewUtils.themeColor(refresh.getContext(), androidx.appcompat.R.attr.colorPrimary));
+		refresh.setProgressBackgroundColorSchemeColor(ViewUtils.themeColor(refresh.getContext(),
+						com.google.android.material.R.attr.colorSurfaceContainerHigh));
 		refresh.setOnRefreshListener(() -> load(mode, true));
 		searchButton.setOnClickListener(v -> {
 			if (mode == Mode.SEARCH) submitSearch();
 			else show(Mode.SEARCH);
 		});
 		searchBack.setOnClickListener(v -> show(browseMode));
+		root.findViewById(R.id.browser_start_search).setOnClickListener(v -> searchFromStart());
+		startField.setOnEditorActionListener((v, actionId, event) -> {
+			if (isSearchKey(actionId, event)) {
+				searchFromStart();
+				return true;
+			}
+			return false;
+		});
 		searchField.setOnEditorActionListener((v, actionId, event) -> {
-			boolean enter = event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER
-							&& event.getAction() == KeyEvent.ACTION_DOWN;
-			if (actionId == EditorInfo.IME_ACTION_SEARCH || enter) {
+			if (isSearchKey(actionId, event)) {
 				submitSearch();
 				return true;
 			}
 			return false;
 		});
+	}
+
+	private static boolean isSearchKey(int actionId, @Nullable KeyEvent event) {
+		return actionId == EditorInfo.IME_ACTION_SEARCH
+						|| event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER
+						&& event.getAction() == KeyEvent.ACTION_DOWN;
+	}
+
+	/** Home as just the logo and a search bar (setting), instead of suggested videos. */
+	private boolean onStartPage() {
+		return mode == Mode.HOME && AppSettings.searchOnlyHome();
+	}
+
+	private void searchFromStart() {
+		String query = startField.getText().toString().trim();
+		if (query.isEmpty()) return;
+		startField.setText("");
+		startField.clearFocus();
+		searchFor(query);
+	}
+
+	/** Swaps the list and the top bar for the start page, or back. */
+	private void applyStartPage() {
+		boolean start = onStartPage();
+		topBar.setVisibility(start ? View.GONE : View.VISIBLE);
+		startPage.setVisibility(start ? View.VISIBLE : View.GONE);
+		list.setVisibility(start ? View.GONE : View.VISIBLE);
+		watermark.setVisibility(start ? View.GONE : View.VISIBLE);
+		refresh.setEnabled(!start);
+		if (start) {
+			refresh.setRefreshing(false);
+			message.setVisibility(View.GONE);
+		}
 	}
 
 	@NonNull
@@ -296,7 +349,7 @@ public final class NativeBrowser {
 		if (changed && state.scroll != null) layoutManager.onRestoreInstanceState(state.scroll);
 		if (next == Mode.SEARCH) {
 			if (state.query == null) focusSearch();
-		} else if (!state.loaded && state.call == null && !subsOff(next)) {
+		} else if (!state.loaded && state.call == null && !subsOff(next) && !onStartPage()) {
 			load(next, false);
 		}
 	}
@@ -346,6 +399,10 @@ public final class NativeBrowser {
 	 * Scrolls to the top, or reloads when the list is already at the top.
 	 */
 	public void reselect() {
+		if (onStartPage()) {
+			startField.requestFocus();
+			return;
+		}
 		if (layoutManager.findFirstCompletelyVisibleItemPosition() <= 0) {
 			load(mode, true);
 		} else {
@@ -366,24 +423,18 @@ public final class NativeBrowser {
 	 * Blocked channels or watched marks changed.
 	 */
 	public void onFiltersChanged() {
-		render(state(mode));
+		State state = state(mode);
+		render(state);
 		adapter.refreshStates();
+		// The search-only Home was just switched off: fill it now
+		if (mode == Mode.HOME && !state.loaded && state.call == null && !onStartPage()) load(mode, false);
 	}
 
 	/**
 	 * Drops every loaded list, e.g. after signing in, and reloads the visible one.
 	 */
 	public void reloadAll() {
-		for (State state : states.values()) {
-			if (state.call != null) state.call.cancel();
-			state.call = null;
-			state.items.clear();
-			state.seen.clear();
-			state.next = null;
-			state.scroll = null;
-			state.loaded = false;
-			state.error = false;
-		}
+		for (State state : states.values()) reset(state);
 		show(mode == Mode.SEARCH ? browseMode : mode);
 	}
 
@@ -436,6 +487,7 @@ public final class NativeBrowser {
 	 */
 	private void load(@NonNull Mode target, boolean fresh) {
 		State state = state(target);
+		if (target == Mode.HOME && AppSettings.searchOnlyHome()) return;
 		if (subsOff(target)) {
 			if (target == mode) render(state);
 			return;
@@ -573,6 +625,8 @@ public final class NativeBrowser {
 
 	private void render(@NonNull State state) {
 		updateSubsBar();
+		applyStartPage();
+		if (onStartPage()) return;
 		List<FeedItem> visible = new ArrayList<>(state.items.size());
 		boolean shorts = AppSettings.showShorts();
 		for (FeedItem item : state.items) {

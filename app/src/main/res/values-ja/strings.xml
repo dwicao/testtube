@@ -28,6 +28,7 @@
     <string name="copy">コピー</string>
     <string name="debug_info_copied">デバッグ情報をクリップボードにコピーしました</string>
     <string name="subtitles">字幕</string>
+    <string name="subtitle_auto_generated">%1$s（自動生成）</string>
     <string name="subtitles_on">字幕オン</string>
     <string name="subtitles_off">字幕オフ</string>
     <string name="no_subtitles">字幕はありません</string>
@@ -189,6 +190,8 @@
     <string name="setting_shorts_summary">ホーム、検索、チャンネルに表示</string>
     <string name="setting_subscriptions">登録チャンネルタブ</string>
     <string name="setting_subscriptions_summary">下部バーのタブ</string>
+    <string name="setting_search_only_home">検索だけのホーム</string>
+    <string name="setting_search_only_home_summary">ロゴと検索バーだけ。おすすめ動画は表示しません</string>
     <string name="setting_grey_watched">視聴済みの動画をグレー表示</string>
     <string name="setting_grey_watched_summary">視聴済みの動画を暗く表示</string>
     <string name="setting_watched_dim_description">視聴済みの動画を暗くする度合い</string>
@@ -265,7 +268,7 @@
     <string name="subs_unfollow_confirm">%s のフォローを解除しますか？</string>
     <string name="subs_use_account">自分の YouTube アカウントを使用</string>
     <string name="subs_use_local">フォロー中のチャンネルを使用</string>
-    <string name="swipe_added">追加しました</string>
+    <string name="swipe_add">追加</string>
     <string name="swipe_already_following">フォロー済みです</string>
     <string name="swipe_follow">フォロー</string>
     <string name="swipe_follow_title">%s をフォローしますか？</string>

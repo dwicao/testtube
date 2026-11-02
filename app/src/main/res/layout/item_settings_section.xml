@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- A titled group of settings rows on a rounded card -->
+<!-- A titled group of settings rows, flat on the dialog with hairlines between rows -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -10,8 +10,8 @@
         android:id="@+id/section_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="8dp"
-        android:paddingBottom="8dp"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="4dp"
         android:textAppearance="@style/TextAppearance.TestTube.SectionHeader" />
 
     <LinearLayout

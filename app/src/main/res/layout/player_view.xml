@@ -171,8 +171,8 @@
                         android:layout_height="20dp"
                         app:bar_height="2dp"
                         app:buffered_color="@android:color/white"
-                        app:played_color="@color/brand_red"
-                        app:scrubber_color="@color/brand_red"
+                        app:played_color="?attr/ttBrand"
+                        app:scrubber_color="?attr/ttBrand"
                         app:unplayed_color="@color/scrubber_unplayed" />
 
                     <com.testtube.app.player.sponsor.SponsorOverlayView

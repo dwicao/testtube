@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.testtube.app.R;
 import com.testtube.app.util.DeviceUtils;
 import com.testtube.app.util.ToastUtils;
@@ -54,7 +53,7 @@ public final class ErrorDialog {
 		titleView.setText(displayTitle);
 		stackView.setText(stack);
 
-		new MaterialAlertDialogBuilder(context).setView(view).setCancelable(true).setOnDismissListener(onDismissListener).setPositiveButton(R.string.copy, (dialog, which) -> copyDebugInfo(context, displayTitle, stack)).setNegativeButton(R.string.close, (dialog, which) -> dialog.dismiss()).show();
+		Dialogs.builder(context).setView(view).setCancelable(true).setOnDismissListener(onDismissListener).setPositiveButton(R.string.copy, (dialog, which) -> copyDebugInfo(context, displayTitle, stack)).setNegativeButton(R.string.close, (dialog, which) -> dialog.dismiss()).show();
 	}
 
 	private static String buildExpandedStackTrace(Throwable throwable) {

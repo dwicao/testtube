@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--
-        Light theme. Same names as values/colors.xml (the dark default); only what differs is
-        here. Brand red, the overlays on video and the launcher icon are the same in both.
+        Light theme. Same names as values/colors.xml (the Dark theme); only what differs is here.
+        Brand red, the overlays on video and the launcher icon are the same in both. The Niix
+        theme is dark only and doesn't use these.
     -->
 
-    <!-- A deeper red, so text and switches in the accent stay readable on white -->
-    <color name="accent">#D3132F</color>
+    <!-- Black on white: buttons, switches, sliders and tabs, like YouTube's light theme -->
+    <color name="accent">#0F0F0F</color>
     <color name="on_accent">#FFFFFF</color>
-    <color name="accent_container">#FFDADC</color>
-    <color name="on_accent_container">#410008</color>
+    <color name="accent_container">#E5E5E5</color>
+    <color name="on_accent_container">#0F0F0F</color>
     <color name="logo_watermark">#F3C9CD</color>
+
+    <color name="link">#0F0F0F</color>
 
     <color name="neutral">#5F5F5F</color>
     <color name="on_neutral">#FFFFFF</color>
@@ -19,18 +22,32 @@
 
     <color name="surface">#FFFFFF</color>
     <color name="surface_container_lowest">#FFFFFF</color>
-    <color name="surface_container_low">#F7F7F7</color>
+    <color name="surface_container_low">#FFFFFF</color>
     <color name="surface_container">#F2F2F2</color>
-    <color name="surface_container_high">#ECECEC</color>
-    <color name="surface_container_highest">#E3E3E3</color>
+    <color name="surface_container_high">#F2F2F2</color>
+    <color name="surface_container_highest">#E5E5E5</color>
     <color name="on_surface">#0F0F0F</color>
     <color name="on_surface_variant">#606060</color>
     <color name="outline">#9E9E9E</color>
     <color name="outline_variant">#DEDEDE</color>
 
-    <color name="settings_group">#FFFFFF</color>
+    <color name="glass_bar">#CCFFFFFF</color>
+    <color name="glass_bar_solid">#FFFFFF</color>
+    <color name="glass_hairline">#14000000</color>
+    <color name="glass_dialog">#EBF2F2F2</color>
+    <color name="glass_sheet">#EBF2F2F2</color>
+    <!-- The page colour; the player's black would put dark text on black in the light theme -->
+    <color name="glass_dialog_page">#F2FFFFFF</color>
 
-    <color name="swipe_background">#E3E3E3</color>
+    <color name="nav_indicator">#14000000</color>
+
+    <color name="text_highlight">#40000000</color>
+
+    <color name="library_page">#FFFFFF</color>
+
+    <color name="settings_group">#00000000</color>
+
+    <color name="swipe_background">#F2F2F2</color>
     <color name="swipe_content">#0F0F0F</color>
 
     <color name="inverse_surface">#0F0F0F</color>

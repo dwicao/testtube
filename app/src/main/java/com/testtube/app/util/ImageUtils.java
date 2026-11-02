@@ -3,6 +3,7 @@ package com.testtube.app.util;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.view.View;
@@ -70,13 +71,15 @@ public final class ImageUtils {
 			return;
 		}
 		RequestManager glide = glide(view);
-		if (glide != null) request(glide, url, placeholder).into(view);
+		// The screen's theme, so a placeholder that takes its colour from the theme matches it.
+		// Glide would use the app's theme otherwise, which is the wrong bloody one in Niix.
+		if (glide != null) request(glide, url, placeholder, view.getContext().getTheme()).into(view);
 	}
 
 	/** Tries {@code url} and, if it doesn't exist, {@code fallback} (vertical Shorts thumbnails). */
 	public static void loadWithFallback(@NonNull ImageView view, @NonNull String url, @NonNull String fallback) {
 		RequestManager glide = glide(view);
-		if (glide != null) request(glide, url, 0).error(request(glide, fallback, 0)).into(view);
+		if (glide != null) request(glide, url, 0, null).error(request(glide, fallback, 0, null)).into(view);
 	}
 
 	/** Stops a load into the view (a recycled row) and lets go of its picture. */
@@ -105,7 +108,7 @@ public final class ImageUtils {
 	/** Downloads a picture ahead of time, for rows that aren't on screen yet. */
 	public static void prefetch(@NonNull Context context, @Nullable String url) {
 		if (url == null || url.isBlank()) return;
-		request(Glide.with(context.getApplicationContext()), url, 0).priority(Priority.LOW).preload();
+		request(Glide.with(context.getApplicationContext()), url, 0, null).priority(Priority.LOW).preload();
 	}
 
 	/**
@@ -134,20 +137,25 @@ public final class ImageUtils {
 		}
 	}
 
-	/** The WebP when there is one, then the JPEG; {@code placeholder} 0 for none. */
+	/**
+	 * The WebP when there is one, then the JPEG; {@code placeholder} 0 for none, drawn in
+	 * {@code theme} (null for the app's).
+	 */
 	@NonNull
 	private static RequestBuilder<Drawable> request(@NonNull RequestManager glide, @NonNull String url,
-	                                                @DrawableRes int placeholder) {
-		RequestBuilder<Drawable> jpeg = styled(glide.load(url), placeholder);
+	                                                @DrawableRes int placeholder, @Nullable Resources.Theme theme) {
+		RequestBuilder<Drawable> jpeg = styled(glide.load(url), placeholder, theme);
 		String smaller = webp(url);
-		return smaller == null ? jpeg : styled(glide.load(smaller), placeholder).error(jpeg);
+		return smaller == null ? jpeg : styled(glide.load(smaller), placeholder, theme).error(jpeg);
 	}
 
 	@NonNull
 	private static RequestBuilder<Drawable> styled(@NonNull RequestBuilder<Drawable> request,
-	                                               @DrawableRes int placeholder) {
+	                                               @DrawableRes int placeholder, @Nullable Resources.Theme theme) {
 		RequestBuilder<Drawable> out = request.dontTransform()
 						.transition(DrawableTransitionOptions.withCrossFade(FADE_MS));
-		return placeholder == 0 ? out : out.placeholder(placeholder).error(placeholder);
+		if (placeholder == 0) return out;
+		out = out.placeholder(placeholder).error(placeholder);
+		return theme == null ? out : out.theme(theme);
 	}
 }

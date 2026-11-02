@@ -33,6 +33,7 @@
     <string name="playback_end_pause">播完後暫停</string>
     <string name="playback_end_playlist_random">播完後隨機播放清單</string>
     <string name="subtitles">字幕</string>
+    <string name="subtitle_auto_generated">%1$s（自動產生）</string>
     <string name="subtitles_on">字幕開啟</string>
     <string name="subtitles_off">字幕關閉</string>
     <string name="no_subtitles">無可用字幕</string>
@@ -191,6 +192,8 @@
     <string name="setting_shorts_summary">在首頁、搜尋和頻道中顯示</string>
     <string name="setting_subscriptions">訂閱內容分頁</string>
     <string name="setting_subscriptions_summary">底部列中的分頁</string>
+    <string name="setting_search_only_home">僅搜尋的首頁</string>
+    <string name="setting_search_only_home_summary">只顯示標誌和搜尋列，不顯示推薦影片</string>
     <string name="setting_grey_watched">將已觀看的影片變灰</string>
     <string name="setting_grey_watched_summary">調暗已觀看影片</string>
     <string name="setting_watched_dim_description">已觀看影片變暗的程度</string>
@@ -265,7 +268,7 @@
     <string name="subs_unfollow_confirm">要取消追蹤 %s 嗎？</string>
     <string name="subs_use_account">使用我的 YouTube 帳戶</string>
     <string name="subs_use_local">使用我追蹤的頻道</string>
-    <string name="swipe_added">已新增</string>
+    <string name="swipe_add">新增</string>
     <string name="swipe_already_following">已在追蹤</string>
     <string name="swipe_follow">追蹤</string>
     <string name="swipe_follow_title">要追蹤 %s 嗎？</string>

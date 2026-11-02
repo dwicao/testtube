@@ -37,7 +37,6 @@ final class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 	private static final int TYPE_VIDEO = 0;
 	private static final int TYPE_ENTITY = 1;
 	private static final int TYPE_VIDEO_COMPACT = 2;
-	private static final String SEPARATOR = " • ";
 	private static final Object AVATAR_PAYLOAD = new Object();
 	private static final Object ORIGINAL_PAYLOAD = new Object();
 
@@ -323,7 +322,7 @@ final class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 			meta.add(context.getString(R.string.feed_views, StringUtils.compactCount(item.count())));
 		}
 		if (!item.live() && item.published() != null) meta.add(item.published());
-		holder.meta.setText(String.join(SEPARATOR, meta));
+		holder.meta.setText(String.join(StringUtils.META_SEPARATOR, meta));
 		if (item.live()) {
 			holder.duration.setVisibility(View.VISIBLE);
 			holder.duration.setText(R.string.feed_live);
@@ -409,7 +408,7 @@ final class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 			meta.add(item.author() != null ? item.author() : context.getString(R.string.type_playlist));
 			if (item.count() >= 0) meta.add(context.getString(R.string.feed_videos, StringUtils.compactCount(item.count())));
 		}
-		holder.meta.setText(String.join(SEPARATOR, meta));
+		holder.meta.setText(String.join(StringUtils.META_SEPARATOR, meta));
 		ImageUtils.load(holder.thumbnail, item.thumbnailUrl(), R.drawable.bg_thumbnail_placeholder);
 		holder.itemView.setOnClickListener(v -> listener.onOpen(item));
 	}

@@ -28,6 +28,7 @@
     <string name="copy">Копировать</string>
     <string name="debug_info_copied">Отладочная информация скопирована в буфер обмена</string>
     <string name="subtitles">Субтитры</string>
+    <string name="subtitle_auto_generated">%1$s (автоматически)</string>
     <string name="subtitles_on">Субтитры вкл.</string>
     <string name="subtitles_off">Субтитры выкл.</string>
     <string name="no_subtitles">Субтитры недоступны</string>
@@ -191,6 +192,8 @@
     <string name="setting_shorts_summary">На главной, в поиске и на каналах</string>
     <string name="setting_subscriptions">Вкладка «Подписки»</string>
     <string name="setting_subscriptions_summary">Вкладка в нижней панели</string>
+    <string name="setting_search_only_home">Главная только с поиском</string>
+    <string name="setting_search_only_home_summary">Только логотип и строка поиска, без рекомендуемых видео</string>
     <string name="setting_grey_watched">Затемнять просмотренные видео</string>
     <string name="setting_grey_watched_summary">Затемняет просмотренные видео</string>
     <string name="setting_watched_dim_description">Насколько затемнять просмотренные видео</string>
@@ -265,7 +268,7 @@
     <string name="subs_unfollow_confirm">Отписаться от канала %s?</string>
     <string name="subs_use_account">Использовать мой аккаунт YouTube</string>
     <string name="subs_use_local">Использовать мои подписки</string>
-    <string name="swipe_added">Добавлено</string>
+    <string name="swipe_add">Добавить</string>
     <string name="swipe_already_following">Вы уже подписаны</string>
     <string name="swipe_follow">Подписаться</string>
     <string name="swipe_follow_title">Подписаться на %s?</string>

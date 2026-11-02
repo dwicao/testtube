@@ -1,5 +1,25 @@
 # Changelog
 
+## 3.0.0
+
+- New look: one consistent style everywhere. Buttons, icons and labels share one colour; the long-press menu is a single list of actions with icons and names; fewer background shades
+- New: three themes to choose from in Settings → Appearance → Theme: Dark, Light and Niix (black, dark glass with a pink edge, pink accents and JetBrains Mono, like niixa.org). System default follows the phone between Light and Dark
+- The mini player and bottom bar are frosted glass with the lists scrolling under them (Android 12+), dialogs and sheets blur what is behind them
+- Library: the selected tab's edge follows its rounded corners
+- Swiping a video right now says "Add"
+- Download dialogs: Cancel is a plain button, the option buttons stay readable in every theme
+- Fixed: a comment without a name showed "null"
+
+## 2.5.0
+
+- New: Search-only Home (Settings → Content). Home shows just the logo, the name and a search bar, no suggested videos and no top bar; nothing is loaded for it. Tap the logo for the settings.
+
+## 2.4.2
+
+- Fixed: the app closed when the next video started while playing in the background (Android 12+ doesn't let a background app start its player service again, and 2.4.1 let go of it between videos). Only a real pause lets go of it now.
+- Same kind of crash prevented for downloads: the next part of a playlist download no longer closes the app when it starts in the background, and Android 15's 6-hour limit for downloads is handled
+- The update installer and its permission screen can't close the app on phones that lack them
+
 ## 2.4.1
 
 - Light theme stays light on phones with Android 16's "expanded dark theme" (it was being inverted into an odd dark look)

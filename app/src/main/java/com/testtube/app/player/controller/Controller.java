@@ -37,6 +37,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.testtube.app.AppSettings;
 import com.testtube.app.R;
+import com.testtube.app.ui.Dialogs;
 import com.testtube.app.extractor.StreamCatalog;
 import com.testtube.app.nav.TabManager;
 import com.testtube.app.player.TestTubePlayerView;
@@ -518,7 +519,7 @@ public class Controller {
 				@Override
 				public void onLongClick(int index, String label) {
 					StreamSegment segment = segments.get(index);
-					MaterialAlertDialogBuilder b = new MaterialAlertDialogBuilder(activity);
+					MaterialAlertDialogBuilder b = Dialogs.builder(activity);
 					View v = activity.getLayoutInflater().inflate(R.layout.dialog_segment, null, false);
 					((TextView) v.findViewById(R.id.segment_title)).setText(segment.getTitle());
 					((TextView) v.findViewById(R.id.segment_time)).setText(DateUtils.formatElapsedTime(Math.max(segment.getStartTimeSeconds(), 0)));
@@ -606,7 +607,7 @@ public class Controller {
 			for (int i = 0; i < audioTracks.size(); i++)
 				if (audioTracks.get(i).getContent().equals(sel.getContent())) checked = i;
 		}
-		new MaterialAlertDialogBuilder(activity).setTitle(R.string.audio_track).setAdapter(getAdapter(checked, options), (dialog, which) -> {
+		Dialogs.builder(activity).setTitle(R.string.audio_track).setAdapter(getAdapter(checked, options), (dialog, which) -> {
 			engine.setAudioTrack(audioTracks.get(which));
 			showHint(options[which], HINT_HIDE_DELAY_MS);
 			hideControlsAutomatically();
@@ -630,7 +631,7 @@ public class Controller {
 								: com.google.android.material.R.attr.colorOnSurfaceVariant);
 				icon.setColorFilter(color);
 				text.setTextColor(color);
-				text.setTypeface(null, checked ? Typeface.BOLD : Typeface.NORMAL);
+				text.setTypeface(ViewUtils.appTypeface(activity, checked ? Typeface.BOLD : Typeface.NORMAL));
 				return view;
 			}
 		};
@@ -643,7 +644,7 @@ public class Controller {
 			hideControlsAutomatically();
 			return;
 		}
-		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
+		MaterialAlertDialogBuilder builder = Dialogs.builder(activity);
 		builder.setTitle(R.string.info).setPositiveButton(R.string.confirm, null);
 		String[] info = {getVideoDetailsText(details)};
 		builder.setMessage(info[0]).setNeutralButton(R.string.copy, (dialog, which) -> {
@@ -896,7 +897,7 @@ public class Controller {
 				tv.setTextColor(ViewUtils.themeColor(activity, selected
 								? androidx.appcompat.R.attr.colorPrimary
 								: com.google.android.material.R.attr.colorOnSurfaceVariant));
-				tv.setTypeface(null, selected ? Typeface.BOLD : Typeface.NORMAL);
+				tv.setTypeface(ViewUtils.appTypeface(activity, selected ? Typeface.BOLD : Typeface.NORMAL));
 				return tv;
 			}
 		};

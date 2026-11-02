@@ -1,0 +1,1 @@
+- New: Search-only Home, just the logo and a search bar (Settings → Content)

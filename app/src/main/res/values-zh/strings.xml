@@ -45,6 +45,7 @@
     <string name="playback_end_pause">播完后暂停</string>
     <string name="playback_end_playlist_random">播完后随机播放列表</string>
     <string name="subtitles">字幕</string>
+    <string name="subtitle_auto_generated">%1$s（自动生成）</string>
     <string name="subtitles_on">字幕开启</string>
     <string name="subtitles_off">字幕关闭</string>
     <string name="no_subtitles">无可用字幕</string>
@@ -191,6 +192,8 @@
     <string name="setting_shorts_summary">在首页、搜索和频道中显示</string>
     <string name="setting_subscriptions">订阅标签页</string>
     <string name="setting_subscriptions_summary">底部栏中的标签页</string>
+    <string name="setting_search_only_home">仅搜索的首页</string>
+    <string name="setting_search_only_home_summary">只显示标志和搜索栏，不显示推荐视频</string>
     <string name="setting_grey_watched">将已看过的视频变灰</string>
     <string name="setting_grey_watched_summary">调暗已看视频</string>
     <string name="setting_watched_dim_description">已看视频变暗的程度</string>
@@ -265,7 +268,7 @@
     <string name="subs_unfollow_confirm">要取消关注 %s 吗？</string>
     <string name="subs_use_account">使用我的 YouTube 账号</string>
     <string name="subs_use_local">使用我关注的频道</string>
-    <string name="swipe_added">已添加</string>
+    <string name="swipe_add">添加</string>
     <string name="swipe_already_following">已关注</string>
     <string name="swipe_follow">关注</string>
     <string name="swipe_follow_title">要关注 %s 吗？</string>

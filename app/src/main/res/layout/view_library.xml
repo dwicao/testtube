@@ -50,13 +50,13 @@
             app:tint="?attr/colorOnSurfaceVariant" />
     </LinearLayout>
 
-    <!-- The page shares the selected tab's colour, so the two read as one piece -->
+    <!-- The selected tab has the pages' colour, so the two read as one piece -->
     <FrameLayout
         android:id="@+id/library_pages"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="?attr/colorSurfaceContainer">
+        android:background="?attr/ttLibraryPage">
 
         <FrameLayout
             android:id="@+id/library_page_queue"

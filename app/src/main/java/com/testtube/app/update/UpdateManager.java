@@ -1,6 +1,7 @@
 package com.testtube.app.update;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -22,13 +23,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.FileProvider;
 import androidx.core.content.pm.PackageInfoCompat;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.tencent.mmkv.MMKV;
 import com.testtube.app.R;
+import com.testtube.app.ui.Dialogs;
 
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
@@ -272,7 +273,7 @@ public final class UpdateManager {
 						? release.notes().substring(0, NOTES_LIMIT) + "…" : release.notes();
 		String message = activity.getString(R.string.update_message, release.tag(), current)
 						+ (notes.isEmpty() ? "" : "\n\n" + notes);
-		new MaterialAlertDialogBuilder(activity)
+		Dialogs.builder(activity)
 						.setTitle(release.prerelease() ? R.string.update_title_prerelease : R.string.update_title)
 						.setMessage(message)
 						.setPositiveButton(R.string.update_action, (d, w) -> startUpdate(activity, release))
@@ -286,14 +287,18 @@ public final class UpdateManager {
 	private void startUpdate(Activity activity, Release release) {
 		if (!activity.getPackageManager().canRequestPackageInstalls()) {
 			Toast.makeText(activity, R.string.update_allow_install, Toast.LENGTH_LONG).show();
-			activity.startActivity(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
-							Uri.parse("package:" + activity.getPackageName())));
+			try {
+				activity.startActivity(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+								Uri.parse("package:" + activity.getPackageName())));
+			} catch (ActivityNotFoundException e) {
+				// Some phones hide this screen; the toast above says what to allow
+			}
 			return;
 		}
 		View view = LayoutInflater.from(activity).inflate(R.layout.dialog_update_progress, null);
 		ProgressBar bar = view.findViewById(R.id.update_progress_bar);
 		TextView text = view.findViewById(R.id.update_progress_text);
-		AlertDialog dialog = new MaterialAlertDialogBuilder(activity)
+		AlertDialog dialog = Dialogs.builder(activity)
 						.setTitle(R.string.update_downloading)
 						.setView(view)
 						.setCancelable(false)
@@ -390,7 +395,11 @@ public final class UpdateManager {
 		Intent intent = new Intent(Intent.ACTION_VIEW)
 						.setDataAndType(uri, "application/vnd.android.package-archive")
 						.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-		activity.startActivity(intent);
+		try {
+			activity.startActivity(intent);
+		} catch (ActivityNotFoundException e) {
+			Toast.makeText(activity, R.string.update_failed, Toast.LENGTH_LONG).show();
+		}
 	}
 
 	/**

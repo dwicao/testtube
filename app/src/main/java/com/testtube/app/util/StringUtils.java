@@ -10,6 +10,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class StringUtils {
+	/** Between the parts of a meta line: "Channel • 12K views • 3 days ago" */
+	public static final String META_SEPARATOR = " • ";
 	private static final Pattern DIGIT_PATTERN = Pattern.compile("\\d+");
 	@Nullable
 	private static CompactDecimalFormat compactFormat;

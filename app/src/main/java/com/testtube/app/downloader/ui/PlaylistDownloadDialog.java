@@ -21,7 +21,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.R.attr;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -32,9 +31,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.checkbox.MaterialCheckBox;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.tencent.mmkv.MMKV;
 import com.testtube.app.R;
+import com.testtube.app.ui.Dialogs;
 import com.testtube.app.downloader.core.DownloadPrefs;
 import com.testtube.app.downloader.core.DownloadSelectionConfig;
 import com.testtube.app.downloader.core.DownloadTaskFactory;
@@ -146,8 +145,6 @@ public final class PlaylistDownloadDialog {
 	private int threadCount;
 	private int batchPreparedCount;
 	private int batchTotalCount;
-	private int toggleSelectedColor;
-	private int toggleUnselectedColor;
 	@NonNull
 	private DownloadSelectionConfig.PrimaryMediaMode primaryMediaMode = DownloadSelectionConfig.PrimaryMediaMode.VIDEO;
 	private boolean subtitleEnabled;
@@ -190,7 +187,7 @@ public final class PlaylistDownloadDialog {
 		loadingBar = dialogView.findViewById(R.id.playlist_loading_bar);
 		recyclerView = dialogView.findViewById(R.id.playlist_items_recycler);
 
-		dialog = new MaterialAlertDialogBuilder(context)
+		dialog = Dialogs.builder(context)
 						.setView(dialogView)
 						.setCancelable(true)
 						.create();
@@ -210,8 +207,6 @@ public final class PlaylistDownloadDialog {
 		if (threadsSeekBar != null) threadsSeekBar.setProgress(threadCount - 1);
 		if (threadsCountView != null) threadsCountView.setText(String.valueOf(threadCount));
 
-		toggleSelectedColor = ViewUtils.themeColor(context, attr.colorPrimary);
-		toggleUnselectedColor = ViewUtils.themeColor(context, com.google.android.material.R.attr.colorSurfaceContainerHighest);
 
 		if (recyclerView != null) {
 			recyclerView.setLayoutManager(new LinearLayoutManager(context));
@@ -709,22 +704,16 @@ public final class PlaylistDownloadDialog {
 
 	private void updateToggleButtons() {
 		if (videoButton != null) {
-			videoButton.setBackgroundColor(
-							primaryMediaMode == DownloadSelectionConfig.PrimaryMediaMode.VIDEO
-											? toggleSelectedColor
-											: toggleUnselectedColor);
+			ViewUtils.paintToggle(videoButton, primaryMediaMode == DownloadSelectionConfig.PrimaryMediaMode.VIDEO);
 		}
 		if (audioButton != null) {
-			audioButton.setBackgroundColor(
-							primaryMediaMode == DownloadSelectionConfig.PrimaryMediaMode.AUDIO
-											? toggleSelectedColor
-											: toggleUnselectedColor);
+			ViewUtils.paintToggle(audioButton, primaryMediaMode == DownloadSelectionConfig.PrimaryMediaMode.AUDIO);
 		}
 		if (subtitleButton != null) {
-			subtitleButton.setBackgroundColor(subtitleEnabled ? toggleSelectedColor : toggleUnselectedColor);
+			ViewUtils.paintToggle(subtitleButton, subtitleEnabled);
 		}
 		if (thumbnailButton != null) {
-			thumbnailButton.setBackgroundColor(thumbnailEnabled ? toggleSelectedColor : toggleUnselectedColor);
+			ViewUtils.paintToggle(thumbnailButton, thumbnailEnabled);
 		}
 	}
 

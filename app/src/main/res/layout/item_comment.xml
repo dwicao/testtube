@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    One comment: the username (in the theme's colour for it, the pink in Niix), then when, likes
+    and pinned in grey, then the text.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -8,14 +12,31 @@
     android:paddingEnd="12dp"
     android:paddingBottom="6dp">
 
-    <TextView
-        android:id="@+id/comment_meta"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:textColor="?attr/colorOnSurfaceVariant"
-        android:textSize="12sp" />
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/comment_author"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxWidth="220dp"
+            android:maxLines="1"
+            android:textColor="?attr/ttCommentAuthor"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/comment_meta"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="12sp" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/comment_text"

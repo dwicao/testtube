@@ -1,0 +1,87 @@
+package com.testtube.app.ui;
+
+import android.view.View;
+import android.view.ViewTreeObserver;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.testtube.app.R;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * The mini player and the bottom bar float over Home, Subscriptions, the Library and channel pages
+ * as frosted glass, and those screens reach down under them. This keeps the end of each list (and
+ * each centred message) clear of the bars: it pads them by the height the bars take up right now,
+ * which changes as the mini player and the bottom bar show and hide.
+ */
+final class BottomChrome implements ViewTreeObserver.OnGlobalLayoutListener {
+	@NonNull
+	private final View root;
+	@NonNull
+	private final View miniBar;
+	@NonNull
+	private final View bottomNav;
+	@NonNull
+	private final List<View> views = new ArrayList<>();
+	private int inset;
+
+	BottomChrome(@NonNull View root, @NonNull View miniBar, @NonNull View bottomNav) {
+		this.root = root;
+		this.miniBar = miniBar;
+		this.bottomNav = bottomNav;
+		root.getViewTreeObserver().addOnGlobalLayoutListener(this);
+	}
+
+	/**
+	 * Keeps the bottom of this view clear of the bars. Its own bottom padding is kept on top.
+	 */
+	void add(@Nullable View view) {
+		if (view == null || view.getTag(R.id.tag_bottom_chrome_padding) != null) return;
+		view.setTag(R.id.tag_bottom_chrome_padding, view.getPaddingBottom());
+		views.add(view);
+		apply(view);
+	}
+
+	/**
+	 * Keeps the bottom of each of these views, found under the given root, clear of the bars.
+	 */
+	void addAll(@Nullable View parent, @NonNull int... ids) {
+		if (parent == null) return;
+		for (int id : ids) add(parent.findViewById(id));
+	}
+
+	@Override
+	public void onGlobalLayout() {
+		int next = measure();
+		if (next == inset) return;
+		inset = next;
+		for (View view : views) apply(view);
+	}
+
+	void release() {
+		ViewTreeObserver observer = root.getViewTreeObserver();
+		if (observer.isAlive()) observer.removeOnGlobalLayoutListener(this);
+		views.clear();
+	}
+
+	/**
+	 * How far up from the bottom of the content area the visible bars reach.
+	 */
+	private int measure() {
+		int bottom = root.getHeight() - root.getPaddingBottom();
+		int top = bottom;
+		if (bottomNav.getVisibility() == View.VISIBLE) top = Math.min(top, bottomNav.getTop());
+		if (miniBar.getVisibility() == View.VISIBLE) top = Math.min(top, miniBar.getTop());
+		return Math.max(0, bottom - top);
+	}
+
+	private void apply(@NonNull View view) {
+		Object own = view.getTag(R.id.tag_bottom_chrome_padding);
+		int padding = (own instanceof Integer ? (Integer) own : 0) + inset;
+		if (view.getPaddingBottom() == padding) return;
+		view.setPaddingRelative(view.getPaddingStart(), view.getPaddingTop(), view.getPaddingEnd(), padding);
+	}
+}

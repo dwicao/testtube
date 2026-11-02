@@ -1,9 +1,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!--
-        The app theme, following the phone unless Light or Dark is chosen in the settings (the colours come
-        from values/colors.xml or values-notnight/colors.xml). Every Material role is mapped once
-        here, so switches, sliders, tabs, progress bars, dialogs, sheets and menus share the same
-        accent and surfaces without per-view colours.
+        The Dark and Light themes, following the phone unless one is chosen in the settings (the
+        colours come from values/colors.xml or values-notnight/colors.xml). The Niix theme builds
+        on this one (themes_niix.xml). Every colour role, Material's and the app's own (attrs.xml),
+        is mapped once here, so buttons, switches, sliders, tabs, progress bars, dialogs, sheets,
+        menus and the bars share the same accent and surfaces without per-view colours.
     -->
     <style name="Base.Theme.TestTube" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/accent</item>
@@ -41,9 +42,35 @@
         <item name="colorOutlineVariant">@color/outline_variant</item>
         <item name="elevationOverlayEnabled">false</item>
 
+        <item name="colorAccent">@color/accent</item>
+        <item name="colorControlActivated">@color/accent</item>
         <item name="android:colorControlActivated">@color/accent</item>
-        <item name="android:textColorHighlight">#66FF4E5B</item>
-        <item name="android:textColorLink">@color/accent</item>
+        <item name="android:textColorHighlight">@color/text_highlight</item>
+        <item name="android:textColorLink">@color/link</item>
+
+        <!-- The app's own roles (attrs.xml) -->
+        <item name="ttBrand">@color/brand_red</item>
+        <item name="ttLogoWatermark">@color/logo_watermark</item>
+        <item name="ttSponsorSegment">@color/sponsor_segment</item>
+        <item name="ttGlassBar">@color/glass_bar</item>
+        <item name="ttGlassBarSolid">@color/glass_bar_solid</item>
+        <item name="ttGlassHairline">@color/glass_hairline</item>
+        <item name="ttGlassEdge">@color/glass_edge</item>
+        <item name="ttGlassDialog">@color/glass_dialog</item>
+        <item name="ttGlassSheet">@color/glass_sheet</item>
+        <item name="ttGlassDialogPage">@color/glass_dialog_page</item>
+        <item name="ttNavIndicator">@color/nav_indicator</item>
+        <item name="ttLibraryPage">@color/library_page</item>
+        <item name="ttSettingsGroup">@color/settings_group</item>
+        <item name="ttSwipeBackground">@color/swipe_background</item>
+        <item name="ttSwipeContent">@color/swipe_content</item>
+        <item name="ttCommentAuthor">@color/on_surface_variant</item>
+
+        <!-- The system font, in the weights of Material's type scale -->
+        <item name="ttFontRegular">sans-serif</item>
+        <item name="ttFontMedium">sans-serif-medium</item>
+        <item name="ttFontMono">monospace</item>
+
         <item name="android:textColorHint">@color/on_surface_variant</item>
 
         <item name="tabStyle">@style/Widget.TestTube.TabLayout</item>
@@ -58,7 +85,8 @@
         <item name="android:forceDarkAllowed" tools:targetApi="29">false</item>
         <!--
             Android 16's "expanded dark theme" inverts every app whose theme says it is light, and
-            doesn't ask forceDarkAllowed. Light was picked on purpose in the settings, so it stays light.
+            doesn't ask forceDarkAllowed. Like hell: Light was picked on purpose in the settings, so
+            it stays light.
         -->
         <item name="android:isLightTheme" tools:targetApi="29">false</item>
     </style>
@@ -66,7 +94,7 @@
     <style name="Theme.TestTube" parent="Base.Theme.TestTube" />
 
     <!--
-        On the video, which stays dark in both themes: white icons and light ripples. Set on the
+        On the video, which stays dark in every theme: white icons and light ripples. Set on the
         player, the floating window and Shorts.
     -->
     <style name="ThemeOverlay.TestTube.OnVideo" parent="">
@@ -84,26 +112,48 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
-    <!-- Dialogs: raised surface, soft dim and a short fade-and-grow (blur is added on Android 12+) -->
+    <!--
+        Dialogs: a frosted surface, soft dim and a short fade-and-grow (the screen behind is blurred
+        on Android 12+, see values-v31)
+    -->
     <style name="Base.ThemeOverlay.TestTube.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="alertDialogStyle">@style/MaterialAlertDialog.TestTube</item>
         <item name="android:backgroundDimAmount">0.6</item>
         <item name="android:windowAnimationStyle">@style/Animation.TestTube.Dialog</item>
     </style>
 
+    <style name="MaterialAlertDialog.TestTube" parent="MaterialAlertDialog.Material3">
+        <item name="backgroundTint">?attr/ttGlassDialog</item>
+    </style>
+
     <style name="ThemeOverlay.TestTube.AlertDialog" parent="Base.ThemeOverlay.TestTube.AlertDialog" />
+
+    <!--
+        The long-press menu and the settings: the same dialog (blur, dim, animation) on the
+        player's background colour instead of the raised grey
+    -->
+    <style name="MaterialAlertDialog.TestTube.Page">
+        <item name="backgroundTint">?attr/ttGlassDialogPage</item>
+    </style>
+
+    <style name="ThemeOverlay.TestTube.AlertDialog.Page" parent="ThemeOverlay.TestTube.AlertDialog">
+        <item name="alertDialogStyle">@style/MaterialAlertDialog.TestTube.Page</item>
+    </style>
 
     <style name="Animation.TestTube.Dialog" parent="@android:style/Animation.Dialog">
         <item name="android:windowEnterAnimation">@anim/dialog_enter</item>
         <item name="android:windowExitAnimation">@anim/dialog_exit</item>
     </style>
 
-    <style name="ThemeOverlay.TestTube.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
+    <style name="Base.ThemeOverlay.TestTube.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
         <item name="android:backgroundDimAmount">0.5</item>
         <item name="bottomSheetStyle">@style/Widget.TestTube.BottomSheet</item>
     </style>
 
+    <style name="ThemeOverlay.TestTube.BottomSheetDialog" parent="Base.ThemeOverlay.TestTube.BottomSheetDialog" />
+
     <style name="Widget.TestTube.BottomSheet" parent="Widget.Material3.BottomSheet.Modal">
-        <item name="backgroundTint">@color/surface_container_low</item>
+        <item name="backgroundTint">?attr/ttGlassSheet</item>
         <item name="shapeAppearance">@style/ShapeAppearance.TestTube.BottomSheet</item>
     </style>
 
@@ -116,9 +166,14 @@
         <item name="tabTextAppearance">@style/TextAppearance.TestTube.PageTab</item>
     </style>
 
+    <!--
+        The bottom bar. Its frosted background is set in code (GlassBackground), so it has no
+        shadow: a translucent bar would show the shadow through itself.
+    -->
     <style name="Widget.TestTube.BottomNav" parent="Widget.Material3.BottomNavigationView">
         <item name="android:minHeight">0dp</item>
-        <item name="backgroundTint">@color/surface_container_low</item>
+        <item name="backgroundTint">?attr/ttGlassBarSolid</item>
+        <item name="elevation">0dp</item>
         <item name="itemPaddingTop">1dp</item>
         <item name="itemPaddingBottom">1dp</item>
         <item name="itemIconTint">@color/nav_item_icon</item>
@@ -133,7 +188,7 @@
     <style name="Widget.TestTube.BottomNav.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="android:width">56dp</item>
         <item name="android:height">28dp</item>
-        <item name="android:color">@color/accent_container</item>
+        <item name="android:color">?attr/ttNavIndicator</item>
     </style>
 
     <!-- One of the Library's browser-style tabs -->
@@ -156,6 +211,25 @@
         <item name="android:maxLines">1</item>
     </style>
 
+    <!-- One row of a menu: icon and label, a rounded highlight when touched (Niix tints the icon in code) -->
+    <style name="Widget.TestTube.MenuRow" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">52dp</item>
+        <item name="android:layout_marginHorizontal">8dp</item>
+        <item name="android:background">@drawable/bg_menu_row</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">start|center_vertical</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:drawablePadding">20dp</item>
+        <item name="android:drawableTint">?attr/colorOnSurface</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
     <!-- Centred icon and message shown when a list has nothing in it -->
     <style name="Widget.TestTube.EmptyState" parent="">
         <item name="android:layout_width">match_parent</item>
@@ -163,14 +237,19 @@
         <item name="android:gravity">center</item>
         <item name="android:padding">32dp</item>
         <item name="android:drawablePadding">12dp</item>
-        <item name="android:drawableTint">@color/outline</item>
+        <item name="android:drawableTint">?attr/colorOutline</item>
         <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
         <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
         <item name="android:visibility">gone</item>
     </style>
 
-    <!-- Text -->
+    <!--
+        Text. The app's own text appearances take their typeface from the theme (ttFontRegular,
+        ttFontMedium), so they follow the Niix theme's font as well.
+    -->
     <style name="TextAppearance.TestTube.NavLabel" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:fontFamily">?attr/ttFontMedium</item>
+        <item name="fontFamily">?attr/ttFontMedium</item>
         <item name="android:textSize">10sp</item>
     </style>
 
@@ -179,6 +258,8 @@
     </style>
 
     <style name="TextAppearance.TestTube.PageTab" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:fontFamily">?attr/ttFontMedium</item>
+        <item name="fontFamily">?attr/ttFontMedium</item>
         <item name="android:textSize">15sp</item>
         <item name="android:textAllCaps">false</item>
         <item name="textAllCaps">false</item>
@@ -186,6 +267,8 @@
 
     <!-- Small accent heading above a group of settings -->
     <style name="TextAppearance.TestTube.SectionHeader" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:fontFamily">?attr/ttFontMedium</item>
+        <item name="fontFamily">?attr/ttFontMedium</item>
         <item name="android:textColor">?attr/colorPrimary</item>
         <item name="android:textStyle">bold</item>
         <item name="android:letterSpacing">0.04</item>
@@ -205,11 +288,15 @@
 
     <!-- Title and meta lines shared by the Queue, History and Downloads rows -->
     <style name="TextAppearance.TestTube.ListTitle" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">?attr/ttFontRegular</item>
+        <item name="fontFamily">?attr/ttFontRegular</item>
         <item name="android:textColor">?attr/colorOnSurface</item>
         <item name="android:textSize">14sp</item>
     </style>
 
     <style name="TextAppearance.TestTube.ListMeta" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:fontFamily">?attr/ttFontRegular</item>
+        <item name="fontFamily">?attr/ttFontRegular</item>
         <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
         <item name="android:textSize">12sp</item>
     </style>

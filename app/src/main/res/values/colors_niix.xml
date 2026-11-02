@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        The Niix theme, in the niixa.org look: black, dark glass (#121218) with a thin pink edge,
+        and pink #ff0a6c for whatever is selected, on or in progress. Dark only. Icons, labels and
+        menu rows stay in the text colour. Used by Theme.TestTube.Niix (themes_niix.xml).
+    -->
+
+    <color name="niix_brand">#FF0A6C</color>
+    <color name="niix_logo_watermark">#8B0A4A</color>
+    <color name="niix_sponsor_segment">#0AFF9E</color>
+
+    <color name="niix_accent">#FF0A6C</color>
+    <color name="niix_on_accent">#FFFFFF</color>
+    <color name="niix_accent_container">#3D0A20</color>
+    <color name="niix_on_accent_container">#FFD9E6</color>
+
+    <color name="niix_link">#FF4D94</color>
+
+    <color name="niix_neutral">#A0A0AE</color>
+    <color name="niix_on_neutral">#000000</color>
+    <color name="niix_neutral_container">#1E1E26</color>
+    <color name="niix_on_neutral_container">#F2F2F5</color>
+
+    <!-- Page, dark glass, control: the same three tones as the other themes -->
+    <color name="niix_surface">#000000</color>
+    <color name="niix_surface_raised">#121218</color>
+    <color name="niix_surface_control">#1E1E26</color>
+    <color name="niix_on_surface">#F2F2F5</color>
+    <color name="niix_on_surface_variant">#A0A0AE</color>
+    <color name="niix_outline">#34343E</color>
+    <color name="niix_outline_variant">#24242C</color>
+
+    <color name="niix_glass_bar">#C7000000</color>
+    <color name="niix_glass_bar_solid">#000000</color>
+    <!-- The thin pink edge of the glass (bars and dialogs) -->
+    <color name="niix_glass_edge">#59FF0A6C</color>
+    <color name="niix_glass_dialog">#E6121218</color>
+    <color name="niix_glass_dialog_page">#F2000000</color>
+
+    <color name="niix_nav_indicator">#29FF0A6C</color>
+    <color name="niix_text_highlight">#66FF0A6C</color>
+    <color name="niix_swipe_background">#121218</color>
+
+    <color name="niix_inverse_surface">#F2F2F5</color>
+    <color name="niix_inverse_on_surface">#000000</color>
+
+    <color name="niix_error">#FF3B6B</color>
+    <color name="niix_on_error">#FFFFFF</color>
+    <color name="niix_error_container">#4A0B1C</color>
+    <color name="niix_on_error_container">#FFD9E0</color>
+</resources>

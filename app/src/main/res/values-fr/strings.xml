@@ -28,6 +28,7 @@
     <string name="copy">Copier</string>
     <string name="debug_info_copied">Infos de débogage copiées dans le presse-papiers</string>
     <string name="subtitles">Sous-titres</string>
+    <string name="subtitle_auto_generated">%1$s (générés automatiquement)</string>
     <string name="subtitles_on">Sous-titres activés</string>
     <string name="subtitles_off">Sous-titres désactivés</string>
     <string name="no_subtitles">Aucun sous-titre disponible</string>
@@ -191,6 +192,8 @@
     <string name="setting_shorts_summary">Accueil, recherche et chaînes</string>
     <string name="setting_subscriptions">Onglet Abonnements</string>
     <string name="setting_subscriptions_summary">Onglet dans la barre du bas</string>
+    <string name="setting_search_only_home">Accueil recherche seule</string>
+    <string name="setting_search_only_home_summary">Juste le logo et une barre de recherche, sans vidéos suggérées</string>
     <string name="setting_grey_watched">Griser les vidéos vues</string>
     <string name="setting_grey_watched_summary">Assombrit les vidéos vues</string>
     <string name="setting_watched_dim_description">Niveau d\'assombrissement des vidéos vues</string>
@@ -265,7 +268,7 @@
     <string name="subs_unfollow_confirm">Ne plus suivre %s ?</string>
     <string name="subs_use_account">Utiliser mon compte YouTube</string>
     <string name="subs_use_local">Utiliser mes chaînes suivies</string>
-    <string name="swipe_added">Ajouté</string>
+    <string name="swipe_add">Ajouter</string>
     <string name="swipe_already_following">Déjà suivie</string>
     <string name="swipe_follow">Suivre</string>
     <string name="swipe_follow_title">Suivre %s ?</string>

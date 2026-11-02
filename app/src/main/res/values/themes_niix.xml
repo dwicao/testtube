@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        The Niix theme, in the niixa.org look: black, dark glass (#121218) with a thin pink edge,
+        pink #ff0a6c for whatever is selected, on or in progress, and JetBrains Mono for all text.
+        Dark only: choosing it sets the app to night mode (AppSettings.Theme.NIIX), and this theme
+        gives every colour role of the Dark theme a Niix value (colors_niix.xml).
+    -->
+    <style name="Theme.TestTube.Niix" parent="Theme.TestTube">
+        <item name="colorPrimary">@color/niix_accent</item>
+        <item name="colorOnPrimary">@color/niix_on_accent</item>
+        <item name="colorPrimaryContainer">@color/niix_accent_container</item>
+        <item name="colorOnPrimaryContainer">@color/niix_on_accent_container</item>
+        <item name="colorSecondary">@color/niix_neutral</item>
+        <item name="colorOnSecondary">@color/niix_on_neutral</item>
+        <item name="colorSecondaryContainer">@color/niix_neutral_container</item>
+        <item name="colorOnSecondaryContainer">@color/niix_on_neutral_container</item>
+        <item name="colorTertiary">@color/niix_accent</item>
+        <item name="colorOnTertiary">@color/niix_on_accent</item>
+        <item name="colorTertiaryContainer">@color/niix_accent_container</item>
+        <item name="colorOnTertiaryContainer">@color/niix_on_accent_container</item>
+        <item name="colorError">@color/niix_error</item>
+        <item name="colorOnError">@color/niix_on_error</item>
+        <item name="colorErrorContainer">@color/niix_error_container</item>
+        <item name="colorOnErrorContainer">@color/niix_on_error_container</item>
+
+        <item name="android:windowBackground">@color/niix_surface</item>
+        <item name="android:colorBackground">@color/niix_surface</item>
+        <item name="colorOnBackground">@color/niix_on_surface</item>
+        <item name="colorSurface">@color/niix_surface</item>
+        <item name="colorOnSurface">@color/niix_on_surface</item>
+        <item name="colorSurfaceVariant">@color/niix_surface_control</item>
+        <item name="colorOnSurfaceVariant">@color/niix_on_surface_variant</item>
+        <item name="colorSurfaceInverse">@color/niix_inverse_surface</item>
+        <item name="colorOnSurfaceInverse">@color/niix_inverse_on_surface</item>
+        <item name="colorSurfaceContainerLowest">@color/niix_surface</item>
+        <item name="colorSurfaceContainerLow">@color/niix_surface</item>
+        <item name="colorSurfaceContainer">@color/niix_surface_raised</item>
+        <item name="colorSurfaceContainerHigh">@color/niix_surface_raised</item>
+        <item name="colorSurfaceContainerHighest">@color/niix_surface_control</item>
+        <item name="colorOutline">@color/niix_outline</item>
+        <item name="colorOutlineVariant">@color/niix_outline_variant</item>
+
+        <item name="colorAccent">@color/niix_accent</item>
+        <item name="colorControlActivated">@color/niix_accent</item>
+        <item name="android:colorControlActivated">@color/niix_accent</item>
+        <item name="android:textColorHighlight">@color/niix_text_highlight</item>
+        <item name="android:textColorLink">@color/niix_link</item>
+        <item name="android:textColorHint">@color/niix_on_surface_variant</item>
+
+        <item name="ttBrand">@color/niix_brand</item>
+        <item name="ttLogoWatermark">@color/niix_logo_watermark</item>
+        <item name="ttSponsorSegment">@color/niix_sponsor_segment</item>
+        <item name="ttGlassBar">@color/niix_glass_bar</item>
+        <item name="ttGlassBarSolid">@color/niix_glass_bar_solid</item>
+        <item name="ttGlassHairline">@color/niix_glass_edge</item>
+        <item name="ttGlassEdge">@color/niix_glass_edge</item>
+        <item name="ttGlassDialog">@color/niix_glass_dialog</item>
+        <item name="ttGlassSheet">@color/niix_glass_dialog</item>
+        <item name="ttGlassDialogPage">@color/niix_glass_dialog_page</item>
+        <item name="ttNavIndicator">@color/niix_nav_indicator</item>
+        <item name="ttLibraryPage">@color/niix_surface</item>
+        <item name="ttSettingsGroup">@android:color/transparent</item>
+        <item name="ttSwipeBackground">@color/niix_swipe_background</item>
+        <!-- The logo and Add / Follow on a swiped row, in the pink -->
+        <item name="ttSwipeContent">@color/niix_accent</item>
+        <item name="ttCommentAuthor">@color/niix_accent</item>
+
+        <!-- JetBrains Mono everywhere, like niixa.org: the default, every type role and the app's own -->
+        <item name="android:fontFamily">@font/jetbrains_mono</item>
+        <item name="fontFamily">@font/jetbrains_mono</item>
+        <item name="ttFontRegular">@font/jetbrains_mono</item>
+        <item name="ttFontMedium">@font/jetbrains_mono</item>
+        <item name="ttFontMono">@font/jetbrains_mono</item>
+        <item name="textAppearanceDisplayLarge">@style/TextAppearance.TestTube.Niix.DisplayLarge</item>
+        <item name="textAppearanceDisplayMedium">@style/TextAppearance.TestTube.Niix.DisplayMedium</item>
+        <item name="textAppearanceDisplaySmall">@style/TextAppearance.TestTube.Niix.DisplaySmall</item>
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.TestTube.Niix.HeadlineLarge</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.TestTube.Niix.HeadlineMedium</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.TestTube.Niix.HeadlineSmall</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.TestTube.Niix.TitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.TestTube.Niix.TitleMedium</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.TestTube.Niix.TitleSmall</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.TestTube.Niix.BodyLarge</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.TestTube.Niix.BodyMedium</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.TestTube.Niix.BodySmall</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.TestTube.Niix.LabelLarge</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.TestTube.Niix.LabelMedium</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.TestTube.Niix.LabelSmall</item>
+    </style>
+
+    <!-- The Material type scale in JetBrains Mono -->
+    <style name="TextAppearance.TestTube.Niix.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge">
+        <item name="android:fontFamily">@font/jetbrains_mono</item>
+        <item name="fontFamily">@font/jetbrains_mono</item>
+    </style>
+
+    <style name="TextAppearance.TestTube.Niix.DisplayMedium" parent="TextAppearance.Material3.DisplayMedium">
+        <item name="android:fontFamily">@font/jetbrains_mono</item>
+        <item name="fontFamily">@font/jetbrains_mono</item>
+    </style>
+
+    <style name="TextAppearance.TestTube.Niix.DisplaySmall" parent="TextAppearance.Material3.DisplaySmall">
+        <item name="android:fontFamily">@font/jetbrains_mono</item>
+        <item name="fontFamily">@font/jetbrains_mono</item>
+    </style>
+
+    <style name="TextAppearance.TestTube.Niix.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="android:fontFamily">@font/jetbrains_mono</item>
+        <item name="fontFamily">@font/jetbrains_mono</item>
+    </style>
+
+    <style name="TextAppearance.TestTube.Niix.HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:fontFamily">@font/jetbrains_mono</item>
+        <item name="fontFamily">@font/jetbrains_mono</item>
+    </style>
+
+    <style name="TextAppearance.TestTube.Niix.HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:fontFamily">@font/jetbrains_mono</item>
+        <item name="fontFamily">@font/jetbrains_mono</item>
+    </style>
+
+    <style name="TextAppearance.TestTube.Niix.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:fontFamily">@font/jetbrains_mono</item>
+        <item name="fontFamily">@font/jetbrains_mono</item>
+    </style>
+
+    <style name="TextAppearance.TestTube.Niix.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:fontFamily">@font/jetbrains_mono</item>
+        <item name="fontFamily">@font/jetbrains_mono</item>
+    </style>
+
+    <style name="TextAppearance.TestTube.Niix.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:fontFamily">@font/jetbrains_mono</item>
+        <item name="fontFamily">@font/jetbrains_mono</item>
+    </style>
+
+    <style name="TextAppearance.TestTube.Niix.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:fontFamily">@font/jetbrains_mono</item>
+        <item name="fontFamily">@font/jetbrains_mono</item>
+    </style>
+
+    <style name="TextAppearance.TestTube.Niix.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/jetbrains_mono</item>
+        <item name="fontFamily">@font/jetbrains_mono</item>
+    </style>
+
+    <style name="TextAppearance.TestTube.Niix.BodySmall" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:fontFamily">@font/jetbrains_mono</item>
+        <item name="fontFamily">@font/jetbrains_mono</item>
+    </style>
+
+    <style name="TextAppearance.TestTube.Niix.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:fontFamily">@font/jetbrains_mono</item>
+        <item name="fontFamily">@font/jetbrains_mono</item>
+    </style>
+
+    <style name="TextAppearance.TestTube.Niix.LabelMedium" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:fontFamily">@font/jetbrains_mono</item>
+        <item name="fontFamily">@font/jetbrains_mono</item>
+    </style>
+
+    <style name="TextAppearance.TestTube.Niix.LabelSmall" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">@font/jetbrains_mono</item>
+        <item name="fontFamily">@font/jetbrains_mono</item>
+    </style>
+</resources>

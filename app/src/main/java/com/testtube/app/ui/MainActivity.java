@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -41,7 +42,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.tencent.mmkv.MMKV;
 import com.testtube.app.AppGraph;
 import com.testtube.app.AppSettings;
@@ -76,6 +76,8 @@ import com.testtube.app.ui.feed.WatchPanel;
 import com.testtube.app.ui.library.LibraryScreen;
 import com.testtube.app.ui.queue.QueueAdapter;
 import com.testtube.app.ui.queue.QueueTouch;
+import com.testtube.app.ui.widget.BlurTarget;
+import com.testtube.app.ui.widget.GlassBackground;
 import com.testtube.app.update.UpdateManager;
 import com.testtube.app.util.CrashLog;
 import com.testtube.app.util.DeviceUtils;
@@ -100,6 +102,7 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 	private static final String STATE_LAST_URL = "main.last_url";
 	private static final Pattern SHARED_URL = Pattern.compile("https?://[\\w./?=&%#-]+", Pattern.CASE_INSENSITIVE);
 	private static final long WARM_UP_DELAY_MS = 1_500L;
+	private static final float GLASS_BLUR_DP = 24f;
 	private final Handler handler = new Handler(Looper.getMainLooper());
 	private final Consumer<PlaybackDetails> extrasListener = details -> handler.post(() -> {
 		if (this.player != null) this.player.onExtras(details);
@@ -151,6 +154,8 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 	@Nullable
 	private BottomNavigationView bottomNav;
 	@Nullable
+	private BottomChrome bottomChrome;
+	@Nullable
 	private ViewGroup libraryContainer;
 	@Nullable
 	private ViewGroup shortsContainer;
@@ -197,6 +202,9 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
+		// The chosen theme (Niix has its own). Before super.onCreate, or the damn thing gets built
+		// with the manifest's theme first
+		setTheme(AppSettings.theme().style);
 		EdgeToEdge.enable(this);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
@@ -255,7 +263,13 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 		aiChannels.start();
 		View.OnClickListener aboutClick = v -> SettingsDialog.showSettings(this, updates, aiChannels,
 						app.playerPreferences(), contentFilters, this::onShortsSettingChanged, this::onSettingsSaved);
+		// The chosen theme's logo (Niix has the pink play); the layout shows the standard one
+		int logo = AppSettings.theme().logo;
+		((ImageView) browserView.findViewById(R.id.browser_logo)).setImageResource(logo);
+		((ImageView) browserView.findViewById(R.id.browser_start_logo)).setImageResource(logo);
 		browserView.findViewById(R.id.browser_logo).setOnClickListener(aboutClick);
+		// The search-only Home has no top bar; its big logo opens the settings instead
+		browserView.findViewById(R.id.browser_start_logo).setOnClickListener(aboutClick);
 		browserView.findViewById(R.id.browser_title).setOnClickListener(aboutClick);
 		// On the very first start the update check waits until the welcome dialog is closed
 		if (AppSettings.welcomeShown()) updates.checkOnStart(this);
@@ -363,6 +377,7 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 		pageContainer = findViewById(R.id.page_container);
 		View pageView = getLayoutInflater().inflate(R.layout.view_page, (ViewGroup) pageContainer, true);
 		pageScreen = new PageScreen(pageView, app.pageSource(), contentFilters, feedHost, visible -> updateContainers());
+		setupGlassBars(mainView);
 		player.setDetailsListener(details -> {
 			if (watchPanel != null) watchPanel.onDetails(details);
 		});
@@ -469,7 +484,7 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 		int left = FOLLOW_REMINDER_COUNT - 1 - shown;
 		String indicator = left == 0 ? getString(R.string.swipe_last_reminder)
 						: getResources().getQuantityString(R.plurals.swipe_more_reminders, left, left);
-		new MaterialAlertDialogBuilder(this)
+		Dialogs.builder(this)
 						.setTitle(getString(R.string.swipe_follow_title, name))
 						.setMessage(indicator)
 						.setPositiveButton(R.string.watch_follow, (d, which) -> followChannel(item))
@@ -713,8 +728,44 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 				viewModel.clearQueue();
 			}
 		});
+		if (bottomChrome != null) {
+			bottomChrome.addAll(view, R.id.panel_queue_list, R.id.panel_queue_empty, R.id.history_list,
+							R.id.history_empty, R.id.download_list, R.id.download_empty);
+		}
 		MainActivityViewModel.UiState state = uiState();
 		libraryScreen.renderQueue(state.items(), state.videoId());
+	}
+
+	/**
+	 * The mini player and the bottom bar become frosted glass over Home, Subscriptions, the Library
+	 * and channel pages, and those lists scroll on under them.
+	 */
+	private void setupGlassBars(@NonNull View root) {
+		View miniBar = findViewById(R.id.mini_bar);
+		if (miniBar == null || bottomNav == null) return;
+		BlurTarget[] targets = blurTargets();
+		float blurPx = GLASS_BLUR_DP * getResources().getDisplayMetrics().density;
+		int glass = ViewUtils.themeColor(this, R.attr.ttGlassBar);
+		int solid = ViewUtils.themeColor(this, R.attr.ttGlassBarSolid);
+		int base = ViewUtils.themeColor(this, com.google.android.material.R.attr.colorSurface);
+		int hairline = ViewUtils.themeColor(this, R.attr.ttGlassHairline);
+		GlassBackground.install(miniBar, glass, solid, base, hairline, blurPx, targets);
+		GlassBackground.install(bottomNav, glass, solid, base, hairline, blurPx, targets);
+		// A translucent bar would show its own shadow through itself, and that looks like crap
+		miniBar.setElevation(0f);
+		bottomNav.setElevation(0f);
+		bottomChrome = new BottomChrome(root, miniBar, bottomNav);
+		bottomChrome.addAll(nativeContainer, R.id.browser_list, R.id.browser_message, R.id.browser_start);
+		bottomChrome.addAll(pageContainer, R.id.page_list, R.id.page_message);
+	}
+
+	@NonNull
+	private BlurTarget[] blurTargets() {
+		List<BlurTarget> targets = new ArrayList<>(3);
+		for (View container : new View[]{nativeContainer, libraryContainer, pageContainer}) {
+			if (container instanceof BlurTarget target) targets.add(target);
+		}
+		return targets.toArray(new BlurTarget[0]);
 	}
 
 	private void setupWatchDrag(@NonNull View root) {
@@ -861,7 +912,7 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 
 			@Override
 			public void onDeleteRequested(@NonNull QueueItem item) {
-				new MaterialAlertDialogBuilder(MainActivity.this)
+				Dialogs.builder(MainActivity.this)
 								.setMessage(R.string.remove_queue_item_confirmation)
 								.setPositiveButton(R.string.confirm, (d, which) -> {
 									String videoId = item.getVideoId();
@@ -937,7 +988,7 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 			PlayerLoopMode newMode = uiState().loopMode().next();
 			player.setLoopMode(newMode);
 		});
-		clearButton.setOnClickListener(v -> new MaterialAlertDialogBuilder(this)
+		clearButton.setOnClickListener(v -> Dialogs.builder(this)
 						.setMessage(R.string.clear_queue_confirmation)
 						.setPositiveButton(R.string.confirm, (d, which) -> viewModel.clearQueue())
 						.setNegativeButton(R.string.cancel, null)
@@ -1180,6 +1231,7 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 		if (nativeBrowser != null) nativeBrowser.release();
 		if (shortsScreen != null) shortsScreen.release();
 		if (libraryScreen != null) libraryScreen.release();
+		if (bottomChrome != null) bottomChrome.release();
 		if (serviceConnection != null) unbindService(serviceConnection);
 		if ((!isChangingConfigurations() || recreatingForTheme) && player != null) player.release();
 		// Closed for good (not rebuilt): the player above let go of the video cache by now

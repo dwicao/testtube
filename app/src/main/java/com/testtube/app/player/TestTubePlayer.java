@@ -221,7 +221,7 @@ public class TestTubePlayer {
 
 	private void updateServiceProgress(boolean isPlaying) {
 		if (playbackSvc != null) {
-			playbackSvc.updateProgress(engine.position(), engine.getPlaybackRate(), isPlaying);
+			playbackSvc.updateProgress(engine.position(), engine.getPlaybackRate(), isPlaying, engine.wantsToPlay());
 		}
 	}
 

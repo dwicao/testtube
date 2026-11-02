@@ -12,10 +12,10 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.tencent.mmkv.MMKV;
 import com.testtube.app.Constant;
 import com.testtube.app.R;
+import com.testtube.app.ui.Dialogs;
 import com.testtube.app.downloader.ui.DownloadsList;
 import com.testtube.app.history.LocalHistoryController;
 import com.testtube.app.history.WatchHistory;
@@ -211,7 +211,7 @@ public final class LibraryScreen {
 
 	private void confirmClear() {
 		switch (page) {
-			case QUEUE -> new MaterialAlertDialogBuilder(activity)
+			case QUEUE -> Dialogs.builder(activity)
 							.setTitle(R.string.clear_queue)
 							.setMessage(R.string.clear_queue_confirmation)
 							.setNegativeButton(R.string.cancel, null)

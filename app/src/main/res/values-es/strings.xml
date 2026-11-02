@@ -47,6 +47,7 @@
     <string name="playback_end_pause">Pausar al final</string>
     <string name="playback_end_playlist_random">Reproducción aleatoria de la lista</string>
     <string name="subtitles">Subtítulos</string>
+    <string name="subtitle_auto_generated">%1$s (generados automáticamente)</string>
     <string name="subtitles_on">Subtítulos activados</string>
     <string name="subtitles_off">Subtítulos desactivados</string>
     <string name="no_subtitles">Sin subtítulos</string>
@@ -193,6 +194,8 @@
     <string name="setting_shorts_summary">En Inicio, en la búsqueda y en canales</string>
     <string name="setting_subscriptions">Pestaña Suscripciones</string>
     <string name="setting_subscriptions_summary">Pestaña en la barra inferior</string>
+    <string name="setting_search_only_home">Inicio solo con búsqueda</string>
+    <string name="setting_search_only_home_summary">Solo el logotipo y una barra de búsqueda, sin vídeos sugeridos</string>
     <string name="setting_grey_watched">Atenuar vídeos vistos</string>
     <string name="setting_grey_watched_summary">Atenúa los vídeos ya vistos</string>
     <string name="setting_watched_dim_description">Cuánto se oscurecen los vídeos vistos</string>
@@ -267,7 +270,7 @@
     <string name="subs_unfollow_confirm">¿Dejar de seguir a %s?</string>
     <string name="subs_use_account">Usar mi cuenta de YouTube</string>
     <string name="subs_use_local">Usar mis canales seguidos</string>
-    <string name="swipe_added">Añadido</string>
+    <string name="swipe_add">Añadir</string>
     <string name="swipe_already_following">Ya lo sigues</string>
     <string name="swipe_follow">Seguir</string>
     <string name="swipe_follow_title">¿Seguir a %s?</string>

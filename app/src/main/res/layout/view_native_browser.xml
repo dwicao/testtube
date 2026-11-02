@@ -7,6 +7,7 @@
     android:orientation="vertical">
 
     <LinearLayout
+        android:id="@+id/browser_top_bar"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:gravity="center_vertical"
@@ -21,7 +22,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/app_icon_settings"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_app_badge" />
+            android:src="@drawable/ic_logo_mark" />
 
         <TextView
             android:id="@+id/browser_title"
@@ -117,6 +118,7 @@
             android:layout_height="match_parent">
 
             <ImageView
+                android:id="@+id/browser_watermark"
                 android:layout_width="240dp"
                 android:layout_height="240dp"
                 android:layout_gravity="center"
@@ -124,7 +126,7 @@
                 android:contentDescription="@null"
                 android:importantForAccessibility="no"
                 android:src="@drawable/ic_testtube_logo"
-                android:tint="@color/logo_watermark" />
+                android:tint="?attr/ttLogoWatermark" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/browser_list"
@@ -143,6 +145,71 @@
                 android:textAppearance="?attr/textAppearanceBodyLarge"
                 android:textColor="?attr/colorOnSurfaceVariant"
                 android:visibility="gone" />
+
+            <!-- Search-only Home: the logo, the name and a search bar, nothing suggested -->
+            <LinearLayout
+                android:id="@+id/browser_start"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="48dp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingHorizontal="24dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/browser_start_logo"
+                    android:layout_width="112dp"
+                    android:layout_height="112dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/app_icon_settings"
+                    android:src="@drawable/ic_logo_mark" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/app_name"
+                    android:textAppearance="?attr/textAppearanceHeadlineMedium"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="28dp"
+                    android:background="@drawable/bg_search_pill"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="8dp">
+
+                    <EditText
+                        android:id="@+id/browser_start_field"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:hint="@string/search_hint"
+                        android:imeOptions="actionSearch"
+                        android:importantForAutofill="no"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textColorHint="?attr/colorOnSurfaceVariant"
+                        android:textSize="16sp" />
+
+                    <ImageButton
+                        android:id="@+id/browser_start_search"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/action_search"
+                        android:src="@drawable/ic_search"
+                        app:tint="?attr/colorOnSurface" />
+                </LinearLayout>
+            </LinearLayout>
         </FrameLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </LinearLayout>

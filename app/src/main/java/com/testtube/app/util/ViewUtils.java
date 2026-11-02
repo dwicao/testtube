@@ -1,6 +1,9 @@
 package com.testtube.app.util;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.content.res.Resources;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 import android.view.View;
@@ -9,11 +12,17 @@ import android.widget.TextView;
 import androidx.annotation.AttrRes;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.ColorUtils;
+
+import com.testtube.app.R;
 
 public final class ViewUtils {
 	private static final float ALPHA_VISIBLE = 1.0f;
 	private static final float ALPHA_INVISIBLE = 0.0f;
 	private static final long FADE_IN_MS = 160L;
+	/** 38%, Material's opacity for disabled content */
+	private static final int DISABLED_ALPHA = 97;
 
 	private ViewUtils() {
 	}
@@ -24,6 +33,53 @@ public final class ViewUtils {
 		TypedValue value = new TypedValue();
 		context.getTheme().resolveAttribute(attr, value, true);
 		return value.data;
+	}
+
+	/**
+	 * Colours an on/off option button (Video, Audio only, Subtitles…): filled in the accent with
+	 * its text in the colour on the accent when on, a quiet grey with normal text when off, faded
+	 * when disabled. Text and fill change together, so the label stays readable in both themes.
+	 */
+	public static void paintToggle(@NonNull TextView button, boolean on) {
+		Context context = button.getContext();
+		int fill = themeColor(context, on
+						? androidx.appcompat.R.attr.colorPrimary
+						: com.google.android.material.R.attr.colorSurfaceContainerHighest);
+		int text = themeColor(context, on
+						? com.google.android.material.R.attr.colorOnPrimary
+						: com.google.android.material.R.attr.colorOnSurface);
+		button.setBackgroundTintList(fadedWhenDisabled(fill));
+		button.setTextColor(fadedWhenDisabled(text));
+	}
+
+	@NonNull
+	private static ColorStateList fadedWhenDisabled(int color) {
+		return new ColorStateList(
+						new int[][]{new int[]{-android.R.attr.state_enabled}, new int[]{}},
+						new int[]{ColorUtils.setAlphaComponent(color, DISABLED_ALPHA), color});
+	}
+
+	/**
+	 * The theme's typeface (ttFontRegular: the system font, or JetBrains Mono in the Niix theme)
+	 * in the given style, such as {@link Typeface#BOLD}. For text styled in code, because
+	 * {@code setTypeface(null, style)} quietly falls back to the system font. Pain in the ass.
+	 */
+	@NonNull
+	public static Typeface appTypeface(@NonNull Context context, int style) {
+		Typeface family = null;
+		TypedValue value = new TypedValue();
+		if (context.getTheme().resolveAttribute(R.attr.ttFontRegular, value, true)) {
+			if (value.resourceId != 0) {
+				try {
+					family = ResourcesCompat.getFont(context, value.resourceId);
+				} catch (Resources.NotFoundException e) {
+					// A bundled font that can't be read: the system font below
+				}
+			} else if (value.string != null) {
+				family = Typeface.create(value.string.toString(), Typeface.NORMAL);
+			}
+		}
+		return Typeface.create(family != null ? family : Typeface.DEFAULT, style);
 	}
 
 	/** Gives a TextView's icons (drawableStart, drawableTop…) one square size. */

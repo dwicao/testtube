@@ -7,9 +7,9 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 
 import com.testtube.app.R;
+import com.testtube.app.util.ViewUtils;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +21,7 @@ public class SponsorOverlayView extends View {
 
 	public SponsorOverlayView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		paint.setColor(ContextCompat.getColor(context, R.color.sponsor_segment));
+		paint.setColor(ViewUtils.themeColor(context, R.attr.ttSponsorSegment));
 		paint.setStyle(Paint.Style.FILL);
 	}
 

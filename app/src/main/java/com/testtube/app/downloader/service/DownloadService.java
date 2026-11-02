@@ -10,6 +10,7 @@ import android.content.pm.ServiceInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,6 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @UnstableApi
 public class DownloadService extends Service {
+	private static final String TAG = "DownloadService";
 	public static final String ACTION_DOWNLOAD_RECORD_UPDATED = "com.testtube.app.action.DOWNLOAD_RECORD_UPDATED";
 	/** Opens the app on the Library's Downloads tab (the notification's tap action). */
 	public static final String ACTION_OPEN_DOWNLOADS = "OPEN_DOWNLOADS";
@@ -324,11 +326,29 @@ public class DownloadService extends Service {
 						.setPriority(NotificationCompat.PRIORITY_DEFAULT)
 						.setOngoing(true);
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-			startForeground(NOTIFICATION_ID, notificationBuilder.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
-		} else {
-			startForeground(NOTIFICATION_ID, notificationBuilder.build());
+		try {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+				startForeground(NOTIFICATION_ID, notificationBuilder.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
+			} else {
+				startForeground(NOTIFICATION_ID, notificationBuilder.build());
+			}
+		} catch (IllegalStateException e) {
+			// Android 12+ refuses this while the app is in the background (the next part of a
+			// playlist download, say). The open app keeps the service bound, so the download goes
+			// on; only the notification isn't a foreground one.
+			Log.w(TAG, "download notification not in the foreground: " + e.getMessage());
+			notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
 		}
+	}
+
+	/**
+	 * Android 15+ gives data downloads 6 hours a day in the foreground. When that's used up the
+	 * service has to step back right away, or the system closes the app.
+	 */
+	@Override
+	public void onTimeout(int startId, int fgsType) {
+		stopForeground(STOP_FOREGROUND_DETACH);
+		stopSelf();
 	}
 
 	private synchronized void updateNotificationProgress(String fileName, int progress) {

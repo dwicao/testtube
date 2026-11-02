@@ -1,8 +1,11 @@
 package com.testtube.app;
 
+import androidx.annotation.ColorRes;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.annotation.StyleRes;
 import androidx.appcompat.app.AppCompatDelegate;
 
 import com.tencent.mmkv.MMKV;
@@ -33,6 +36,7 @@ public final class AppSettings {
 	private static final String KEY_THEME = "app_theme";
 	private static final String KEY_WELCOME_VERSION = "welcome_version";
 	private static final String KEY_CLEAR_CACHE_ON_EXIT = "clear_cache_on_exit";
+	private static final String KEY_SEARCH_ONLY_HOME = "search_only_home";
 	private static final int MIN_WATCHED_DIM = 20;
 	private static final int MAX_WATCHED_DIM = 90;
 	private static final int WATCHED_DIM_STEP = 5;
@@ -63,6 +67,7 @@ public final class AppSettings {
 	@NonNull
 	private static volatile Theme theme = Theme.SYSTEM;
 	private static volatile boolean clearCacheOnExit;
+	private static volatile boolean searchOnlyHome;
 
 	private AppSettings() {
 	}
@@ -246,20 +251,36 @@ public final class AppSettings {
 		MMKV.defaultMMKV().encode(KEY_VIDEO_CACHE, cache.name());
 	}
 
-	/** Light or dark colours for the app; the video and Shorts stay dark in both. */
+	/** The app's colours; the video and Shorts stay dark in every one. */
 	public enum Theme {
-		/** Follows the phone's dark theme setting. */
-		SYSTEM(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM, R.string.theme_system),
-		LIGHT(AppCompatDelegate.MODE_NIGHT_NO, R.string.theme_light),
-		DARK(AppCompatDelegate.MODE_NIGHT_YES, R.string.theme_dark);
+		/** Light or Dark, following the phone's dark theme setting. */
+		SYSTEM(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM, R.style.Theme_TestTube, R.drawable.ic_logo_mark, 0, R.string.theme_system),
+		LIGHT(AppCompatDelegate.MODE_NIGHT_NO, R.style.Theme_TestTube, R.drawable.ic_logo_mark, 0, R.string.theme_light),
+		/** Black and grey, black-and-white controls */
+		DARK(AppCompatDelegate.MODE_NIGHT_YES, R.style.Theme_TestTube, R.drawable.ic_logo_mark, 0, R.string.theme_dark),
+		/** The niixa.org look: black, dark glass with a pink edge, pink accents, JetBrains Mono. Dark only. */
+		NIIX(AppCompatDelegate.MODE_NIGHT_YES, R.style.Theme_TestTube_Niix, R.drawable.ic_logo_mark_niix, R.color.niix_accent, R.string.theme_niix);
 
 		/** For {@link AppCompatDelegate#setDefaultNightMode(int)}. */
 		public final int nightMode;
+		/** The activity theme, set before the screen is built. */
+		@StyleRes
+		public final int style;
+		/** The in-app logo (the Niix one has the pink play). */
+		@DrawableRes
+		public final int logo;
+		/** The colour of the icons in menus, or 0 for the text colour. */
+		@ColorRes
+		public final int menuIcon;
 		@StringRes
 		public final int label;
 
-		Theme(int nightMode, @StringRes int label) {
+		Theme(int nightMode, @StyleRes int style, @DrawableRes int logo, @ColorRes int menuIcon,
+		      @StringRes int label) {
 			this.nightMode = nightMode;
+			this.style = style;
+			this.logo = logo;
+			this.menuIcon = menuIcon;
 			this.label = label;
 		}
 	}
@@ -348,6 +369,18 @@ public final class AppSettings {
 		MMKV.defaultMMKV().encode(KEY_CLEAR_CACHE_ON_EXIT, clear);
 	}
 
+	/** Home shows only the logo and a search bar, no suggested videos. Off by default. */
+	public static boolean searchOnlyHome() {
+		load();
+		return searchOnlyHome;
+	}
+
+	public static void setSearchOnlyHome(boolean searchOnly) {
+		load();
+		searchOnlyHome = searchOnly;
+		MMKV.defaultMMKV().encode(KEY_SEARCH_ONLY_HOME, searchOnly);
+	}
+
 	public static boolean welcomeShown() {
 		return MMKV.defaultMMKV().decodeInt(KEY_WELCOME_VERSION, 0) >= WELCOME_VERSION;
 	}
@@ -385,6 +418,7 @@ public final class AppSettings {
 			watchedDim = clampDim(store.decodeInt(KEY_WATCHED_DIM, DEFAULT_WATCHED_DIM));
 			theme = GestureAction.parse(Theme.class, store.decodeString(KEY_THEME, null), Theme.SYSTEM);
 			clearCacheOnExit = store.decodeBool(KEY_CLEAR_CACHE_ON_EXIT, false);
+			searchOnlyHome = store.decodeBool(KEY_SEARCH_ONLY_HOME, false);
 			loaded = true;
 		}
 	}

@@ -22,13 +22,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.R.attr;
 import androidx.appcompat.app.AlertDialog;
 import androidx.media3.common.util.UnstableApi;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.tencent.mmkv.MMKV;
 import com.testtube.app.R;
+import com.testtube.app.ui.Dialogs;
 import com.testtube.app.downloader.core.DownloadPrefs;
 import com.testtube.app.downloader.core.DownloadSelectionConfig;
 import com.testtube.app.downloader.core.DownloadTaskFactory;
@@ -81,8 +80,6 @@ public class DownloadDialog {
 	private AudioStream selectedAudio;
 	private SubtitlesStream selectedSubtitle;
 	private int threadCount = 4;
-	private int primaryColor;
-	private int grayColor;
 	private DownloadService downloadService;
 	private boolean bindingRequested;
 	private boolean isBound;
@@ -143,7 +140,7 @@ public class DownloadDialog {
 		editText.setHorizontallyScrolling(false);
 		editText.setVerticalScrollBarEnabled(true);
 
-		dialog = new MaterialAlertDialogBuilder(context)
+		dialog = Dialogs.builder(context)
 						.setTitle(context.getString(R.string.download))
 						.setView(dialogView)
 						.setCancelable(true)
@@ -156,14 +153,12 @@ public class DownloadDialog {
 		threadsSeekBar.setProgress(threadCount - 1);
 		threadsCountText.setText(String.valueOf(threadCount));
 
-		primaryColor = ViewUtils.themeColor(context, attr.colorPrimary);
-		grayColor = ViewUtils.themeColor(context, com.google.android.material.R.attr.colorSurfaceContainerHighest);
 
 		// Keep options gray until saved state is restored.
-		videoButton.setBackgroundColor(grayColor);
-		audioButton.setBackgroundColor(grayColor);
-		thumbnailButton.setBackgroundColor(grayColor);
-		subtitleButton.setBackgroundColor(grayColor);
+		ViewUtils.paintToggle(videoButton, false);
+		ViewUtils.paintToggle(audioButton, false);
+		ViewUtils.paintToggle(thumbnailButton, false);
+		ViewUtils.paintToggle(subtitleButton, false);
 		restoreSavedState();
 		updateSelectionColors(videoButton, audioButton, thumbnailButton, subtitleButton);
 		executor.submit(() -> {
@@ -208,7 +203,7 @@ public class DownloadDialog {
 		thumbnailButton.setOnClickListener(v -> {
 			thumbEnabled = !thumbEnabled;
 			prefs.setThumbnailEnabled(thumbEnabled);
-			thumbnailButton.setBackgroundColor(thumbEnabled ? primaryColor : grayColor);
+			ViewUtils.paintToggle(thumbnailButton, thumbEnabled);
 		});
 
 		threadsSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -308,7 +303,7 @@ public class DownloadDialog {
 		View v = LayoutInflater.from(context).inflate(R.layout.quality_selector, new FrameLayout(context), false);
 		LinearLayout container = v.findViewById(R.id.quality_container);
 		ProgressBar loading = v.findViewById(R.id.loadingBar2);
-		AlertDialog d = new MaterialAlertDialogBuilder(context).setTitle(R.string.video_quality).setView(v).create();
+		AlertDialog d = Dialogs.builder(context).setTitle(R.string.video_quality).setView(v).create();
 		v.findViewById(R.id.button_cancel).setOnClickListener(v1 -> d.dismiss());
 
 		executor.submit(() -> {
@@ -354,12 +349,12 @@ public class DownloadDialog {
 			videoEnabled = refs[0] != null;
 			prefs.setSingleVideoEnabled(videoEnabled);
 			if (videoEnabled) prefs.saveVideoSelection(selectedVideo);
-			btn.setBackgroundColor(videoEnabled ? primaryColor : grayColor);
+			ViewUtils.paintToggle(btn, videoEnabled);
 			if (videoEnabled) {
 				List<AudioStream> audioStreams = audioChoices();
 				if (audioStreams.size() > 1) {
 					showAudioTrackSelectionForVideo(audioStreams, () -> {
-						btn.setBackgroundColor(primaryColor);
+						ViewUtils.paintToggle(btn, true);
 						d.dismiss();
 					});
 				} else {
@@ -367,11 +362,11 @@ public class DownloadDialog {
 					if (!audioStreams.isEmpty()) selectedAudio = audioStreams.get(0);
 					prefs.setSingleAudioEnabled(audioEnabled);
 					if (audioEnabled) prefs.saveAudioSelection(selectedAudio);
-					btn.setBackgroundColor(primaryColor);
+					ViewUtils.paintToggle(btn, true);
 					d.dismiss();
 				}
 			} else {
-				btn.setBackgroundColor(grayColor);
+				ViewUtils.paintToggle(btn, false);
 				d.dismiss();
 			}
 		});
@@ -382,7 +377,7 @@ public class DownloadDialog {
 		LinearLayout container = v.findViewById(R.id.quality_container);
 		v.findViewById(R.id.loadingBar2).setVisibility(View.GONE);
 
-		AlertDialog d = new MaterialAlertDialogBuilder(context).setTitle(R.string.audio_track).setView(v).setCancelable(false).create();
+		AlertDialog d = Dialogs.builder(context).setTitle(R.string.audio_track).setView(v).setCancelable(false).create();
 		CheckBox[] refs = new CheckBox[1];
 		streams = audioTrackChoices(streams);
 		selectedAudio = prefs.restoreAudioSelection(streams);
@@ -426,7 +421,7 @@ public class DownloadDialog {
 		View v = LayoutInflater.from(context).inflate(R.layout.quality_selector, new FrameLayout(context), false);
 		LinearLayout container = v.findViewById(R.id.quality_container);
 		ProgressBar loading = v.findViewById(R.id.loadingBar2);
-		AlertDialog d = new MaterialAlertDialogBuilder(context).setTitle(R.string.audio_track).setView(v).create();
+		AlertDialog d = Dialogs.builder(context).setTitle(R.string.audio_track).setView(v).create();
 		v.findViewById(R.id.button_cancel).setOnClickListener(v1 -> d.dismiss());
 
 		executor.submit(() -> {
@@ -476,7 +471,7 @@ public class DownloadDialog {
 			audioEnabled = refs[0] != null;
 			prefs.setSingleAudioEnabled(audioEnabled);
 			if (audioEnabled) prefs.saveAudioSelection(selectedAudio);
-			btn.setBackgroundColor(audioEnabled ? primaryColor : grayColor);
+			ViewUtils.paintToggle(btn, audioEnabled);
 			d.dismiss();
 		});
 	}
@@ -484,7 +479,7 @@ public class DownloadDialog {
 	private void showSubtitleSelectionDialog(Button btn) {
 		View v = LayoutInflater.from(context).inflate(R.layout.quality_selector, new FrameLayout(context), false);
 		LinearLayout container = v.findViewById(R.id.quality_container);
-		AlertDialog d = new MaterialAlertDialogBuilder(context).setTitle(R.string.subtitles).setView(v).create();
+		AlertDialog d = Dialogs.builder(context).setTitle(R.string.subtitles).setView(v).create();
 		v.findViewById(R.id.button_cancel).setOnClickListener(v1 -> d.dismiss());
 
 		executor.submit(() -> {
@@ -521,7 +516,7 @@ public class DownloadDialog {
 			subtitleEnabled = selectedSubtitle != null;
 			prefs.setSubtitleEnabled(subtitleEnabled);
 			if (subtitleEnabled) prefs.saveSubtitleSelection(selectedSubtitle);
-			btn.setBackgroundColor(subtitleEnabled ? primaryColor : grayColor);
+			ViewUtils.paintToggle(btn, subtitleEnabled);
 			d.dismiss();
 		});
 		d.show();
@@ -539,10 +534,10 @@ public class DownloadDialog {
 	}
 
 	private void updateSelectionColors(Button videoButton, Button audioButton, Button thumbnailButton, Button subtitleButton) {
-		videoButton.setBackgroundColor(videoEnabled ? primaryColor : grayColor);
-		audioButton.setBackgroundColor(audioEnabled ? primaryColor : grayColor);
-		thumbnailButton.setBackgroundColor(thumbEnabled ? primaryColor : grayColor);
-		subtitleButton.setBackgroundColor(subtitleEnabled ? primaryColor : grayColor);
+		ViewUtils.paintToggle(videoButton, videoEnabled);
+		ViewUtils.paintToggle(audioButton, audioEnabled);
+		ViewUtils.paintToggle(thumbnailButton, thumbEnabled);
+		ViewUtils.paintToggle(subtitleButton, subtitleEnabled);
 	}
 
 	private void restoreStreamSelections() {

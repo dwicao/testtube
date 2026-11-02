@@ -17,7 +17,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -30,6 +29,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.testtube.app.AppSettings;
 import com.testtube.app.Constant;
 import com.testtube.app.R;
+import com.testtube.app.util.ViewUtils;
 import com.testtube.app.extractor.FeedItem;
 import com.testtube.app.extractor.LocalSubscriptions;
 import com.testtube.app.extractor.PageSource;
@@ -62,7 +62,6 @@ public final class PageScreen {
 	private static final int MAX_PAGES = 6;
 	private static final int FULL_COLLAPSED_LINES = 2;
 	private static final int SIMPLE_COLLAPSED_LINES = 3;
-	private static final String SEPARATOR = " • ";
 	/** Key of a playlist's only list. */
 	private static final String PLAYLIST_LIST = "";
 
@@ -192,8 +191,9 @@ public final class PageScreen {
 			}
 		});
 		back.setOnClickListener(v -> back());
-		refresh.setColorSchemeResources(R.color.accent);
-		refresh.setProgressBackgroundColorSchemeResource(R.color.surface_container_high);
+		refresh.setColorSchemeColors(ViewUtils.themeColor(refresh.getContext(), androidx.appcompat.R.attr.colorPrimary));
+		refresh.setProgressBackgroundColorSchemeColor(ViewUtils.themeColor(refresh.getContext(),
+						com.google.android.material.R.attr.colorSurfaceContainerHigh));
 		refresh.setOnRefreshListener(() -> {
 			Entry entry = stack.peekLast();
 			if (entry != null) loadPage(entry);
@@ -759,7 +759,7 @@ public final class PageScreen {
 				if (h.subtitle() != null && !h.subtitle().isBlank()) parts.add(h.subtitle());
 				if (h.count() >= 0) parts.add(context.getString(R.string.feed_videos, StringUtils.compactCount(h.count())));
 			}
-			return String.join(SEPARATOR, parts);
+			return String.join(StringUtils.META_SEPARATOR, parts);
 		}
 
 		private void bindVerified(@NonNull Context context, @NonNull PageSource.Header h) {
@@ -852,9 +852,12 @@ public final class PageScreen {
 		private void styleFollow(@NonNull MaterialButton button, boolean following) {
 			Context context = button.getContext();
 			button.setText(following ? R.string.watch_following : R.string.watch_follow);
-			button.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context,
-							following ? R.color.surface_container_highest : R.color.inverse_surface)));
-			button.setTextColor(ContextCompat.getColor(context, following ? R.color.on_surface : R.color.inverse_on_surface));
+			button.setBackgroundTintList(ColorStateList.valueOf(ViewUtils.themeColor(context, following
+							? com.google.android.material.R.attr.colorSurfaceContainerHighest
+							: com.google.android.material.R.attr.colorSurfaceInverse)));
+			button.setTextColor(ViewUtils.themeColor(context, following
+							? com.google.android.material.R.attr.colorOnSurface
+							: com.google.android.material.R.attr.colorOnSurfaceInverse));
 		}
 
 		private void bindPlayAll(@NonNull Entry entry, @NonNull PageSource.Header h) {

@@ -47,6 +47,7 @@
     <string name="playback_end_pause">Bitince durdur</string>
     <string name="playback_end_playlist_random">Listeyi karışık çal</string>
     <string name="subtitles">Altyazılar</string>
+    <string name="subtitle_auto_generated">%1$s (otomatik oluşturuldu)</string>
     <string name="subtitles_on">Altyazılar açık</string>
     <string name="subtitles_off">Altyazılar kapalı</string>
     <string name="no_subtitles">Altyazı yok</string>
@@ -193,6 +194,8 @@
     <string name="setting_shorts_summary">Ana sayfada, aramada ve kanallarda</string>
     <string name="setting_subscriptions">Abonelikler sekmesi</string>
     <string name="setting_subscriptions_summary">Alt çubukta sekme</string>
+    <string name="setting_search_only_home">Yalnızca arama olan Ana sayfa</string>
+    <string name="setting_search_only_home_summary">Yalnızca logo ve arama çubuğu, önerilen video yok</string>
     <string name="setting_grey_watched">İzlenen videoları soluklaştır</string>
     <string name="setting_grey_watched_summary">İzlenen videoları soluklaştırır</string>
     <string name="setting_watched_dim_description">İzlenen videoların ne kadar koyulaştırılacağı</string>
@@ -267,7 +270,7 @@
     <string name="subs_unfollow_confirm">%s takibi bırakılsın mı?</string>
     <string name="subs_use_account">YouTube hesabımı kullan</string>
     <string name="subs_use_local">Takip ettiğim kanalları kullan</string>
-    <string name="swipe_added">Eklendi</string>
+    <string name="swipe_add">Ekle</string>
     <string name="swipe_already_following">Zaten takip ediliyor</string>
     <string name="swipe_follow">Takip et</string>
     <string name="swipe_follow_title">%s takip edilsin mi?</string>

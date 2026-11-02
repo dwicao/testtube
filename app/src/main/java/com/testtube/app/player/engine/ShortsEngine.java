@@ -13,6 +13,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.cache.SimpleCache;
 import androidx.media3.exoplayer.ExoPlayer;
 
+import com.testtube.app.R;
 import com.testtube.app.extractor.PlaybackDetails;
 import com.testtube.app.extractor.PlaybackPlan;
 import com.testtube.app.extractor.PlaybackPlanner;
@@ -46,6 +47,8 @@ public final class ShortsEngine {
 	@NonNull
 	private final PlayerDataSource sources;
 	@NonNull
+	private final String autoSubtitleFormat;
+	@NonNull
 	private final Supplier<String> quality;
 	@NonNull
 	private ExoPlayer player;
@@ -59,6 +62,7 @@ public final class ShortsEngine {
 
 	public ShortsEngine(@NonNull Context context, @Nullable SimpleCache cache, @NonNull Supplier<String> quality) {
 		this.sources = new PlayerDataSource(cache);
+		this.autoSubtitleFormat = context.getString(R.string.subtitle_auto_generated);
 		this.quality = quality;
 		this.player = build(context);
 		this.standby = build(context);
@@ -141,7 +145,7 @@ public final class ShortsEngine {
 			if (listener != null && size.width > 0) listener.onVideoSize(size);
 			return true;
 		}
-		player.setMediaSource(PlaybackSourceFactory.create(sources, details, plan(details)));
+		player.setMediaSource(PlaybackSourceFactory.create(sources, autoSubtitleFormat, details, plan(details)));
 		player.prepare();
 		player.setPlayWhenReady(true);
 		return false;
@@ -152,7 +156,7 @@ public final class ShortsEngine {
 		String id = details.video().getId();
 		if (id == null || id.equals(standbyId)) return;
 		try {
-			standby.setMediaSource(PlaybackSourceFactory.create(sources, details, plan(details)));
+			standby.setMediaSource(PlaybackSourceFactory.create(sources, autoSubtitleFormat, details, plan(details)));
 		} catch (IllegalArgumentException e) {
 			standbyId = null;
 			return;

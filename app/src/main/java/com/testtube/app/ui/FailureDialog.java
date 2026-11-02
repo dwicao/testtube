@@ -25,7 +25,7 @@ public final class FailureDialog {
 			return;
 		}
 		String message = activity.getString(failure.message);
-		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity)
+		MaterialAlertDialogBuilder builder = Dialogs.builder(activity)
 						.setTitle(R.string.failure_title)
 						.setMessage(message)
 						.setNeutralButton(R.string.failure_details, (dialog, which) -> ErrorDialog.show(activity, message, error));

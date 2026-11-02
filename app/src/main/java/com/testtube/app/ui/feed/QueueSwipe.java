@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.testtube.app.R;
 import com.testtube.app.extractor.FeedItem;
+import com.testtube.app.util.ViewUtils;
 
 /**
  * Swipe right to queue a video, left to follow its channel (where that is offered). The row
@@ -51,7 +52,7 @@ final class QueueSwipe extends ItemTouchHelper.SimpleCallback {
 	@NonNull
 	private final Paint labelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 	@NonNull
-	private final String addedLabel;
+	private final String addLabel;
 	@NonNull
 	private final String followLabel;
 	private final float density;
@@ -60,20 +61,20 @@ final class QueueSwipe extends ItemTouchHelper.SimpleCallback {
 		super(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT);
 		this.target = target;
 		this.density = context.getResources().getDisplayMetrics().density;
-		background = new ColorDrawable(ContextCompat.getColor(context, R.color.swipe_background));
-		int content = ContextCompat.getColor(context, R.color.swipe_content);
+		background = new ColorDrawable(ViewUtils.themeColor(context, R.attr.ttSwipeBackground));
+		int content = ViewUtils.themeColor(context, R.attr.ttSwipeContent);
 		Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_testtube_logo);
 		if (icon != null) {
 			icon = icon.mutate();
 			icon.setTint(content);
 		}
 		logo = icon;
-		addedLabel = context.getString(R.string.swipe_added);
+		addLabel = context.getString(R.string.swipe_add);
 		followLabel = context.getString(R.string.swipe_follow);
 		labelPaint.setColor(content);
 		labelPaint.setTextAlign(Paint.Align.CENTER);
 		labelPaint.setTextSize(14 * density);
-		labelPaint.setTypeface(Typeface.DEFAULT_BOLD);
+		labelPaint.setTypeface(ViewUtils.appTypeface(context, Typeface.BOLD));
 	}
 
 	@Override
@@ -125,7 +126,7 @@ final class QueueSwipe extends ItemTouchHelper.SimpleCallback {
 				int top = row.getTop() + (row.getHeight() - block) / 2;
 				logo.setBounds((int) centerX - logoSize / 2, top, (int) centerX + logoSize / 2, top + logoSize);
 				logo.draw(canvas);
-				canvas.drawText(right ? addedLabel : followLabel, centerX,
+				canvas.drawText(right ? addLabel : followLabel, centerX,
 								top + logoSize + gap + 12 * density, labelPaint);
 			}
 		}

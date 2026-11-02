@@ -1,20 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--
-        TestTube palette, dark (the default). The light theme overrides the same names in
-        values-notnight. Layouts and code use theme attributes (?attr/colorPrimary,
-        ?attr/colorSurfaceContainer…); these colours feed the theme.
+        TestTube palette for the Dark theme (the default when the phone is dark). The Light theme
+        overrides the same names in values-notnight; the Niix theme has its own palette in
+        colors_niix.xml. Layouts, drawables and code never use these directly: they go through the
+        theme (?attr/colorPrimary, ?attr/ttGlassBar…), so the chosen theme decides.
+
+        One rule, like YouTube: everything you can tap or toggle is black and white. Red is only
+        the brand (LIVE, "Now playing") and the progress of the video itself.
+
+        The greys are TestTube's original dark palette:
+        - page (surface #0F0F0F): every screen and the Library
+        - bars and sheets (surface_container_low #151515), under their glass
+        - cards on a page (surface_container #1B1B1B), dialogs (surface_container_high #222222)
+        - small fills (surface_container_highest #2C2C2C): chips, pills, placeholders, toggles
+          that are off, the playing queue row, the settings groups
     -->
 
-    <!-- Brand: solid fills only (LIVE and "Now playing" badges, logo, placeholders) -->
+    <!-- Brand: solid fills (LIVE and "Now playing" badges, placeholders, the video's progress) -->
     <color name="brand_red">#FF0033</color>
     <color name="logo_watermark">#8B0000</color>
 
-    <!-- Accent: everything interactive or highlighted (switches, sliders, tabs, buttons, progress) -->
-    <color name="accent">#FF4E5B</color>
-    <color name="on_accent">#FFFFFF</color>
-    <color name="accent_container">#4A1A20</color>
-    <color name="on_accent_container">#FFD9DC</color>
+    <!-- Accent: everything interactive or highlighted (buttons, switches, sliders, tabs, progress) -->
+    <color name="accent">#F1F1F1</color>
+    <color name="on_accent">#0F0F0F</color>
+    <color name="accent_container">#2E2E2E</color>
+    <color name="on_accent_container">#F1F1F1</color>
+
+    <!-- Links in descriptions: the text colour, underlined -->
+    <color name="link">#F1F1F1</color>
 
     <!-- Neutral tones, lightest on top -->
     <color name="neutral">#C9C9C9</color>
@@ -34,7 +48,27 @@
     <color name="outline">#4A4A4A</color>
     <color name="outline_variant">#2E2E2E</color>
 
-    <!-- Cards holding a group of settings -->
+    <!-- Frosted glass: the bottom bars, dialogs and sheets, over a blurred view of what is behind -->
+    <color name="glass_bar">#BF151515</color>
+    <color name="glass_bar_solid">#151515</color>
+    <color name="glass_hairline">#14FFFFFF</color>
+    <!-- No line around dialogs -->
+    <color name="glass_edge">#00000000</color>
+    <color name="glass_dialog">#EB222222</color>
+    <color name="glass_sheet">#EB151515</color>
+    <!-- The long-press menu and the settings: the same grey as every other Dark dialog -->
+    <color name="glass_dialog_page">#EB222222</color>
+
+    <!-- The selected bottom tab's pill -->
+    <color name="nav_indicator">#26FFFFFF</color>
+
+    <!-- Selected text -->
+    <color name="text_highlight">#59FFFFFF</color>
+
+    <!-- The Library's pages, under the browser-style tabs; the selected tab has the same colour -->
+    <color name="library_page">#1B1B1B</color>
+
+    <!-- Cards holding a group of settings (flat in the Light and Niix themes) -->
     <color name="settings_group">#2C2C2C</color>
 
     <!-- Revealed under a list row while it is swiped -->
@@ -50,7 +84,7 @@
     <color name="error_container">#93000A</color>
     <color name="on_error_container">#FFDAD6</color>
 
-    <!-- Overlays on video and pictures -->
+    <!-- Overlays on video and pictures, the same in every theme -->
     <color name="scrim_strong">#CC000000</color>
     <color name="scrim_soft">#80000000</color>
     <color name="scrubber_unplayed">#99FFFFFF</color>

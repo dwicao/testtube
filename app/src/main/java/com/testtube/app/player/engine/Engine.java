@@ -201,6 +201,9 @@ public class Engine {
 					});
 	@NonNull
 	private final Context appContext;
+	/** "%1$s (auto-generated)" in the app's language, for subtitle labels */
+	@NonNull
+	private final String autoSubtitleFormat;
 	private int recoveries;
 	private static final int MAX_HISTORY = 50;
 	private static final int SUGGESTION_POOL = 5;
@@ -255,6 +258,7 @@ public class Engine {
 		this.extractor = extractor;
 		this.contentFilters = contentFilters;
 		this.appContext = context;
+		this.autoSubtitleFormat = context.getString(R.string.subtitle_auto_generated);
 		this.prefs = prefs;
 		this.tabManager = tabManager;
 		this.sponsor = sponsor;
@@ -382,6 +386,14 @@ public class Engine {
 		return this.player.isPlaying();
 	}
 
+	/**
+	 * Playing, or meant to as soon as it can: buffering, or between two videos of the queue. False
+	 * only when paused.
+	 */
+	public boolean wantsToPlay() {
+		return player.getPlayWhenReady();
+	}
+
 	public boolean isCurrentVideoInQueue() {
 		String watchId = watchVideoId();
 		return queueRepository.containsVideo(watchId);
@@ -439,7 +451,7 @@ public class Engine {
 		}
 
 		long duration = durationMs(video);
-		this.player.setMediaSource(PlaybackSourceFactory.create(sources, details, plan));
+		this.player.setMediaSource(PlaybackSourceFactory.create(sources, autoSubtitleFormat, details, plan));
 		this.player.setPlaybackParameters(new PlaybackParameters(1.0f));
 
 		// Resume position
@@ -472,7 +484,7 @@ public class Engine {
 		this.subtitles = details.subtitles();
 		applyPlaybackTrackMode();
 		this.videoStream = selectedVideo(plan);
-		player.setMediaSource(PlaybackSourceFactory.create(sources, details, plan));
+		player.setMediaSource(PlaybackSourceFactory.create(sources, autoSubtitleFormat, details, plan));
 		player.seekTo(Math.max(0L, positionMs));
 		player.setPlaybackParameters(new PlaybackParameters(speed));
 		player.prepare();
@@ -549,7 +561,7 @@ public class Engine {
 		try {
 			playbackPlan = fallback;
 			videoStream = selectedVideo(fallback);
-			player.setMediaSource(PlaybackSourceFactory.create(sources,
+			player.setMediaSource(PlaybackSourceFactory.create(sources, autoSubtitleFormat,
 							new PlaybackDetails(state.video(), state.catalog(), state.deliveries(),
 											fallback, segments, subtitles),
 							fallback));
@@ -1280,7 +1292,7 @@ public class Engine {
 		long pos = player.getCurrentPosition();
 		boolean playWhenReady = player.getPlayWhenReady();
 		plan.setAudioCandidate(PlaybackPlanner.findAudioCandidate(state.catalog().getAudioCandidates(), stream));
-		player.setMediaSource(PlaybackSourceFactory.create(sources,
+		player.setMediaSource(PlaybackSourceFactory.create(sources, autoSubtitleFormat,
 						new PlaybackDetails(state.video(), state.catalog(), state.deliveries(), plan, segments, subtitles),
 						plan));
 		player.seekTo(pos);

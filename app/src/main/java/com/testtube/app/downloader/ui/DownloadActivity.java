@@ -13,6 +13,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.media3.common.util.UnstableApi;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.testtube.app.AppSettings;
 import com.testtube.app.R;
 import com.testtube.app.util.PermissionUtils;
 
@@ -29,6 +30,7 @@ public class DownloadActivity extends AppCompatActivity implements DownloadPermi
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
+		setTheme(AppSettings.theme().style);
 		EdgeToEdge.enable(this);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_download);

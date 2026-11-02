@@ -65,7 +65,6 @@ import java.util.Set;
  */
 @UnstableApi
 public final class WatchPanel {
-	private static final String SEPARATOR = " • ";
 	private static final int COLLAPSED_LINES = 3;
 
 	@NonNull
@@ -633,18 +632,27 @@ public final class WatchPanel {
 		@Override
 		public void onBindViewHolder(@NonNull CommentHolder holder, int position) {
 			FeedClient.Comment comment = data.get(position);
+			// The username has its own view, coloured by the theme (the pink in Niix). Some comments
+			// come without a name at all, and printing "null" there looked like shit.
+			String author = comment.author();
+			boolean hasAuthor = author != null && !author.isBlank();
+			holder.author.setText(hasAuthor ? author : "");
+			holder.author.setVisibility(hasAuthor ? View.VISIBLE : View.GONE);
 			List<String> parts = new ArrayList<>(3);
-			parts.add(comment.author());
 			if (comment.published() != null && !comment.published().isBlank()) parts.add(comment.published());
 			Context context = holder.itemView.getContext();
 			if (comment.likes() > 0) parts.add(context.getString(R.string.watch_comment_likes, comment.likes()));
 			if (comment.pinned()) parts.add(context.getString(R.string.watch_comment_pinned));
-			holder.meta.setText(String.join(SEPARATOR, parts));
+			String rest = String.join(StringUtils.META_SEPARATOR, parts);
+			// The separator after the name only when something follows it
+			holder.meta.setText(hasAuthor && !rest.isEmpty() ? StringUtils.META_SEPARATOR + rest : rest);
 			holder.text.setText(comment.text());
 		}
 	}
 
 	private static final class CommentHolder extends RecyclerView.ViewHolder {
+		@NonNull
+		final TextView author;
 		@NonNull
 		final TextView meta;
 		@NonNull
@@ -652,6 +660,7 @@ public final class WatchPanel {
 
 		CommentHolder(@NonNull View itemView) {
 			super(itemView);
+			author = itemView.findViewById(R.id.comment_author);
 			meta = itemView.findViewById(R.id.comment_meta);
 			text = itemView.findViewById(R.id.comment_text);
 		}
@@ -723,7 +732,7 @@ public final class WatchPanel {
 				parts.add(DateUtils.getRelativeTimeSpanString(d.getUploadDate().getTime(),
 								System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS).toString());
 			}
-			meta.setText(String.join(SEPARATOR, parts));
+			meta.setText(String.join(StringUtils.META_SEPARATOR, parts));
 			author.setText(d != null && d.getAuthor() != null ? d.getAuthor() : "");
 			votes.setText(d != null && d.getLikeCount() > 0
 							? context.getString(R.string.watch_likes, StringUtils.compactCount(d.getLikeCount())) : "");

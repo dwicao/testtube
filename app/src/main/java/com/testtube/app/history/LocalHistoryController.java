@@ -12,9 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.testtube.app.R;
+import com.testtube.app.ui.Dialogs;
 import com.testtube.app.util.ImageUtils;
 
 import java.time.Instant;
@@ -68,7 +68,7 @@ public final class LocalHistoryController {
 
 	/** Asks, then removes every video from the history. */
 	public void confirmClear() {
-		new MaterialAlertDialogBuilder(list.getContext())
+		Dialogs.builder(list.getContext())
 						.setTitle(R.string.watch_history_clear)
 						.setMessage(R.string.watch_history_clear_confirm)
 						.setNegativeButton(R.string.cancel, null)

@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.LayoutRes;
@@ -17,7 +18,6 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatDelegate;
 
 import com.bumptech.glide.Glide;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.slider.Slider;
 import com.testtube.app.AppGraph;
@@ -85,6 +85,8 @@ final class SettingsDialog {
 						themeValues, themeLabels, AppSettings.theme());
 
 		ViewGroup feeds = form.section(R.string.settings_section_content);
+		MaterialSwitch searchOnlyHome = form.toggle(feeds, R.string.setting_search_only_home,
+						R.string.setting_search_only_home_summary, AppSettings.searchOnlyHome());
 		MaterialSwitch shorts = form.toggle(feeds, R.string.setting_shorts, R.string.setting_shorts_summary,
 						AppSettings.showShorts());
 		MaterialSwitch subscriptions = form.toggle(feeds, R.string.setting_subscriptions,
@@ -130,7 +132,7 @@ final class SettingsDialog {
 						PENDING_SIZE);
 		TextView cacheSize = clearCache.findViewById(R.id.setting_value);
 		showCacheSize(activity, cacheSize);
-		clearCache.setOnClickListener(v -> new MaterialAlertDialogBuilder(activity)
+		clearCache.setOnClickListener(v -> Dialogs.builder(activity)
 						.setTitle(R.string.setting_clear_cache)
 						.setMessage(activity.getString(R.string.clear_cache_confirm, cacheSize.getText()))
 						.setNegativeButton(R.string.cancel, null)
@@ -177,12 +179,13 @@ final class SettingsDialog {
 		}
 
 		View header = inflater.inflate(R.layout.dialog_settings_header, null, false);
+		((ImageView) header.findViewById(R.id.settings_logo)).setImageResource(AppSettings.theme().logo);
 		((TextView) header.findViewById(R.id.settings_title)).setText(welcome ? R.string.welcome_title : R.string.settings_title);
 		((TextView) header.findViewById(R.id.settings_subtitle)).setText(welcome
 						? activity.getString(R.string.welcome_message)
 						: activity.getString(R.string.app_name) + " " + versionName(activity));
 
-		new MaterialAlertDialogBuilder(activity)
+		Dialogs.builder(activity, R.style.ThemeOverlay_TestTube_AlertDialog_Page)
 						.setCustomTitle(header)
 						.setView(view)
 						.setPositiveButton(welcome ? R.string.welcome_start : R.string.update_close, null)
@@ -190,6 +193,7 @@ final class SettingsDialog {
 							boolean shortsChanged = shorts.isChecked() != AppSettings.showShorts();
 							AppSettings.setShowShorts(shorts.isChecked());
 							AppSettings.setShowSubscriptions(subscriptions.isChecked());
+							AppSettings.setSearchOnlyHome(searchOnlyHome.isChecked());
 							// Downloads the list when switched on; the lists refresh once it is loaded
 							aiChannels.setEnabled(aiFilter.isChecked());
 							AppSettings.setFullChannelPages(channelPages.isChecked());
@@ -210,10 +214,10 @@ final class SettingsDialog {
 							updates.setAutoCheck(autoUpdate.isChecked());
 							updates.setPrereleases(prereleases.isChecked());
 							if (shortsChanged) onShortsChanged.run();
-							boolean themeChanged = theme.value != AppSettings.theme();
+							AppSettings.Theme previousTheme = AppSettings.theme();
 							AppSettings.setTheme(theme.value);
 							onSaved.run();
-							if (themeChanged) applyTheme(activity, theme.value);
+							if (theme.value != previousTheme) applyTheme(activity, previousTheme, theme.value);
 						})
 						.show();
 	}
@@ -222,12 +226,14 @@ final class SettingsDialog {
 	 * Switches the colours right away. The screen is built again when they change, and an open
 	 * video reopens where it was.
 	 */
-	private static void applyTheme(@NonNull Activity activity, @NonNull AppSettings.Theme theme) {
+	private static void applyTheme(@NonNull Activity activity, @NonNull AppSettings.Theme previous,
+	                               @NonNull AppSettings.Theme theme) {
 		boolean wasNight = isNight(activity.getResources().getConfiguration());
 		AppCompatDelegate.setDefaultNightMode(theme.nightMode);
-		boolean night = theme == AppSettings.Theme.DARK
+		boolean night = theme.nightMode == AppCompatDelegate.MODE_NIGHT_YES
 						|| theme == AppSettings.Theme.SYSTEM && isNight(Resources.getSystem().getConfiguration());
-		if (night == wasNight) return;
+		// Dark and Niix are both night mode, but different themes: that needs a rebuild too
+		if (night == wasNight && theme.style == previous.style) return;
 		// Once the dialog is fully gone, not from inside its dismiss
 		activity.getWindow().getDecorView().post(() -> {
 			if (activity.isFinishing() || activity.isDestroyed()) return;
@@ -408,7 +414,7 @@ final class SettingsDialog {
 			}
 			row = form.value(group, title, summary, shortNames[indexOf(values, current)]);
 			TextView valueView = row.findViewById(R.id.setting_value);
-			row.setOnClickListener(v -> new MaterialAlertDialogBuilder(activity)
+			row.setOnClickListener(v -> Dialogs.builder(activity)
 							.setTitle(title)
 							.setSingleChoiceItems(names, indexOf(values, value), (dialog, which) -> {
 								value = values[which];
@@ -443,7 +449,7 @@ final class SettingsDialog {
 			TextView valueView = row.findViewById(R.id.setting_value);
 			row.setOnClickListener(v -> {
 				String[] options = PlayerPreferences.QUALITIES;
-				new MaterialAlertDialogBuilder(form.activity())
+				Dialogs.builder(form.activity())
 								.setTitle(title)
 								.setSingleChoiceItems(options, closest(options, this.quality), (dialog, which) -> {
 									this.quality = options[which];

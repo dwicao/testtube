@@ -2,6 +2,7 @@ package com.testtube.app.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
@@ -12,10 +13,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.media3.common.util.UnstableApi;
 
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.testtube.app.AppSettings;
 import com.testtube.app.R;
 import com.testtube.app.downloader.ui.DownloadDialog;
 import com.testtube.app.extractor.YoutubeExtractor;
@@ -26,12 +27,16 @@ import com.testtube.app.player.queue.QueueItem;
 import com.testtube.app.player.queue.QueueRepository;
 import com.testtube.app.util.ImageUtils;
 import com.testtube.app.util.ToastUtils;
+import com.testtube.app.util.ViewUtils;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @UnstableApi
 public final class MediaItemMenuDialog {
+	private static final float MENU_ICON_DP = 24f;
+	private static final int[] MENU_ROWS = {R.id.action_queue, R.id.action_play_next, R.id.action_share,
+					R.id.action_download, R.id.action_toggle_watched, R.id.action_block_channel};
 	@NonNull
 	private final Context context;
 	@NonNull
@@ -65,7 +70,7 @@ public final class MediaItemMenuDialog {
 
 	public void show() {
 		View view = LayoutInflater.from(context).inflate(R.layout.dialog_media_item_menu, null, false);
-		AlertDialog dialog = new MaterialAlertDialogBuilder(context)
+		AlertDialog dialog = Dialogs.builder(context, R.style.ThemeOverlay_TestTube_AlertDialog_Page)
 						.setView(view)
 						.create();
 		ImageView thumb = view.findViewById(R.id.media_item_thumb);
@@ -78,6 +83,15 @@ public final class MediaItemMenuDialog {
 		author.setVisibility(item.author() != null && !item.author().isBlank() ? View.VISIBLE : View.GONE);
 
 		ImageUtils.load(thumb, thumbUrl, R.drawable.ic_thumbnail_placeholder);
+		// The icons come in two sizes; every row shows them at one. They're in the text colour (the
+		// style), unless the theme has a colour of its own for them (pink in Niix).
+		int iconRes = AppSettings.theme().menuIcon;
+		ColorStateList iconColor = iconRes != 0 ? ColorStateList.valueOf(ContextCompat.getColor(context, iconRes)) : null;
+		for (int id : MENU_ROWS) {
+			TextView row = view.findViewById(id);
+			ViewUtils.sizeCompoundDrawables(row, MENU_ICON_DP);
+			if (iconColor != null) row.setCompoundDrawableTintList(iconColor);
+		}
 
 		view.findViewById(R.id.media_item_close).setOnClickListener(v -> dialog.dismiss());
 		view.findViewById(R.id.action_queue).setOnClickListener(v -> {
@@ -98,7 +112,7 @@ public final class MediaItemMenuDialog {
 		});
 
 		boolean watched = filters.isWatched(item.videoId());
-		MaterialButton watchedButton = view.findViewById(R.id.action_toggle_watched);
+		TextView watchedButton = view.findViewById(R.id.action_toggle_watched);
 		watchedButton.setText(watched ? R.string.mark_as_unwatched : R.string.mark_as_watched);
 		watchedButton.setOnClickListener(v -> {
 			if (watched) {
@@ -112,7 +126,7 @@ public final class MediaItemMenuDialog {
 			dialog.dismiss();
 		});
 
-		MaterialButton blockButton = view.findViewById(R.id.action_block_channel);
+		TextView blockButton = view.findViewById(R.id.action_block_channel);
 		String pageChannel = item.author() == null ? null : item.author().split("[•·|]", 2)[0].trim();
 		if (pageChannel != null && !pageChannel.isEmpty()) {
 			blockButton.setText(context.getString(R.string.block_channel_named, pageChannel));
@@ -163,7 +177,7 @@ public final class MediaItemMenuDialog {
 	}
 
 	private void confirmBlock(@NonNull String channel, @Nullable String uploaderUrl) {
-		new MaterialAlertDialogBuilder(context)
+		Dialogs.builder(context)
 						.setTitle(R.string.block_channel)
 						.setMessage(context.getString(R.string.block_channel_confirm, channel))
 						.setPositiveButton(R.string.block, (d, w) -> {

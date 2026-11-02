@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Home, Subscriptions, the Library and channel pages reach down under the mini player and the
+    bottom bar, which are frosted glass over them (BlurTarget, GlassBackground, BottomChrome).
+    Shorts and the video page end above the bars.
+-->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,31 +13,31 @@
     android:fitsSystemWindows="false"
     tools:context=".ui.MainActivity">
 
-    <FrameLayout
+    <com.testtube.app.ui.widget.BlurTarget
         android:id="@+id/native_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/mini_bar"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <FrameLayout
+    <com.testtube.app.ui.widget.BlurTarget
         android:id="@+id/page_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/mini_bar"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <FrameLayout
+    <com.testtube.app.ui.widget.BlurTarget
         android:id="@+id/library_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/mini_bar"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -141,10 +146,9 @@
         android:id="@+id/mini_bar"
         android:layout_width="0dp"
         android:layout_height="64dp"
-        android:background="?attr/colorSurfaceContainerHigh"
+        android:background="?attr/ttGlassBarSolid"
         android:clickable="true"
         android:contentDescription="@string/mini_bar_restore"
-        android:elevation="12dp"
         android:focusable="true"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -236,6 +240,7 @@
         style="@style/Widget.TestTube.BottomNav"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:elevation="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

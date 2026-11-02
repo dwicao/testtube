@@ -34,11 +34,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.google.android.material.checkbox.MaterialCheckBox;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.testtube.app.AppGraph;
 import com.testtube.app.R;
+import com.testtube.app.ui.Dialogs;
 import com.testtube.app.downloader.core.DownloadTaskIdHelper;
 import com.testtube.app.downloader.core.history.DownloadHistoryRepository;
 import com.testtube.app.downloader.core.history.DownloadRecord;
@@ -194,7 +194,7 @@ public final class DownloadsList {
 
 	/** Asks, then removes every record. Files that were downloaded stay where they are. */
 	public void confirmClear() {
-		new MaterialAlertDialogBuilder(activity)
+		Dialogs.builder(activity)
 						.setTitle(R.string.downloads_clear)
 						.setMessage(R.string.downloads_clear_confirm)
 						.setNegativeButton(R.string.cancel, null)
@@ -393,7 +393,7 @@ public final class DownloadsList {
 	private void confirmDelete(@NonNull DownloadRecord record) {
 		View view = LayoutInflater.from(activity).inflate(R.layout.dialog_delete_record, null);
 		MaterialCheckBox deleteFile = view.findViewById(R.id.checkbox_delete_file);
-		new MaterialAlertDialogBuilder(activity)
+		Dialogs.builder(activity)
 						.setTitle(R.string.delete_record)
 						.setView(view)
 						.setNegativeButton(R.string.cancel, null)

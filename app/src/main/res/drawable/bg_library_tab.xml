@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Browser-style tab: the selected tab has the page colour and rounded top corners, so it
-    joins the page below, with a short accent line along its top edge.
+    Browser-style tab: the selected tab has the Library pages' colour and rounded top corners, so
+    it joins the page below. Its top edge is lit along the same rounded shape: the edge colour
+    fills the whole tab and the page colour sits on it 3dp lower with the same corners, leaving a
+    band that runs across the top and follows both corners down.
 -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
     android:enterFadeDuration="150"
@@ -10,22 +12,18 @@
         <layer-list>
             <item>
                 <shape android:shape="rectangle">
-                    <solid android:color="@color/surface_container" />
+                    <solid android:color="?attr/colorPrimary" />
                     <corners
                         android:topLeftRadius="12dp"
                         android:topRightRadius="12dp" />
                 </shape>
             </item>
-            <item
-                android:height="3dp"
-                android:gravity="top"
-                android:left="16dp"
-                android:right="16dp">
+            <item android:top="3dp">
                 <shape android:shape="rectangle">
-                    <solid android:color="@color/accent" />
+                    <solid android:color="?attr/ttLibraryPage" />
                     <corners
-                        android:bottomLeftRadius="2dp"
-                        android:bottomRightRadius="2dp" />
+                        android:topLeftRadius="12dp"
+                        android:topRightRadius="12dp" />
                 </shape>
             </item>
         </layer-list>

@@ -47,6 +47,7 @@
     <string name="playback_end_pause">Pause at end</string>
     <string name="playback_end_playlist_random">Playlist shuffle</string>
     <string name="subtitles">Captions</string>
+    <string name="subtitle_auto_generated">%1$s (auto-generated)</string>
     <string name="subtitles_on">Captions on</string>
     <string name="subtitles_off">Captions off</string>
     <string name="no_subtitles">No captions</string>
@@ -193,6 +194,8 @@
     <string name="setting_shorts_summary">On Home, in search and on channels</string>
     <string name="setting_subscriptions">Subscriptions tab</string>
     <string name="setting_subscriptions_summary">Tab in the bottom bar</string>
+    <string name="setting_search_only_home">Search-only Home</string>
+    <string name="setting_search_only_home_summary">Just the logo and a search bar, no suggested videos</string>
     <string name="setting_grey_watched">Grey out watched videos</string>
     <string name="setting_grey_watched_summary">Dim videos you\'ve watched</string>
     <string name="setting_watched_dim_description">How dark watched videos are greyed out</string>
@@ -249,7 +252,7 @@
     <string name="subs_unfollow_confirm">Unfollow %s?</string>
     <string name="watch_follow">Follow</string>
     <string name="watch_following">Following</string>
-    <string name="swipe_added">Added</string>
+    <string name="swipe_add">Add</string>
     <string name="swipe_follow">Follow</string>
     <string name="swipe_this_channel">this channel</string>
     <string name="swipe_follow_title">Follow %s?</string>
@@ -294,6 +297,7 @@
     <string name="theme_dark">Dark</string>
     <string name="theme_light">Light</string>
     <string name="theme_system">System default</string>
+    <string name="theme_niix" translatable="false">Niix</string>
     <string name="settings_section_watched">Watched videos</string>
     <string name="settings_section_playback">Playback</string>
     <string name="settings_section_comments">Comments</string>
