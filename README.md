@@ -9,6 +9,7 @@ TestTube is an ad-free YouTube client for Android. No account needed: Home, sear
 Requires Android 8.0 (API 26) or later.
 
 ## Features
+* [x] **Light, Dark and NiiX theme** 
 * [x] **Works with or without login** 
 * [x] **Your YouTube subscriptions (if logged in)** 
 * [x] **Home for discovering**
@@ -16,12 +17,11 @@ Requires Android 8.0 (API 26) or later.
 * [x] **Swipe a video right to add it to the queue**
 * [x] **Sponsor-block**
 * [x] **AI video block**
-* [x] **In-app updates** 
 * [x] **Local queue support**
+* [x] **Local history**
 * [x] **Background & Picture-in-Picture support**
 * [x] **Built-in video and queue downloader**
 * [x] **Watched videos greyed out**
-* [x] **Local history**
 * [x] **Light on data**
 ## How it works
 
