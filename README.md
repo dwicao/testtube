@@ -40,9 +40,8 @@ Subscriptions come from one of two places. By default the app shows the latest v
 * Update checks ask GitHub (api.github.com) for new releases 5 seconds after the app starts, including test versions if “Pre-releases” is on. Updates are downloaded from github.com. Nothing about you is sent, and you can switch checks off by tapping the TestTube logo on Home and turning off “Check for updates automatically” under Updates.
 
 ## Screenshots
-
-<p align="center">
 **NiiX Theme**
+<p align="center">
 <img src="screens/1.jpeg" alt="" width="200">
 <img src="screens/2.jpeg" alt="" width="200">
 <img src="screens/3.jpeg" alt="" width="200">
