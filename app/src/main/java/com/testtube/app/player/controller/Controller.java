@@ -149,14 +149,7 @@ public class Controller {
 	/** Segment start of the last auto-skip, for tap-to-undo; -1 when the hint isn't a skip. */
 	private volatile long lastSkipFromMs = -1L;
 	@NonNull
-	private final Runnable sleepRunnable = () -> {
-		sleepUntilMs = 0L;
-		try {
-			engine.pause();
-		} catch (RuntimeException ignored) {
-		}
-		showHint(activity.getString(R.string.sleep_timer_done), HINT_HIDE_DELAY_MS);
-	};
+	private final Runnable sleepRunnable;
 	@NonNull
 	private ControllerState state = ControllerState.initial();
 	private long lastVideoRenderedCount = 0;
@@ -170,6 +163,14 @@ public class Controller {
 		this.prefs = prefs;
 		this.zoomListener = zoomListener;
 		this.tabManager = tabManager;
+		this.sleepRunnable = () -> {
+			sleepUntilMs = 0L;
+			try {
+				engine.pause();
+			} catch (RuntimeException ignored) {
+			}
+			showHint(activity.getString(R.string.sleep_timer_done), HINT_HIDE_DELAY_MS);
+		};
 		this.gestureListener = new PlayerGestureListener(activity, playerView, engine, this);
 		this.engine.setSponsorSkipListener((fromMs, toMs) ->
 						playerView.post(() -> showSponsorSkipped(fromMs, toMs)));
