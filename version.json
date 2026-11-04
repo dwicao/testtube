@@ -1,9 +1,9 @@
 {
   "tag": "v3.0.8",
-  "versionCode": 30008,
   "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.8/testtube3.0.8.apk",
-  "sha256": null,
-  "size": -1,
-  "notes": "Fix blue skin on HDR videos: prefer SDR (VP9.2/AV1 10-bit deprioritized).",
-  "prerelease": false
+  "sha256": "40ef725c946cc35a09e6edcb8e4709bda6a06e27918076f228befffe443359a8",
+  "size": 6029433,
+  "notes": "Fix HDR blue skin at planner level (drop setAllowVideoHdr, missing in media3 1.11)\n\nADAPTIVE uses single video candidate, so SDR preference in PlayerUtils\nis sufficient; setAllowVideoHdr does not exist in this media3 version.",
+  "prerelease": false,
+  "versionCode": 30008
 }
