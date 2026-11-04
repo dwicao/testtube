@@ -232,8 +232,8 @@ public final class UpdateManager {
 		if (!apkUrl.startsWith(DOWNLOAD_PREFIX)
 						&& !apkUrl.startsWith("https://github.com/" + REPO + "/releases/download/")) return null;
 		String sha = string(json, "sha256").toLowerCase(Locale.ROOT);
-		if (sha.isEmpty()) sha = null;
-		if (sha != null && !sha.matches("[0-9a-f]{64}")) return null;
+		if (sha.isEmpty()) return null;
+		if (!sha.matches("[0-9a-f]{64}")) return null;
 		long size = -1L;
 		try {
 			if (json.has("size") && !json.get("size").isJsonNull()) size = json.get("size").getAsLong();

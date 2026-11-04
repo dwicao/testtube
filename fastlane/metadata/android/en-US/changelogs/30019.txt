@@ -1,0 +1,1 @@
+- Fix update race: version.json only ever describes published releases (asset verified first)

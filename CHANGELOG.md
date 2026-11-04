@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.19
+
+- Fix update race: version.json never advertises an unreleased build (versionCode derived from tag, APK asset verified attached before publishing, entries without sha256 rejected)
+- Crash-report archiving and startup hardening from 3.0.16 retained
+
 ## 3.0.18
 
 - Sleep timer in the player and in the notification (toggle 30 min)

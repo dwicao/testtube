@@ -133,11 +133,22 @@ jobs:
           # https://raw.githubusercontent.com/dwicao/testtube/main/version.json first).
           NOTES=$(git log -1 --pretty=%B || echo "")
           # Escape notes for JSON via python.
+          # versionCode is derived from the tag (v3.0.18 -> 30018), same formula as
+          # app/build.gradle.kts, so version.json never needs a manual pre-release bump.
+          # Advertising an unreleased tag with a null sha is exactly the race this avoids:
+          # version.json on main must always describe an already-published release.
           python3 - "$TAG" "$ASSET" "$SHA" "$SIZE" "$NOTES" <<'PY'
-          import json, sys
+          import json, re, sys
           tag, asset, sha, size, notes = sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4]), sys.argv[5]
+          def code_from_tag(t):
+              m = re.match(r'v?(\d+)\.(\d+)\.(\d+)', t.strip())
+              if not m:
+                  return 0
+              maj, minor, patch = (int(x) for x in m.groups())
+              return maj * 10000 + minor * 100 + patch
           data = {
             "tag": tag,
+            "versionCode": code_from_tag(tag),
             "apkUrl": f"https://github.com/dwicao/testtube/releases/download/{tag}/{asset}",
             "sha256": sha,
             "size": size,
@@ -147,7 +158,7 @@ jobs:
           try:
             with open("version.json") as f:
               old = json.load(f)
-              if "versionCode" in old:
+              if not data["versionCode"] and "versionCode" in old:
                 data["versionCode"] = old["versionCode"]
               # A notice broadcast stays live across releases until cleared by hand.
               # To broadcast without an APK: edit version.json on main directly
@@ -179,6 +190,28 @@ jobs:
             ${{ steps.assets.outputs.asset }}
             version.dist.json
 
+      - name: Verify APK is attached before advertising it
+        # version.json must never point at a release whose asset isn't downloadable yet.
+        # Poll the release API until the APK shows up (or fail loudly instead of
+        # publishing a version.json that 404s).
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.tag.outputs.tag }}"
+          ASSET="${{ steps.assets.outputs.asset_name }}"
+          echo "Waiting for $ASSET on release $TAG ..."
+          for i in $(seq 1 30); do
+            if gh api "repos/dwicao/testtube/releases/tags/$TAG" --jq '.assets[].name' 2>/dev/null | grep -qx "$ASSET"; then
+              echo "Asset present after ~$((i * 10))s"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::APK asset $ASSET never appeared on release $TAG"
+          gh api "repos/dwicao/testtube/releases/tags/$TAG" --jq '.assets[] | .name' || true
+          exit 1
+
       - name: Update version.json on main (for in-app updater)
         if: github.ref_type == 'tag'
         run: |
@@ -189,7 +222,6 @@ jobs:
           git fetch origin main || true
           git checkout main || git checkout -b main
           cp "/tmp/version-${TAG}.json" version.json
-          # Keep versionCode in sync if tag bumped versionName; CI does not auto-bump code.
           cat version.json
           git add version.json
           if git diff --cached --quiet; then
