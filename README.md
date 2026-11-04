@@ -35,6 +35,40 @@ Requires Android 8.0 (API 26) or later.
 * [x] **Watched videos greyed out**
 * [x] **Light on data**
 
+## What changed in this fork
+
+Everything below is on top of upstream, newest first. Technical hardening details live under [Why this fork?](#why-this-fork).
+
+**Player**
+* Home button always opens Picture-in-Picture while a video plays; minimizing inside the app stays bottom bar / floating window (default bottom bar)
+* Music-only PiP action: hides the PiP window, audio keeps playing in the background
+* Real speed control: 0.5x–2.0x slider + presets, applies live, Remember keeps it for next videos (pitch stays locked)
+* Sleep timer in the player and in the notification (toggle 30 min)
+* Data saver mode: 480p everywhere, no preloading
+* Stats-for-nerds overlay (resolution, codec, bitrate, buffer, dropped frames)
+* Enriched notification with elapsed time and all actions; homescreen player widget
+* Samsung blue-skin fix: tunneling off, SDR forced, H264 preferred (Allow HDR opt-in)
+
+**Downloads**
+* Download from the player More options, with progress
+* Pause-all / resume-all, notification action, scheduled night downloads (02:00, unmetered)
+* Queue save/load as JSON files
+
+**Library**
+* Watch stats tab: videos, hours, active days, top channels
+* Watch-later: add any history entry to the queue
+* Search filters: All / Videos / Channels / Playlists chips
+
+**Comments & content**
+* Comment likes and replies when signed in
+* Personalize Home, Skip sponsors (+ per-category picker), Preload on mobile toggles
+
+**Settings & safety**
+* Full settings backup/restore to JSON (restarts to apply)
+* Self-updating from this fork's releases (SHA-256 + same-signer verified); `version.json` can also broadcast notices and require updates
+* Upstream-breakage radar: scheduled extractor canary auto-opens an issue when YouTube-side changes break playback
+* Crash reports are always shown and a copy is auto-saved to Downloads/TestTube/
+
 ## Why this fork?
 
 Upstream is `techniixdotcom/testtube`. This fork (`dwicao/testtube`) keeps the same app and UI, but hardens it and ships its own signed releases with in-app updates:
@@ -67,7 +101,7 @@ Subscriptions come from one of two places. By default the app shows the latest v
 ## Releases (this fork: dwicao/testtube)
 
 * APKs: https://github.com/dwicao/testtube/releases — e.g. `testtube3.0.21.apk` + `version.json`.
-* Tag: `git tag v3.0.21 && git push origin v3.0.19` — `.github/workflows/release.yml` builds `assembleRelease`, signs with the public AOSP test key, creates the GitHub Release, uploads the APK, and updates `version.json` on `main` so the app auto-updates. Pushes to `main` run `.github/workflows/check.yml` (debug build + unit tests + lint).
+* Tag: `git tag v3.0.21 && git push origin v3.0.21` — `.github/workflows/release.yml` builds `assembleRelease`, signs with the public AOSP test key, creates the GitHub Release, uploads the APK, and updates `version.json` on `main` so the app auto-updates. Pushes to `main` run `.github/workflows/check.yml` (debug build + unit tests + lint).
 * Local: `./BUILD.sh` (own key in `~/.testtube/signing`). CI key is the well-known AOSP `testkey` (password `android`) — fine for testing, not for private accounts: anyone can forge updates signed with it, so the app still enforces same-signer installs.
 
 ## License
