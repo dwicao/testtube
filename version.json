@@ -1,9 +1,9 @@
 {
-  "tag": "v3.0.9",
-  "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.9/testtube3.0.9.apk",
-  "sha256": "11e204869c10e705f2fccfcda86dc50550e4ee9122f96f49fca93d87d3e3b76e",
-  "size": 6029429,
-  "notes": "Forced SDR fallback for HDR-only videos (fix blue skin)\n\nIf adaptive candidates are all HDR (VP9.2/AV1 10-bit), skip adaptive and\nplay MUXED H264 AVC progressive instead. SDR adaptive still preferred.",
-  "prerelease": false,
-  "versionCode": 30009
+  "tag": "v3.0.10",
+  "versionCode": 30010,
+  "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.10/testtube3.0.10.apk",
+  "sha256": null,
+  "size": -1,
+  "notes": "Forced H264 fallback + Prefer H264 toggle: HDR/AV1-only videos play AVC/MUXED instead of blue.",
+  "prerelease": false
 }

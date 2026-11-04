@@ -119,6 +119,8 @@ final class SettingsDialog {
 						R.string.setting_sponsorblock_summary, AppSettings.sponsorblockEnabled());
 		MaterialSwitch preloadMobile = form.toggle(playback, R.string.setting_preload_mobile,
 						R.string.setting_preload_mobile_summary, AppSettings.preloadOnMobile());
+		MaterialSwitch preferAvc = form.toggle(playback, R.string.setting_prefer_avc,
+						R.string.setting_prefer_avc_summary, AppSettings.preferAvc());
 		ChoiceRow<Boolean> minimizeTo = new ChoiceRow<>(form, playback, R.string.setting_minimize_to,
 						R.string.setting_minimize_summary, new Boolean[]{false, true},
 						new int[]{R.string.minimize_bottom_bar, R.string.minimize_floating}, AppSettings.floatingPlayer());
@@ -211,6 +213,7 @@ final class SettingsDialog {
 							prefs.setQuality(true, mobile.quality);
 							AppSettings.setSponsorblockEnabled(sponsorblock.isChecked());
 							AppSettings.setPreloadOnMobile(preloadMobile.isChecked());
+							AppSettings.setPreferAvc(preferAvc.isChecked());
 							AppSettings.setFloatingPlayer(minimizeTo.value);
 							if (videoCache.value != AppSettings.videoCache()) {
 								AppSettings.setVideoCache(videoCache.value);

@@ -93,12 +93,19 @@ public final class PlayerUtils {
 		// Always lose to any SDR codec so SDR is picked whenever it exists.
 		if (isLikelyHdr(codec)) return -1;
 		String lower = codec.toLowerCase(Locale.ROOT);
-		if (lower.startsWith("avc") || lower.startsWith("h264")) return 4;
+		if (isAvc(codec)) return 4;
 		if (lower.contains("vp9") || lower.contains("vp8")) return 3;
 		if (lower.contains("h265")) return 2;
 		if (lower.contains("av01")) return 1;
 
 		return 0;
+	}
+
+	/** H.264, the most widely hardware-decoded codec: never HDR on YouTube. */
+	public static boolean isAvc(@Nullable String codec) {
+		if (codec == null) return false;
+		String lower = codec.toLowerCase(Locale.ROOT);
+		return lower.startsWith("avc") || lower.startsWith("h264");
 	}
 
 	/**

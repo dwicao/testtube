@@ -40,13 +40,14 @@ public final class AppSettings {
 	private static final String KEY_PERSONALIZE_HOME = "personalize_home";
 	private static final String KEY_SPONSORBLOCK = "sponsorblock_enabled";
 	private static final String KEY_PRELOAD_MOBILE = "preload_on_mobile";
+	private static final String KEY_PREFER_AVC = "prefer_avc";
 	private static final int MIN_WATCHED_DIM = 20;
 	private static final int MAX_WATCHED_DIM = 90;
 	private static final int WATCHED_DIM_STEP = 5;
 	/** As dark as watched videos were before this became a setting. */
 	private static final int DEFAULT_WATCHED_DIM = 70;
 	/** Raised when the welcome dialog gets new choices, so everyone sees it once more. */
-	private static final int WELCOME_VERSION = 7;
+	private static final int WELCOME_VERSION = 8;
 
 	private static volatile boolean loaded;
 	private static volatile boolean shorts;
@@ -74,6 +75,7 @@ public final class AppSettings {
 	private static volatile boolean personalizeHome = true;
 	private static volatile boolean sponsorblockEnabled = true;
 	private static volatile boolean preloadOnMobile;
+	private static volatile boolean preferAvc = true;
 
 	private AppSettings() {
 	}
@@ -426,6 +428,22 @@ public final class AppSettings {
 		MMKV.defaultMMKV().encode(KEY_PRELOAD_MOBILE, enabled);
 	}
 
+	/**
+	 * Prefer H.264 (AVC) video: the most compatible hardware decoder, never HDR.
+	 * On by default: fixes blue/wrong colors from AV1/VP9(-HDR) firmware decoders.
+	 * Off restores codec-priority picking (AVC &gt; VP9 &gt; AV1, SDR over HDR).
+	 */
+	public static boolean preferAvc() {
+		load();
+		return preferAvc;
+	}
+
+	public static void setPreferAvc(boolean enabled) {
+		load();
+		preferAvc = enabled;
+		MMKV.defaultMMKV().encode(KEY_PREFER_AVC, enabled);
+	}
+
 	public static boolean welcomeShown() {
 		return MMKV.defaultMMKV().decodeInt(KEY_WELCOME_VERSION, 0) >= WELCOME_VERSION;
 	}
@@ -467,6 +485,7 @@ public final class AppSettings {
 			personalizeHome = store.decodeBool(KEY_PERSONALIZE_HOME, true);
 			sponsorblockEnabled = store.decodeBool(KEY_SPONSORBLOCK, true);
 			preloadOnMobile = store.decodeBool(KEY_PRELOAD_MOBILE, false);
+			preferAvc = store.decodeBool(KEY_PREFER_AVC, true);
 			loaded = true;
 		}
 	}

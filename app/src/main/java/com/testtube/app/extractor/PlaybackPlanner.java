@@ -52,6 +52,16 @@ public final class PlaybackPlanner {
 
 		Delivery adaptive = deliveries.first(PlaybackMode.ADAPTIVE);
 		if (adaptive != null) {
+			// Forced compatibility first: H.264 decodes correctly on every firmware.
+			if (com.testtube.app.AppSettings.preferAvc()) {
+				List<StreamCandidate> avcVideo = avcVideoOnly(adaptive.getVideo());
+				if (!avcVideo.isEmpty()) {
+					PlaybackPlan avcPlan = adaptivePlan(plan, adaptive, avcVideo, adaptive.getAudio(), preferredQuality);
+					if (avcPlan.getVideoCandidate() != null && avcPlan.getAudioCandidate() != null) {
+						return avcPlan;
+					}
+				}
+			}
 			// Forced SDR fallback: HDR (VP9.2 / AV1 10-bit) renders blue on Samsung firmware.
 			// If any SDR video exists, plan adaptive from SDR only. If adaptive is HDR-only,
 			// fall through to MUXED below (H264 AVC progressive, always SDR).
@@ -129,6 +139,16 @@ public final class PlaybackPlanner {
 		for (StreamCandidate candidate : candidates) {
 			String codec = candidate.getVideoStream() != null ? candidate.getVideoStream().getCodec() : null;
 			if (!PlayerUtils.isLikelyHdr(codec)) out.add(candidate);
+		}
+		return out;
+	}
+
+	@NonNull
+	private static List<StreamCandidate> avcVideoOnly(@NonNull List<StreamCandidate> candidates) {
+		List<StreamCandidate> out = new ArrayList<>();
+		for (StreamCandidate candidate : candidates) {
+			String codec = candidate.getVideoStream() != null ? candidate.getVideoStream().getCodec() : null;
+			if (PlayerUtils.isAvc(codec)) out.add(candidate);
 		}
 		return out;
 	}
