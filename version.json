@@ -1,9 +1,9 @@
 {
   "tag": "v3.0.3",
-  "versionCode": 30003,
   "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.3/testtube3.0.3.apk",
-  "sha256": null,
-  "size": -1,
-  "notes": "Security/privacy/stability/performance hardening + dwicao release CI with AOSP test key.",
-  "prerelease": false
+  "sha256": "ab6b5252bb2c9f165e1c17b658e3984d8d5d6add68c0d20f240540b0254e78d1",
+  "size": 5443009,
+  "notes": "Fix CI: don't let ls exit 2 abort Prepare step",
+  "prerelease": false,
+  "versionCode": 30003
 }
