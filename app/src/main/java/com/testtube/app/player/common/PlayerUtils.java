@@ -89,6 +89,9 @@ public final class PlayerUtils {
 
 	public static int getCodecPriority(@Nullable String codec) {
 		if (codec == null) return 0;
+		// HDR renders blue on Samsung/Exynos firmware without proper tone mapping.
+		// Always lose to any SDR codec so SDR is picked whenever it exists.
+		if (isLikelyHdr(codec)) return -1;
 		String lower = codec.toLowerCase(Locale.ROOT);
 		if (lower.startsWith("avc") || lower.startsWith("h264")) return 4;
 		if (lower.contains("vp9") || lower.contains("vp8")) return 3;
@@ -98,17 +101,45 @@ public final class PlayerUtils {
 		return 0;
 	}
 
+	/**
+	 * VP9 Profile 2 (vp09.02) is HDR10; AV1 10-bit (av01.*.10) is HDR. SDR is vp09.00 / av01.*.08.
+	 * H.264 has no YouTube HDR. When unsure, assume SDR so nothing gets wrongly excluded.
+	 */
+	public static boolean isLikelyHdr(@Nullable String codec) {
+		if (codec == null) return false;
+		String lower = codec.toLowerCase(Locale.ROOT);
+		if (lower.contains("vp09.02")) return true;
+		if (lower.contains("av01") && (lower.endsWith(".10") || lower.contains(".10"))) return true;
+		return false;
+	}
+
 	@Nullable
 	public static VideoStream selectVideoStream(@Nullable List<VideoStream> streams, @Nullable String targetRes) {
 		if (streams == null || streams.isEmpty()) return null;
-		if (targetRes == null) return streams.get(0);
+		if (targetRes == null) return bestOf(streams);
 
-		for (VideoStream s : streams) if (s.getResolution().equals(targetRes)) return s;
+		List<VideoStream> exact = new ArrayList<>();
+		for (VideoStream s : streams) if (targetRes.equals(s.getResolution())) exact.add(s);
+		if (!exact.isEmpty()) return bestOf(exact);
 
 		int targetHeight = StringUtils.parseHeight(targetRes);
-		for (VideoStream s : streams) if (s.getHeight() <= targetHeight) return s;
+		List<VideoStream> fitting = new ArrayList<>();
+		for (VideoStream s : streams) {
+			int h = s.getHeight() > 0 ? s.getHeight() : StringUtils.parseHeight(s.getResolution());
+			if (h > 0 && h <= targetHeight) fitting.add(s);
+		}
+		if (!fitting.isEmpty()) return bestOf(fitting);
 
-		return streams.get(0);
+		return bestOf(streams);
+	}
+
+	@Nullable
+	private static VideoStream bestOf(@NonNull List<VideoStream> streams) {
+		VideoStream best = null;
+		for (VideoStream s : streams) {
+			if (best == null || isBetterStream(s, best)) best = s;
+		}
+		return best;
 	}
 
 	/** The first audio track, which is the one YouTube plays by default. */

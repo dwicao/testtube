@@ -1,9 +1,9 @@
 {
-  "tag": "v3.0.7",
-  "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.7/testtube3.0.7.apk",
-  "sha256": "da266438d8e60beb5379af7ae38bdd41697ad7739390262b503f1c33ece682f0",
-  "size": 6029433,
-  "notes": "Fix blue skin on Samsung: disable tunneling\n\nTunneling bypasses GPU color processing; on Samsung/Exynos firmware HDR\ntunneled to display renders skin blue in all videos. GPU path tone-maps\ncorrectly. Bump v3.0.7",
-  "prerelease": false,
-  "versionCode": 30007
+  "tag": "v3.0.8",
+  "versionCode": 30008,
+  "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.8/testtube3.0.8.apk",
+  "sha256": null,
+  "size": -1,
+  "notes": "Fix blue skin on HDR videos: prefer SDR (VP9.2/AV1 10-bit deprioritized).",
+  "prerelease": false
 }

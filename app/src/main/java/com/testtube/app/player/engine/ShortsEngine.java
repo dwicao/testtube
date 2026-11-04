@@ -89,10 +89,14 @@ public final class ShortsEngine {
 						.build();
 		// Shorts loop until the next one is swiped in
 		exo.setRepeatMode(Player.REPEAT_MODE_ONE);
-		// No captions over Shorts (the extraction comes with every subtitle track)
+		// No captions over Shorts (the extraction comes with every subtitle track).
+		// SDR only, like the main player: HDR renders blue on Samsung firmware.
 		exo.setTrackSelectionParameters(exo.getTrackSelectionParameters().buildUpon()
 						.setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
 						.build());
+		if (exo.getTrackSelector() instanceof androidx.media3.exoplayer.trackselection.DefaultTrackSelector selector) {
+			selector.setParameters(selector.buildUponParameters().setAllowVideoHdr(false).build());
+		}
 		exo.addListener(new Player.Listener() {
 			@Override
 			public void onRenderedFirstFrame() {

@@ -286,7 +286,8 @@ public class Engine {
 		DefaultTrackSelector trackSelector = new DefaultTrackSelector(context, new AdaptiveTrackSelection.Factory());
 		// Tunneling off: on Samsung/Exynos + some Snapdragon firmware it tints skin blue
 		// (HDR tunneled to display without proper tone mapping). GPU path tone-maps correctly.
-		trackSelector.setParameters(params(trackSelector).setTunnelingEnabled(false).build());
+		// HDR off: prefer SDR tracks so HDR videos play with correct colors everywhere.
+		trackSelector.setParameters(params(trackSelector).setTunnelingEnabled(false).setAllowVideoHdr(false).build());
 		this.player = new ExoPlayer.Builder(context)
 						.setTrackSelector(trackSelector)
 						.setLoadControl(PlayerLoadControl.create())
@@ -1194,6 +1195,8 @@ public class Engine {
 		DefaultTrackSelector.Parameters.Builder builder = params(trackSelector)
 						.clearOverridesOfType(C.TRACK_TYPE_VIDEO)
 						.setForceHighestSupportedBitrate(false)
+						.setTunnelingEnabled(false)
+						.setAllowVideoHdr(false)
 						.clearVideoSizeConstraints();
 		PlaybackPlan plan = playbackPlan;
 		int height = StringUtils.parseHeight(prefs.getPreferredQuality());
