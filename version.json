@@ -1,9 +1,9 @@
 {
   "tag": "v3.0.18",
   "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.18/testtube3.0.18.apk",
-  "sha256": "e196337a93407706f786198336a529d3849c8c8911e9b9fae6d96d2f0b88b21d",
+  "sha256": "49b396ec4b016153eab30f0bfd007f40a7e78fa8791a8d178db81b7747f01231",
   "size": 6205091,
-  "notes": "Fix backup section ViewGroup type",
+  "notes": "Guard dataSaver for unit tests (mocked MMKV)",
   "prerelease": false,
   "versionCode": 30018,
   "notice": "",
