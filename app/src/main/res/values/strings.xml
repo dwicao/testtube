@@ -238,13 +238,6 @@
     <string name="queue_save_failed">Could not save the queue</string>
     <string name="queue_loaded">Loaded %1$d video(s)</string>
     <string name="queue_load_failed">Could not load the queue file</string>
-    <string name="playback_speed">Playback speed</string>
-    <string name="playback_speed_pitch">Pitch stays locked at any speed</string>
-    <string name="sleep_timer">Sleep timer</string>
-    <string name="sleep_off">Off</string>
-    <string name="sleep_minutes">%1$d min</string>
-    <string name="sleep_timer_done">Sleep timer done, paused</string>
-    <string name="stats_for_nerds">Stats for nerds</string>
     <string name="setting_grey_watched">Grey out watched videos</string>
     <string name="setting_grey_watched_summary">Dim videos you\'ve watched</string>
     <string name="setting_watched_dim_description">How dark watched videos are greyed out</string>
