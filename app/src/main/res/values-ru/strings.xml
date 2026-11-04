@@ -380,6 +380,11 @@
     <string name="setting_prefer_avc_summary">Самый совместимый декодер, без синего HDR. Выкл — VP9/AV1</string>
     <string name="setting_allow_hdr">Разрешить HDR</string>
     <string name="setting_allow_hdr_summary">VP9.2 / AV1 10 бит. Выкл — принудительный SDR (чинит синюю кожу на Samsung)</string>
+    <string name="setting_downloads_wifi_only">Загрузки только по Wi-Fi</string>
+    <string name="setting_downloads_wifi_only_summary">Ставит на паузу новые и идущие загрузки в мобильной сети</string>
+    <string name="download_requires_wifi">Для загрузок нужен Wi-Fi (Настройки → Воспроизведение)</string>
+    <string name="download_pause_all">Приостановить все</string>
+    <string name="download_resume_all">Продолжить все</string>
     <string name="setting_sponsor_cats">Категории SponsorBlock</string>
     <string name="setting_sponsor_cats_summary">Какие сегменты пропускать</string>
     <string name="skipped_sponsor">Пропущен спонсор (%1$d с)</string>

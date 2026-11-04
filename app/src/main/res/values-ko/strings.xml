@@ -377,6 +377,11 @@
     <string name="setting_prefer_avc_summary">가장 호환성 높은 디코더, HDR 파랗게 없음. VP9/AV1 사용 시 끄기</string>
     <string name="setting_allow_hdr">HDR 허용</string>
     <string name="setting_allow_hdr_summary">VP9.2 / AV1 10비트. 끄면 SDR 고정 (삼성 파란 피부 수정)</string>
+    <string name="setting_downloads_wifi_only">Wi-Fi에서만 다운로드</string>
+    <string name="setting_downloads_wifi_only_summary">모바일 데이터에서는 신규·진행 중 다운로드 일시정지</string>
+    <string name="download_requires_wifi">다운로드에 Wi-Fi가 필요합니다 (설정 → 재생)</string>
+    <string name="download_pause_all">모두 일시정지</string>
+    <string name="download_resume_all">모두 다시 시작</string>
     <string name="setting_sponsor_cats">SponsorBlock 카테고리</string>
     <string name="setting_sponsor_cats_summary">건너뛸 구간 종류</string>
     <string name="skipped_sponsor">스폰서 건너뜀 %1$d초</string>

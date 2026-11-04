@@ -377,6 +377,11 @@
     <string name="setting_prefer_avc_summary">相容性最佳的解碼器，不會 HDR 偏藍。關閉則用 VP9/AV1</string>
     <string name="setting_allow_hdr">允許 HDR</string>
     <string name="setting_allow_hdr_summary">VP9.2 / AV1 10 位元。關閉則強制 SDR（修復三星偏藍）</string>
+    <string name="setting_downloads_wifi_only">僅在 Wi-Fi 下下載</string>
+    <string name="setting_downloads_wifi_only_summary">在行動數據下暫停新的和正在進行的下載</string>
+    <string name="download_requires_wifi">下載需要 Wi-Fi（設定 → 播放）</string>
+    <string name="download_pause_all">全部暫停</string>
+    <string name="download_resume_all">全部繼續</string>
     <string name="setting_sponsor_cats">SponsorBlock 類別</string>
     <string name="setting_sponsor_cats_summary">要略過的片段類型</string>
     <string name="skipped_sponsor">已略過贊助 %1$d 秒</string>

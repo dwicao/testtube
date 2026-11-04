@@ -96,6 +96,8 @@ public final class DownloadsList {
 	private final RecyclerView recyclerView;
 	@NonNull
 	private final TextView emptyView;
+	@Nullable
+	private final View bulkBar;
 	@NonNull
 	private final Adapter adapter = new Adapter();
 	@NonNull
@@ -149,6 +151,26 @@ public final class DownloadsList {
 		youtubeExtractor = app.youtubeExtractor();
 		recyclerView = root.findViewById(R.id.download_list);
 		emptyView = root.findViewById(R.id.download_empty);
+		View bulkBar = root.findViewById(R.id.download_bulk_bar);
+		View pauseAll = root.findViewById(R.id.download_pause_all);
+		View resumeAll = root.findViewById(R.id.download_resume_all);
+		// The playlist view reuses this layout per playlist; bulk actions only make sense on the full tab.
+		if (parentId != null || pauseAll == null || resumeAll == null) {
+			bulkBar = null;
+			if (root.findViewById(R.id.download_bulk_bar) != null) {
+				root.findViewById(R.id.download_bulk_bar).setVisibility(View.GONE);
+			}
+		} else {
+			pauseAll.setOnClickListener(v -> {
+				if (downloadService != null) downloadService.pauseAll();
+				else toastServiceBusy();
+			});
+			resumeAll.setOnClickListener(v -> {
+				if (downloadService != null) downloadService.resumeAll();
+				else toastServiceBusy();
+			});
+		}
+		this.bulkBar = bulkBar;
 		ViewUtils.sizeCompoundDrawables(emptyView, EMPTY_ICON_DP);
 		recyclerView.setLayoutManager(new LinearLayoutManager(activity));
 		recyclerView.setAdapter(adapter);
@@ -313,7 +335,12 @@ public final class DownloadsList {
 		boolean empty = adapter.getItemCount() == 0;
 		emptyView.setVisibility(empty ? View.VISIBLE : View.GONE);
 		recyclerView.setVisibility(empty ? View.GONE : View.VISIBLE);
+		if (bulkBar != null) bulkBar.setVisibility(empty ? View.GONE : View.VISIBLE);
 		onChanged.run();
+	}
+
+	private void toastServiceBusy() {
+		com.testtube.app.util.ToastUtils.show(activity, R.string.preparing_download);
 	}
 
 	// Actions

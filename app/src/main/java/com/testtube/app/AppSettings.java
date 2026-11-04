@@ -42,6 +42,7 @@ public final class AppSettings {
 	private static final String KEY_PRELOAD_MOBILE = "preload_on_mobile";
 	private static final String KEY_PREFER_AVC = "prefer_avc";
 	private static final String KEY_ALLOW_HDR = "allow_hdr";
+	private static final String KEY_DOWNLOADS_WIFI_ONLY = "downloads_wifi_only";
 	private static final String KEY_SPONSOR_CATS = "sponsorblock_cats";
 	private static final int MIN_WATCHED_DIM = 20;
 	private static final int MAX_WATCHED_DIM = 90;
@@ -49,7 +50,7 @@ public final class AppSettings {
 	/** As dark as watched videos were before this became a setting. */
 	private static final int DEFAULT_WATCHED_DIM = 70;
 	/** Raised when the welcome dialog gets new choices, so everyone sees it once more. */
-	private static final int WELCOME_VERSION = 9;
+	private static final int WELCOME_VERSION = 10;
 
 	private static volatile boolean loaded;
 	private static volatile boolean shorts;
@@ -79,6 +80,7 @@ public final class AppSettings {
 	private static volatile boolean preloadOnMobile;
 	private static volatile boolean preferAvc = true;
 	private static volatile boolean allowHdr;
+	private static volatile boolean downloadsWifiOnly;
 
 	private AppSettings() {
 	}
@@ -463,6 +465,18 @@ public final class AppSettings {
 		MMKV.defaultMMKV().encode(KEY_ALLOW_HDR, enabled);
 	}
 
+	/** Only start and continue downloads on Wi-Fi. Off by default; on mobile new downloads pause right away. */
+	public static boolean downloadsWifiOnly() {
+		load();
+		return downloadsWifiOnly;
+	}
+
+	public static void setDownloadsWifiOnly(boolean enabled) {
+		load();
+		downloadsWifiOnly = enabled;
+		MMKV.defaultMMKV().encode(KEY_DOWNLOADS_WIFI_ONLY, enabled);
+	}
+
 	public static boolean welcomeShown() {
 		return MMKV.defaultMMKV().decodeInt(KEY_WELCOME_VERSION, 0) >= WELCOME_VERSION;
 	}
@@ -506,6 +520,7 @@ public final class AppSettings {
 			preloadOnMobile = store.decodeBool(KEY_PRELOAD_MOBILE, false);
 			preferAvc = store.decodeBool(KEY_PREFER_AVC, true);
 			allowHdr = store.decodeBool(KEY_ALLOW_HDR, false);
+			downloadsWifiOnly = store.decodeBool(KEY_DOWNLOADS_WIFI_ONLY, false);
 			loaded = true;
 		}
 	}

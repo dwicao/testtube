@@ -377,6 +377,11 @@
     <string name="setting_prefer_avc_summary">最も互換性のあるデコーダー、HDR青化なし。VP9/AV1を使う場合はオフ</string>
     <string name="setting_allow_hdr">HDRを許可</string>
     <string name="setting_allow_hdr_summary">VP9.2 / AV1 10bit。オフでSDR固定（Samsungの青肌を修正）</string>
+    <string name="setting_downloads_wifi_only">Wi-Fi時のみダウンロード</string>
+    <string name="setting_downloads_wifi_only_summary">モバイルデータでは新規・実行中のダウンロードを一時停止</string>
+    <string name="download_requires_wifi">ダウンロードにはWi-Fiが必要です（設定 → 再生）</string>
+    <string name="download_pause_all">すべて一時停止</string>
+    <string name="download_resume_all">すべて再開</string>
     <string name="setting_sponsor_cats">SponsorBlockカテゴリ</string>
     <string name="setting_sponsor_cats_summary">スキップする区間の種類</string>
     <string name="skipped_sponsor">スポンサーをスキップ（%1$d秒）</string>

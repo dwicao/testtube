@@ -1,5 +1,60 @@
 # Changelog
 
+## 3.0.12
+
+- Shorts now use a single player + cache prefetch instead of two players (less RAM, battery and mobile data)
+- New: Allow HDR toggle (Settings → Playback, off by default — fixes blue skin on Samsung)
+- New: SponsorBlock categories picker (Settings → Playback)
+- More options Download now shows progress and a shortcut to Downloads when already downloading
+- Crash dialog can Share the report (Copy still there)
+- Full translations for all new settings (es/fr/ja/ko/ru/tr/zh)
+- F-Droid metadata: changelogs 30003–30012, phone screenshots
+- Removed the fake baseline profile stub + profileinstaller (no Macrobenchmark profile yet)
+- CI: new check workflow (debug build + unit tests + lint) runs on every push to main
+
+## 3.0.11
+
+- New: Allow HDR toggle, SponsorBlock categories picker, download progress dialog
+- Full translations for the new settings
+
+## 3.0.10
+
+- Forced H264 fallback + Prefer H264 toggle (fixes remaining blue videos on Samsung firmware)
+
+## 3.0.9
+
+- Forced SDR fallback: HDR-only videos play H264 muxed instead of blue HDR
+
+## 3.0.8
+
+- Prefer SDR over HDR (VP9.2 / AV1 10-bit deprioritized); dropped missing media3 API
+
+## 3.0.7
+
+- Fixed blue skin on Samsung: disabled video tunneling (GPU tone mapping)
+
+## 3.0.6
+
+- Fixed MediaButtonReceiver crash: restored PlaybackService MEDIA_BUTTON handler
+
+## 3.0.5
+
+- New privacy controls: Personalize Home, Skip sponsors, Preload on mobile
+- Encrypted login flag, R8 obfuscation, shared OkHttp pool for live streams
+- Stability: queue diff off main thread, Call.cancel on pause/cancel, FloatingWindow/MiniBar/Controller release
+- More options Download shows progress if already downloading
+
+## 3.0.4
+
+- Sharper thumbnails (hqdefault + 854x480)
+- Download current video from the player More options menu
+
+## 3.0.3
+
+- Security/privacy hardening: login WebView allowlist, PoToken lockdown, FileProvider narrowed, https-only links, mandatory SHA-256 + same-signer updates
+- Stability: no leaked ExoPlayer on font change, DownloadService stops itself, capped history, throttled progress
+- Independent dwicao releases with AOSP test-key signing + version.json auto-updates
+
 ## 3.0.0
 
 - New look: one consistent style everywhere. Buttons, icons and labels share one colour; the long-press menu is a single list of actions with icons and names; fewer background shades

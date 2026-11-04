@@ -9,8 +9,11 @@ import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,6 +21,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.media3.common.util.UnstableApi;
 
 import com.testtube.app.AppGraph;
+import com.testtube.app.AppSettings;
 import com.testtube.app.R;
 import com.testtube.app.downloader.core.DownloadListener;
 import com.testtube.app.downloader.core.DownloadTaskIdHelper;
@@ -29,6 +33,7 @@ import com.testtube.app.downloader.core.history.DownloadStatus;
 import com.testtube.app.downloader.core.history.DownloadType;
 import com.testtube.app.ui.MainActivity;
 import com.testtube.app.util.DownloadStorageUtils;
+import com.testtube.app.util.NetworkWatcher;
 
 import java.io.File;
 import java.util.LinkedHashMap;
@@ -44,14 +49,19 @@ public class DownloadService extends Service {
 	/** Opens the app on the Library's Downloads tab (the notification's tap action). */
 	public static final String ACTION_OPEN_DOWNLOADS = "OPEN_DOWNLOADS";
 	public static final String EXTRA_TASK_ID = "extra_task_id";
+	/** Pauses every running download (notification action). */
+	public static final String ACTION_PAUSE_ALL = "com.testtube.app.action.PAUSE_ALL_DOWNLOADS";
 	private static final String CHANNEL_ID = "download_channel";
 	private static final int NOTIFICATION_ID = 1001;
+	private static final int REQUEST_PAUSE_ALL = 1002;
 	private final Set<String> activeIds = ConcurrentHashMap.newKeySet();
 	private final Map<String, String> activeNames = new ConcurrentHashMap<>();
 	private TestTubeDownloader downloader;
 	private DownloadHistoryRepository historyRepository;
 	private NotificationManager notificationManager;
 	private NotificationCompat.Builder notificationBuilder;
+	@Nullable
+	private NetworkWatcher.Listener networkListener;
 
 	private static DownloadType inferType(@NonNull Task task) {
 		if (task.thumbnail() != null) return DownloadType.THUMBNAIL;
@@ -97,10 +107,30 @@ public class DownloadService extends Service {
 		} catch (RuntimeException e) {
 			Log.w(TAG, "could not demote stale downloads", e);
 		}
+		// "Downloads on Wi-Fi only": pause everything the moment the network turns mobile.
+		try {
+			NetworkWatcher watcher = AppGraph.of(this).networkWatcher();
+			networkListener = mobile -> {
+				if (mobile && AppSettings.downloadsWifiOnly()) {
+					pauseAll();
+					toastOnMain(getString(R.string.download_requires_wifi));
+				}
+			};
+			watcher.addListener(networkListener);
+		} catch (RuntimeException e) {
+			Log.w(TAG, "network watcher unavailable", e);
+		}
 	}
 
 	@Override
 	public void onDestroy() {
+		try {
+			if (networkListener != null) {
+				AppGraph.of(this).networkWatcher().removeListener(networkListener);
+				networkListener = null;
+			}
+		} catch (RuntimeException ignored) {
+		}
 		try {
 			stopForeground(STOP_FOREGROUND_REMOVE);
 		} catch (RuntimeException ignored) {
@@ -127,11 +157,70 @@ public class DownloadService extends Service {
 		return new DownloadBinder();
 	}
 
+	@Override
+	public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
+		if (intent != null && ACTION_PAUSE_ALL.equals(intent.getAction())) {
+			pauseAll();
+		}
+		return START_NOT_STICKY;
+	}
+
 	public void download(@NonNull List<Task> tasks) {
 		if (tasks.isEmpty()) return;
+		boolean wifiOnlyBlocked = false;
+		try {
+			wifiOnlyBlocked = AppSettings.downloadsWifiOnly()
+							&& AppGraph.of(this).networkWatcher().isMobile();
+		} catch (RuntimeException ignored) {
+		}
 		initNotification();
 		for (Task task : tasks) {
 			startTask(task);
+			if (wifiOnlyBlocked) pause(task.videoId());
+		}
+		if (wifiOnlyBlocked) toastOnMain(getString(R.string.download_requires_wifi));
+	}
+
+	/** Pauses every running download; records stay so they can be resumed later. */
+	public void pauseAll() {
+		for (String taskId : new java.util.ArrayList<>(activeIds)) {
+			try {
+				pause(taskId);
+			} catch (RuntimeException ignored) {
+			}
+		}
+	}
+
+	/** Resumes every paused record that still has a worker (same limits as single resume). */
+	public void resumeAll() {
+		java.util.List<String> toResume = new java.util.ArrayList<>();
+		try {
+			for (DownloadRecord record : historyRepository.getAllSorted()) {
+				if (record.getStatus() == DownloadStatus.PAUSED && record.getTaskId() != null) {
+					toResume.add(record.getTaskId());
+				}
+			}
+		} catch (RuntimeException e) {
+			Log.w(TAG, "could not list paused downloads", e);
+			return;
+		}
+		for (String taskId : toResume) {
+			try {
+				resume(taskId);
+			} catch (RuntimeException ignored) {
+			}
+		}
+	}
+
+	private void toastOnMain(@NonNull String text) {
+		try {
+			new Handler(Looper.getMainLooper()).post(() -> {
+				try {
+					Toast.makeText(this, text, Toast.LENGTH_LONG).show();
+				} catch (RuntimeException ignored) {
+				}
+			});
+		} catch (RuntimeException ignored) {
 		}
 	}
 
@@ -363,6 +452,12 @@ public class DownloadService extends Service {
 						.setSmallIcon(R.drawable.ic_notification)
 						.setContentTitle(getString(R.string.preparing_download))
 						.setContentIntent(createContentIntent())
+						.addAction(new NotificationCompat.Action.Builder(
+										R.drawable.ic_notification,
+										getString(R.string.download_pause_all),
+										PendingIntent.getService(this, REQUEST_PAUSE_ALL,
+														new Intent(this, DownloadService.class).setAction(ACTION_PAUSE_ALL),
+														PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT)).build())
 						.setPriority(NotificationCompat.PRIORITY_DEFAULT)
 						.setOngoing(true);
 

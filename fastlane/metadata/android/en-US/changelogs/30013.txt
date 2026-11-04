@@ -1,0 +1,2 @@
+- CI now runs unit tests + lint on every push; CHANGELOG covers 3.0.3+
+- New: downloads on Wi-Fi only, pause-all/resume-all (Downloads tab + notification)

@@ -381,6 +381,11 @@
     <string name="setting_prefer_avc_summary">Decodificador más compatible, nunca azul por HDR. Desactívalo para VP9/AV1</string>
     <string name="setting_allow_hdr">Permitir vídeo HDR</string>
     <string name="setting_allow_hdr_summary">VP9.2 / AV1 10 bits. Desactívalo para forzar SDR (corrige piel azul en Samsung)</string>
+    <string name="setting_downloads_wifi_only">Descargas solo con Wi-Fi</string>
+    <string name="setting_downloads_wifi_only_summary">Pausa las descargas nuevas y en curso con datos móviles</string>
+    <string name="download_requires_wifi">Las descargas necesitan Wi-Fi (Ajustes → Reproducción)</string>
+    <string name="download_pause_all">Pausar todo</string>
+    <string name="download_resume_all">Reanudar todo</string>
     <string name="setting_sponsor_cats">Categorías de SponsorBlock</string>
     <string name="setting_sponsor_cats_summary">Qué segmentos se omiten</string>
     <string name="skipped_sponsor">Sponsor omitido: %1$ds</string>

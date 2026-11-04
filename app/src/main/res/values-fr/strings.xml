@@ -379,6 +379,11 @@
     <string name="setting_prefer_avc_summary">Décodeur le plus compatible, jamais bleu HDR. Désactive pour VP9/AV1</string>
     <string name="setting_allow_hdr">Autoriser la vidéo HDR</string>
     <string name="setting_allow_hdr_summary">VP9.2 / AV1 10 bits. Désactive pour forcer SDR (corrige peau bleue sur Samsung)</string>
+    <string name="setting_downloads_wifi_only">Téléchargements en Wi-Fi uniquement</string>
+    <string name="setting_downloads_wifi_only_summary">Met en pause les téléchargements nouveaux et en cours sur données mobiles</string>
+    <string name="download_requires_wifi">Les téléchargements nécessitent le Wi-Fi (Réglages → Lecture)</string>
+    <string name="download_pause_all">Tout mettre en pause</string>
+    <string name="download_resume_all">Tout reprendre</string>
     <string name="setting_sponsor_cats">Catégories SponsorBlock</string>
     <string name="setting_sponsor_cats_summary">Segments à sauter</string>
     <string name="skipped_sponsor">Sponsor sauté : %1$ds</string>

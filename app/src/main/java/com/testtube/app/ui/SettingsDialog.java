@@ -123,6 +123,8 @@ final class SettingsDialog {
 						R.string.setting_prefer_avc_summary, AppSettings.preferAvc());
 		MaterialSwitch allowHdr = form.toggle(playback, R.string.setting_allow_hdr,
 						R.string.setting_allow_hdr_summary, AppSettings.allowHdr());
+		MaterialSwitch downloadsWifiOnly = form.toggle(playback, R.string.setting_downloads_wifi_only,
+						R.string.setting_downloads_wifi_only_summary, AppSettings.downloadsWifiOnly());
 		View sponsorCats = form.value(playback, R.string.setting_sponsor_cats,
 						R.string.setting_sponsor_cats_summary, sponsorCatsSummary(activity, prefs));
 		sponsorCats.setOnClickListener(v -> showSponsorCats(activity, prefs, sponsorCats));
@@ -220,6 +222,7 @@ final class SettingsDialog {
 							AppSettings.setPreloadOnMobile(preloadMobile.isChecked());
 							AppSettings.setPreferAvc(preferAvc.isChecked());
 							AppSettings.setAllowHdr(allowHdr.isChecked());
+							AppSettings.setDownloadsWifiOnly(downloadsWifiOnly.isChecked());
 							AppSettings.setFloatingPlayer(minimizeTo.value);
 							if (videoCache.value != AppSettings.videoCache()) {
 								AppSettings.setVideoCache(videoCache.value);
