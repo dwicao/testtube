@@ -1,9 +1,9 @@
 {
   "tag": "v3.0.5",
-  "versionCode": 30005,
   "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.5/testtube3.0.5.apk",
-  "sha256": null,
-  "size": -1,
-  "notes": "Privacy toggles (Personalize Home, Skip sponsors, Preload on mobile), encrypted login, obfuscation, OkHttp live, queue diff off-main, download progress in More options.",
-  "prerelease": false
+  "sha256": "e9b0c3101c6fb017164d0d6c7a4a5854746cdb0905abdbd6999665def0c6cc3a",
+  "size": 6029413,
+  "notes": "Fix QueueAdapter background diff braces + oldSnapshot",
+  "prerelease": false,
+  "versionCode": 30005
 }
