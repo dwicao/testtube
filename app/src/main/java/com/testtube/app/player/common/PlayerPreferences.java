@@ -22,6 +22,10 @@ public final class PlayerPreferences {
 	private static final String KEY_VIDEO_QUALITY_MOBILE = "video_quality_mobile";
 	private static final String KEY_LOOP_MODE = "loop_mode";
 	private static final String KEY_LOOP_ENABLED = "loop_enabled";
+	private static final String KEY_PLAYBACK_SPEED = "playback_speed";
+	private static final float DEFAULT_SPEED = 1.0f;
+	/** Offered in More options; pitch stays locked (ExoPlayer preserves it). */
+	public static final float[] SPEEDS = {0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f};
 	private static final String KEY_SUBTITLE_ENABLED = "subtitle_enabled";
 	private static final String KEY_SUBTITLE_LANGUAGE = "subtitle_language";
 	private static final String PREFIX_PROGRESS = "progress:";
@@ -231,6 +235,17 @@ public final class PlayerPreferences {
 			if (categories.contains(known)) ordered.add(known);
 		}
 		mmkv.encode(KEY_SPONSOR_CATS, gson.toJson(ordered.toArray(new String[0])));
+	}
+
+	/** Playback speed multiplier; pitch is always preserved by the player. */
+	public float getPlaybackSpeed() {
+		float speed = mmkv.decodeFloat(KEY_PLAYBACK_SPEED, DEFAULT_SPEED);
+		if (Float.isNaN(speed) || speed < 0.25f || speed > 3.0f) return DEFAULT_SPEED;
+		return speed;
+	}
+
+	public void setPlaybackSpeed(float speed) {
+		mmkv.encode(KEY_PLAYBACK_SPEED, speed);
 	}
 
 	static class Progress {

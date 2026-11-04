@@ -7,15 +7,19 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.Outline;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Rational;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.view.ViewParent;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -60,8 +64,9 @@ public class TestTubePlayerView extends PlayerView {
 	private boolean isFs = false;
 	private int normalHeight = 0;
 	private boolean parentInsetsSuppressed;
-	private int parentPaddingLeft;
-	private int parentPaddingTop;
+	@Nullable
+	private TextView statsOverlay;
+	private int parentPaddingLeft;	private int parentPaddingTop;
 	private int parentPaddingRight;
 	private int parentPaddingBottom;
 	@Nullable
@@ -296,8 +301,34 @@ public class TestTubePlayerView extends PlayerView {
 		}
 	}
 
-	public void cueing(@NonNull CueGroup cueGroup) {
-		if (subtitleView == null) {
+	/** Nerd-stats overlay (resolution, codec, bitrates, buffer). Stays until hidden. */
+	public void showStats(@NonNull String text) {
+		if (statsOverlay == null) {
+			TextView view = new TextView(getContext());
+			view.setTextColor(Color.WHITE);
+			view.setTextSize(11f);
+			view.setTypeface(Typeface.MONOSPACE);
+			view.setBackgroundColor(0xAA000000);
+			int pad = ViewUtils.dpToPx(activity, 6);
+			view.setPadding(pad, pad / 2, pad, pad / 2);
+			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+							ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+			params.gravity = Gravity.TOP | Gravity.START;
+			params.topMargin = ViewUtils.dpToPx(activity, 8);
+			params.leftMargin = ViewUtils.dpToPx(activity, 8);
+			addView(view, params);
+			statsOverlay = view;
+		}
+		statsOverlay.setText(text);
+		statsOverlay.setVisibility(View.VISIBLE);
+		statsOverlay.bringToFront();
+	}
+
+	public void hideStats() {
+		if (statsOverlay != null) statsOverlay.setVisibility(View.GONE);
+	}
+
+	public void cueing(@NonNull CueGroup cueGroup) {		if (subtitleView == null) {
 			SubtitleView defaultSubtitleView = getSubtitleView();
 			if (defaultSubtitleView != null) defaultSubtitleView.setVisibility(View.GONE);
 			subtitleView = findViewById(R.id.custom_subtitle_view);

@@ -492,7 +492,7 @@ public class Engine {
 
 		long duration = durationMs(video);
 		this.player.setMediaSource(PlaybackSourceFactory.create(sources, autoSubtitleFormat, details, plan));
-		this.player.setPlaybackParameters(new PlaybackParameters(1.0f));
+		this.player.setPlaybackParameters(new PlaybackParameters(prefs.getPlaybackSpeed()));
 
 		// Resume position
 		long resumePos = prefs.getResumePosition(videoId);
@@ -669,6 +669,12 @@ public class Engine {
 
 	public float getPlaybackRate() {
 		return this.player.getPlaybackParameters().speed;
+	}
+
+	/** Sets the speed (pitch stays locked) and remembers it for the next video. */
+	public void setPlaybackSpeed(float speed) {
+		prefs.setPlaybackSpeed(speed);
+		player.setPlaybackParameters(new PlaybackParameters(speed));
 	}
 
 	public void addListener(@NonNull Player.Listener listener) {

@@ -46,4 +46,52 @@
         android:textColor="?attr/colorOnSurface"
         android:textIsSelectable="true"
         android:textSize="14sp" />
+
+    <LinearLayout
+        android:id="@+id/comment_actions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/comment_like"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_marginEnd="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="8dp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/comment_reply"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="8dp"
+            android:text="@string/watch_comment_reply"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/comment_replies"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:gravity="end|center_vertical"
+            android:maxLines="1"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="12sp" />
+    </LinearLayout>
 </LinearLayout>

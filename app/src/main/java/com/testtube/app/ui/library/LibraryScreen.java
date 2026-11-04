@@ -43,6 +43,12 @@ public final class LibraryScreen {
 		void moveQueue(@NonNull List<QueueItem> order);
 
 		void clearQueue();
+
+		/** Writes the current queue to a file the user picks. */
+		void saveQueue();
+
+		/** Reads a queue file the user picks and appends valid entries. */
+		void loadQueue();
 	}
 
 	private static final String KEY_PAGE = "library_page";
@@ -103,6 +109,10 @@ public final class LibraryScreen {
 
 		queueEmpty = root.findViewById(R.id.panel_queue_empty);
 		ViewUtils.sizeCompoundDrawables(queueEmpty, DownloadsList.EMPTY_ICON_DP);
+		View queueSave = root.findViewById(R.id.panel_queue_save);
+		if (queueSave != null) queueSave.setOnClickListener(v -> host.saveQueue());
+		View queueLoad = root.findViewById(R.id.panel_queue_load);
+		if (queueLoad != null) queueLoad.setOnClickListener(v -> host.loadQueue());
 		queueList = root.findViewById(R.id.panel_queue_list);
 		queueAdapter = new QueueAdapter(new QueueAdapter.Actions() {
 			@Override

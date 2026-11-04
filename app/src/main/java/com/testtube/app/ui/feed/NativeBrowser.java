@@ -147,6 +147,10 @@ public final class NativeBrowser {
 	@NonNull
 	private final EditText searchField;
 	@NonNull
+	private final View searchFilters;
+	@NonNull
+	private final com.google.android.material.chip.ChipGroup filterGroup;
+	@NonNull
 	private final SwipeRefreshLayout refresh;
 	@NonNull
 	private final RecyclerView list;
@@ -203,6 +207,9 @@ public final class NativeBrowser {
 		searchButton = root.findViewById(R.id.browser_search);
 		searchBack = root.findViewById(R.id.browser_search_back);
 		searchField = root.findViewById(R.id.browser_search_field);
+		searchFilters = root.findViewById(R.id.browser_search_filters);
+		filterGroup = root.findViewById(R.id.browser_search_filter_group);
+		setupFilterChips();
 		refresh = root.findViewById(R.id.browser_refresh);
 		list = root.findViewById(R.id.browser_list);
 		message = root.findViewById(R.id.browser_message);
@@ -475,6 +482,38 @@ public final class NativeBrowser {
 		list.scrollToPosition(0);
 	}
 
+	/** All / Videos / Channels / Playlists chips under the search bar. */
+	private void setupFilterChips() {
+		Context context = filterGroup.getContext();
+		String[] values = {FeedClient.SEARCH_ALL, FeedClient.SEARCH_VIDEOS,
+						FeedClient.SEARCH_CHANNELS, FeedClient.SEARCH_PLAYLISTS};
+		int[] labels = {R.string.search_filter_all, R.string.search_filter_videos,
+						R.string.channels, R.string.search_filter_playlists};
+		for (int i = 0; i < values.length; i++) {
+			com.google.android.material.chip.Chip chip =
+							new com.google.android.material.chip.Chip(context);
+			chip.setText(labels[i]);
+			chip.setCheckable(true);
+			chip.setChecked(i == 0);
+			chip.setId(View.generateViewId());
+			final String value = values[i];
+			chip.setOnCheckedChangeListener((button, checked) -> {
+				if (!checked) return;
+				State state = state(Mode.SEARCH);
+				if (value.equals(state.filter)) return;
+				state.filter = value;
+				if (state.query != null && !state.query.isBlank() && mode == Mode.SEARCH) {
+					state.scroll = null;
+					load(Mode.SEARCH, true);
+					list.scrollToPosition(0);
+				}
+			});
+			filterGroup.addView(chip);
+		}
+		filterGroup.setSingleSelection(true);
+		filterGroup.setSelectionRequired(true);
+	}
+
 	private void loadMore() {
 		State state = state(mode);
 		if (state.call != null || state.next == null) return;
@@ -511,7 +550,7 @@ public final class NativeBrowser {
 				refresh.setRefreshing(false);
 				return;
 			}
-			call = client.search(state.query, next instanceof Page page ? page : null);
+			call = client.search(state.query, state.filter != null ? state.filter : "", next instanceof Page page ? page : null);
 		} else if (target == Mode.SUBSCRIPTIONS && !host.accountEnabled()) {
 			// Local subscriptions show up as each channel answers, every time as the whole list so
 			// far sorted by upload date, so newer videos slot in above older ones
@@ -680,6 +719,7 @@ public final class NativeBrowser {
 		title.setVisibility(searching ? View.GONE : View.VISIBLE);
 		searchBack.setVisibility(searching ? View.VISIBLE : View.GONE);
 		searchField.setVisibility(searching ? View.VISIBLE : View.GONE);
+		searchFilters.setVisibility(searching ? View.VISIBLE : View.GONE);
 		if (!searching) {
 			hideKeyboard();
 			searchField.clearFocus();
@@ -719,6 +759,9 @@ public final class NativeBrowser {
 		Object loadToken;
 		@Nullable
 		String query;
+		/** Search filter; one of FeedClient.SEARCH_* or empty for everything. */
+		@NonNull
+		String filter = FeedClient.SEARCH_ALL;
 		boolean loaded;
 		boolean signedIn = true;
 		boolean refreshing;

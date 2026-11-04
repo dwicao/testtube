@@ -43,6 +43,7 @@ public final class AppSettings {
 	private static final String KEY_PREFER_AVC = "prefer_avc";
 	private static final String KEY_ALLOW_HDR = "allow_hdr";
 	private static final String KEY_DOWNLOADS_WIFI_ONLY = "downloads_wifi_only";
+	private static final String KEY_DOWNLOADS_NIGHTLY = "downloads_nightly";
 	private static final String KEY_SPONSOR_CATS = "sponsorblock_cats";
 	private static final int MIN_WATCHED_DIM = 20;
 	private static final int MAX_WATCHED_DIM = 90;
@@ -50,7 +51,7 @@ public final class AppSettings {
 	/** As dark as watched videos were before this became a setting. */
 	private static final int DEFAULT_WATCHED_DIM = 70;
 	/** Raised when the welcome dialog gets new choices, so everyone sees it once more. */
-	private static final int WELCOME_VERSION = 10;
+	private static final int WELCOME_VERSION = 11;
 
 	private static volatile boolean loaded;
 	private static volatile boolean shorts;
@@ -81,6 +82,7 @@ public final class AppSettings {
 	private static volatile boolean preferAvc = true;
 	private static volatile boolean allowHdr;
 	private static volatile boolean downloadsWifiOnly;
+	private static volatile boolean downloadsNightly;
 
 	private AppSettings() {
 	}
@@ -477,6 +479,18 @@ public final class AppSettings {
 		MMKV.defaultMMKV().encode(KEY_DOWNLOADS_WIFI_ONLY, enabled);
 	}
 
+	/** Resume paused downloads every night at 02:00 on unmetered networks with a healthy battery. */
+	public static boolean downloadsNightly() {
+		load();
+		return downloadsNightly;
+	}
+
+	public static void setDownloadsNightly(boolean enabled) {
+		load();
+		downloadsNightly = enabled;
+		MMKV.defaultMMKV().encode(KEY_DOWNLOADS_NIGHTLY, enabled);
+	}
+
 	public static boolean welcomeShown() {
 		return MMKV.defaultMMKV().decodeInt(KEY_WELCOME_VERSION, 0) >= WELCOME_VERSION;
 	}
@@ -521,6 +535,7 @@ public final class AppSettings {
 			preferAvc = store.decodeBool(KEY_PREFER_AVC, true);
 			allowHdr = store.decodeBool(KEY_ALLOW_HDR, false);
 			downloadsWifiOnly = store.decodeBool(KEY_DOWNLOADS_WIFI_ONLY, false);
+			downloadsNightly = store.decodeBool(KEY_DOWNLOADS_NIGHTLY, false);
 			loaded = true;
 		}
 	}

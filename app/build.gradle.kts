@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
-val appVersionName = "v3.0.14"
+val appVersionName = "v3.0.15"
 fun versionCodeFromName(name: String): Int {
     val m = Regex("""v?(\d+)\.(\d+)\.(\d+)""").find(name.trim())
     if (m != null) {
@@ -130,6 +130,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.security.crypto)
     implementation(libs.recyclerview)
+    implementation(libs.workmanager)
     implementation(libs.swiperefreshlayout)
     implementation(libs.webkit)
     testImplementation(libs.junit)

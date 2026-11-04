@@ -58,27 +58,56 @@
         android:layout_weight="1"
         android:background="?attr/ttLibraryPage">
 
-        <FrameLayout
+        <LinearLayout
             android:id="@+id/library_page_queue"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:orientation="vertical"
             android:visibility="gone">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/panel_queue_list"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:overScrollMode="never"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="6dp" />
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical|end"
+                android:orientation="horizontal"
+                android:paddingHorizontal="8dp">
 
-            <TextView
-                android:id="@+id/panel_queue_empty"
-                style="@style/Widget.TestTube.EmptyState"
-                android:drawableTop="@drawable/ic_queue"
-                android:text="@string/no_queue_items" />
-        </FrameLayout>
+                <Button
+                    android:id="@+id/panel_queue_save"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/queue_save" />
+
+                <Button
+                    android:id="@+id/panel_queue_load"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/queue_load" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/panel_queue_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:overScrollMode="never"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="6dp" />
+
+                <TextView
+                    android:id="@+id/panel_queue_empty"
+                    style="@style/Widget.TestTube.EmptyState"
+                    android:drawableTop="@drawable/ic_queue"
+                    android:text="@string/no_queue_items" />
+            </FrameLayout>
+        </LinearLayout>
 
         <FrameLayout
             android:id="@+id/library_page_history"

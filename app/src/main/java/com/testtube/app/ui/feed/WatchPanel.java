@@ -44,6 +44,7 @@ import com.testtube.app.extractor.VideoDetails;
 import com.testtube.app.extractor.YoutubeExtractor;
 import com.testtube.app.filter.ContentFilters;
 import com.testtube.app.nav.TabManager;
+import com.testtube.app.ui.Dialogs;
 import com.testtube.app.util.ImageUtils;
 import com.testtube.app.util.StringUtils;
 import com.testtube.app.util.ToastUtils;
@@ -427,6 +428,7 @@ public final class WatchPanel {
 		commentsNext = null;
 		commentsLoading = false;
 		commentParams = null;
+		comments.clearSessionState();
 		comments.submit(new ArrayList<>());
 		commentsMessage.setVisibility(View.GONE);
 		commentInput.setText("");
@@ -443,7 +445,66 @@ public final class WatchPanel {
 		commentBox.setVisibility(shown ? View.VISIBLE : View.GONE);
 		if (!shown) hideKeyboard();
 		updateSendButton();
+		comments.setActions(commentActions, feedClient.isSignedIn() && !live);
+		commentsList.post(() -> comments.notifyDataSetChanged());
 	}
+
+	@NonNull
+	private final CommentAdapter.Actions commentActions = new CommentAdapter.Actions() {
+		@Override
+		public void onLike(@NonNull FeedClient.Comment comment, int position) {
+			if (comment.commentId().isBlank() || !feedClient.isSignedIn()) return;
+			boolean toLiked = !comments.isLiked(comment.commentId());
+			Context context = commentsList.getContext();
+			feedClient.toggleCommentLike(comment.commentId(), toLiked).whenComplete((ignored, error) -> handler.post(() -> {
+				if (error != null) {
+					Throwable cause = error instanceof java.util.concurrent.CompletionException && error.getCause() != null
+									? error.getCause() : error;
+					String message = cause != null && cause.getMessage() != null ? cause.getMessage() : "?";
+					ToastUtils.show(context, context.getString(R.string.comment_like_failed, message));
+					return;
+				}
+				comments.setLiked(comment.commentId(), toLiked);
+				if (position >= 0 && position < comments.getItemCount()) {
+					comments.notifyItemChanged(position);
+				} else {
+					comments.notifyDataSetChanged();
+				}
+			}));
+		}
+
+		@Override
+		public void onReply(@NonNull FeedClient.Comment comment) {
+			if (comment.commentId().isBlank() || !feedClient.isSignedIn()) return;
+			Context context = commentsList.getContext();
+			EditText input = new EditText(context);
+			input.setHint(comment.author());
+			input.setMinLines(1);
+			input.setMaxLines(5);
+			Dialogs.builder(context)
+							.setTitle(context.getString(R.string.watch_comment_reply))
+							.setMessage(comment.author() + "\n" + comment.text())
+							.setView(input)
+							.setPositiveButton(R.string.comment_send, (dialog, which) -> {
+								String text = input.getText() == null ? "" : input.getText().toString().trim();
+								if (text.isEmpty()) return;
+								feedClient.postReply(comment.commentId(), text).whenComplete((posted, error) -> handler.post(() -> {
+									if (error != null || posted == null) {
+										Throwable cause = error instanceof java.util.concurrent.CompletionException && error.getCause() != null
+														? error.getCause() : error;
+										String message = cause != null && cause.getMessage() != null ? cause.getMessage() : "?";
+										ToastUtils.show(context, context.getString(R.string.comment_reply_failed, message));
+										return;
+									}
+									ToastUtils.show(context, R.string.comment_reply_posted);
+									comments.addReplyDelta(comment.commentId());
+									comments.notifyDataSetChanged();
+								}));
+							})
+							.setNegativeButton(R.string.cancel, null)
+							.show();
+		}
+	};
 
 	private void updateSendButton() {
 		Editable text = commentInput.getText();
@@ -472,8 +533,8 @@ public final class WatchPanel {
 			commentInput.setText("");
 			hideKeyboard();
 			String author = posted.author().isBlank() ? context.getString(R.string.comment_you) : posted.author();
-			comments.addFirst(new FeedClient.Comment(author, null, posted.text(),
-							context.getString(R.string.comment_just_now), 0, false));
+			comments.addFirst(new FeedClient.Comment("", author, null, posted.text(),
+							context.getString(R.string.comment_just_now), 0, 0, false));
 			commentsList.scrollToPosition(0);
 			commentsMessage.setVisibility(View.GONE);
 		}));
@@ -604,6 +665,44 @@ public final class WatchPanel {
 	private static final class CommentAdapter extends RecyclerView.Adapter<CommentHolder> {
 		@NonNull
 		private final List<FeedClient.Comment> data = new ArrayList<>();
+		/** Comment ids the viewer liked this session, shown with +1. */
+		@NonNull
+		private final Set<String> likedIds = new HashSet<>();
+		/** Local reply counts added this session (replies don't refresh the list). */
+		@NonNull
+		private final java.util.Map<String, Integer> replyDeltas = new java.util.HashMap<>();
+		private boolean actionsEnabled;
+		@Nullable
+		private Actions actions;
+
+		interface Actions {
+			void onLike(@NonNull FeedClient.Comment comment, int position);
+
+			void onReply(@NonNull FeedClient.Comment comment);
+		}
+
+		void setActions(@Nullable Actions actions, boolean enabled) {
+			this.actions = actions;
+			this.actionsEnabled = enabled;
+		}
+
+		boolean isLiked(@NonNull String commentId) {
+			return likedIds.contains(commentId);
+		}
+
+		void setLiked(@NonNull String commentId, boolean liked) {
+			if (liked) likedIds.add(commentId);
+			else likedIds.remove(commentId);
+		}
+
+		void addReplyDelta(@NonNull String commentId) {
+			replyDeltas.put(commentId, replyDeltas.getOrDefault(commentId, 0) + 1);
+		}
+
+		void clearSessionState() {
+			likedIds.clear();
+			replyDeltas.clear();
+		}
 
 		void submit(@NonNull List<FeedClient.Comment> items) {
 			data.clear();
@@ -652,6 +751,33 @@ public final class WatchPanel {
 			// The separator after the name only when something follows it
 			holder.meta.setText(hasAuthor && !rest.isEmpty() ? StringUtils.META_SEPARATOR + rest : rest);
 			holder.text.setText(comment.text());
+			boolean canAct = actionsEnabled && actions != null && !comment.commentId().isBlank();
+			holder.actions.setVisibility(canAct ? View.VISIBLE : View.GONE);
+			if (canAct) {
+				boolean liked = likedIds.contains(comment.commentId());
+				int shownLikes = Math.max(0, comment.likes() + (liked ? 1 : 0));
+				holder.like.setText(liked
+								? context.getString(R.string.watch_comment_liked)
+								: shownLikes > 0
+								? context.getString(R.string.watch_comment_likes, shownLikes)
+								: context.getString(R.string.watch_comment_like));
+				int shownReplies = Math.max(0, comment.replies() + replyDeltas.getOrDefault(comment.commentId(), 0));
+				holder.replies.setText(shownReplies > 0
+								? context.getString(R.string.watch_comment_replies, shownReplies)
+								: "");
+				holder.replies.setVisibility(shownReplies > 0 ? View.VISIBLE : View.GONE);
+				holder.like.setOnClickListener(v -> {
+					Actions a = actions;
+					if (a != null) a.onLike(comment, holder.getBindingAdapterPosition());
+				});
+				holder.reply.setOnClickListener(v -> {
+					Actions a = actions;
+					if (a != null) a.onReply(comment);
+				});
+			} else {
+				holder.like.setOnClickListener(null);
+				holder.reply.setOnClickListener(null);
+			}
 		}
 	}
 
@@ -662,12 +788,24 @@ public final class WatchPanel {
 		final TextView meta;
 		@NonNull
 		final TextView text;
+		@NonNull
+		final View actions;
+		@NonNull
+		final TextView like;
+		@NonNull
+		final TextView reply;
+		@NonNull
+		final TextView replies;
 
 		CommentHolder(@NonNull View itemView) {
 			super(itemView);
 			author = itemView.findViewById(R.id.comment_author);
 			meta = itemView.findViewById(R.id.comment_meta);
 			text = itemView.findViewById(R.id.comment_text);
+			actions = itemView.findViewById(R.id.comment_actions);
+			like = itemView.findViewById(R.id.comment_like);
+			reply = itemView.findViewById(R.id.comment_reply);
+			replies = itemView.findViewById(R.id.comment_replies);
 		}
 	}
 

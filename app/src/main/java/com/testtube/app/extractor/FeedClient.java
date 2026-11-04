@@ -136,8 +136,9 @@ public final class FeedClient {
 		}
 	}
 
-	public record Comment(@NonNull String author, @Nullable String avatarUrl, @NonNull String text,
-	                      @Nullable String published, int likes, boolean pinned) {
+	public record Comment(@NonNull String commentId, @NonNull String author, @Nullable String avatarUrl,
+	                      @NonNull String text, @Nullable String published, int likes, int replies,
+	                      boolean pinned) {
 	}
 
 	/**
@@ -196,9 +197,10 @@ public final class FeedClient {
 				content = Html.fromHtml(content, Html.FROM_HTML_MODE_COMPACT).toString().trim();
 			}
 			if (content.isBlank()) continue;
-			out.add(new Comment(item.getUploaderName() == null ? "" : item.getUploaderName(),
+			out.add(new Comment(item.getCommentId() == null ? "" : item.getCommentId(),
+							item.getUploaderName() == null ? "" : item.getUploaderName(),
 							image(item.getUploaderAvatars()), content, item.getTextualUploadDate(),
-							item.getLikeCount(), item.isPinned()));
+							item.getLikeCount(), item.getReplyCount(), item.isPinned()));
 		}
 		return new CommentPage(out, result.hasNextPage() ? result.getNextPage() : null, false, createParams);
 	}
@@ -249,7 +251,97 @@ public final class FeedClient {
 						|| findObject(response, "createCommentAction", 0) != null
 						|| findObject(response, "commentEntityPayload", 0) != null;
 		if (!created) throw new IOException("YouTube did not confirm the comment (status " + status + ")");
-		return new Comment(commentAuthor(response), null, text, null, 0, false);
+		return new Comment("", commentAuthor(response), null, text, null, 0, 0, false);
+	}
+
+	/**
+	 * Posts a reply under a top-level comment as the signed-in account.
+	 *
+	 * @param parentCommentId the thread's comment id from {@link Comment#commentId()}
+	 */
+	@NonNull
+	public CompletableFuture<Comment> postReply(@NonNull String parentCommentId, @NonNull String text) {
+		CompletableFuture<Comment> result = new CompletableFuture<>();
+		try {
+			executor.execute(() -> {
+				try {
+					AuthContext context = auth.current(true);
+					if (!context.loggedIn()) throw new IOException("Not signed in");
+					ExtractionSession session = new ExtractionSession(context);
+					result.complete(downloader.withExtractionSession(() -> createReply(parentCommentId, text), session));
+				} catch (Throwable error) {
+					result.completeExceptionally(error);
+				}
+			});
+		} catch (RuntimeException rejected) {
+			result.completeExceptionally(new CompletionException(rejected));
+		}
+		return result;
+	}
+
+	@NonNull
+	private static Comment createReply(@NonNull String parentCommentId, @NonNull String text)
+					throws IOException, ExtractionException {
+		Localization localization = NewPipe.getPreferredLocalization();
+		ContentCountry country = NewPipe.getPreferredContentCountry();
+		byte[] body = JsonWriter.string(YoutubeParsingHelper.prepareDesktopJsonBuilder(localization, country)
+						.value("commentText", text)
+						.value("replyCommentParams", parentCommentId)
+						.done()).getBytes(StandardCharsets.UTF_8);
+		JsonObject response = YoutubeParsingHelper.getJsonPostResponse("comment/create_comment", body, localization);
+		if (response.has("error")) {
+			throw new IOException("YouTube refused the reply: "
+							+ response.getObject("error").getString("message", "no reason given"));
+		}
+		String status = response.getObject("actionResult").getString("status");
+		boolean created = "STATUS_SUCCEEDED".equals(status)
+						|| findObject(response, "createCommentAction", 0) != null
+						|| findObject(response, "commentEntityPayload", 0) != null;
+		if (!created) throw new IOException("YouTube did not confirm the reply (status " + status + ")");
+		return new Comment(parentCommentId, commentAuthor(response), null, text, null, 0, 0, false);
+	}
+
+	/**
+	 * Likes (or unlikes) a comment as the signed-in account.
+	 */
+	@NonNull
+	public CompletableFuture<Void> toggleCommentLike(@NonNull String commentId, boolean like) {
+		CompletableFuture<Void> result = new CompletableFuture<>();
+		try {
+			executor.execute(() -> {
+				try {
+					AuthContext context = auth.current(true);
+					if (!context.loggedIn()) throw new IOException("Not signed in");
+					ExtractionSession session = new ExtractionSession(context);
+					result.complete(downloader.withExtractionSession(() -> {
+						sendCommentLike(commentId, like);
+						return null;
+					}, session));
+				} catch (Throwable error) {
+					result.completeExceptionally(error);
+				}
+			});
+		} catch (RuntimeException rejected) {
+			result.completeExceptionally(new CompletionException(rejected));
+		}
+		return result;
+	}
+
+	private static void sendCommentLike(@NonNull String commentId, boolean like)
+					throws IOException, ExtractionException {
+		Localization localization = NewPipe.getPreferredLocalization();
+		ContentCountry country = NewPipe.getPreferredContentCountry();
+		byte[] body = JsonWriter.string(YoutubeParsingHelper.prepareDesktopJsonBuilder(localization, country)
+						.object("target")
+						.value("commentId", commentId)
+						.end()
+						.value("status", like ? "LIKE" : "INDIFFERENT")
+						.done()).getBytes(StandardCharsets.UTF_8);
+		JsonObject response = YoutubeParsingHelper.getJsonPostResponse("like/like", body, localization);
+		if (response.has("error")) {
+			throw new IOException("YouTube refused the like: "
+							+ response.getObject("error").getString("message", "no reason given"));
+		}
 	}
 
 	@NonNull
@@ -1279,13 +1371,27 @@ public final class FeedClient {
 		return onlyShorts(parser.items);
 	}
 
+	/** Search filter values; empty string means everything. */
+	public static final String SEARCH_ALL = "";
+	public static final String SEARCH_VIDEOS =
+					org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQueryHandlerFactory.VIDEOS;
+	public static final String SEARCH_CHANNELS =
+					org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQueryHandlerFactory.CHANNELS;
+	public static final String SEARCH_PLAYLISTS =
+					org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQueryHandlerFactory.PLAYLISTS;
+
 	/**
-	 * @param page page from the previous result, or null for the first page
+	 * @param filter one of {@link #SEARCH_ALL}, {@link #SEARCH_VIDEOS}, {@link #SEARCH_CHANNELS},
+	 *               {@link #SEARCH_PLAYLISTS}; empty means everything
+	 * @param page   page from the previous result, or null for the first page
 	 */
 	@NonNull
-	public Call search(@NonNull String query, @Nullable Page page) {
+	public Call search(@NonNull String query, @NonNull String filter, @Nullable Page page) {
 		return run(signedIn -> {
-			SearchExtractor extractor = ServiceList.YouTube.getSearchExtractor(query);
+			java.util.List<String> filters = filter.isEmpty()
+							? java.util.Collections.emptyList()
+							: java.util.Collections.singletonList(filter);
+			SearchExtractor extractor = ServiceList.YouTube.getSearchExtractor(query, filters, "");
 			ListExtractor.InfoItemsPage<InfoItem> result;
 			if (page == null) {
 				extractor.fetchPage();
@@ -1301,6 +1407,12 @@ public final class FeedClient {
 			}
 			return new FeedPage(items, result.hasNextPage() ? result.getNextPage() : null, signedIn);
 		});
+	}
+
+	/** Unfiltered search; same as {@link #SEARCH_ALL}. */
+	@NonNull
+	public Call search(@NonNull String query, @Nullable Page page) {
+		return search(query, SEARCH_ALL, page);
 	}
 
 	@NonNull

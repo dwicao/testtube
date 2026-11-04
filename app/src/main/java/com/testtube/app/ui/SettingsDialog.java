@@ -23,6 +23,7 @@ import com.google.android.material.slider.Slider;
 import com.testtube.app.AppGraph;
 import com.testtube.app.AppSettings;
 import com.testtube.app.R;
+import com.testtube.app.downloader.service.NightDownloadsWorker;
 import com.testtube.app.filter.AiChannelList;
 import com.testtube.app.filter.ContentFilters;
 import com.testtube.app.player.common.PlayerPreferences;
@@ -125,6 +126,8 @@ final class SettingsDialog {
 						R.string.setting_allow_hdr_summary, AppSettings.allowHdr());
 		MaterialSwitch downloadsWifiOnly = form.toggle(playback, R.string.setting_downloads_wifi_only,
 						R.string.setting_downloads_wifi_only_summary, AppSettings.downloadsWifiOnly());
+		MaterialSwitch downloadsNightly = form.toggle(playback, R.string.setting_downloads_nightly,
+						R.string.setting_downloads_nightly_summary, AppSettings.downloadsNightly());
 		View sponsorCats = form.value(playback, R.string.setting_sponsor_cats,
 						R.string.setting_sponsor_cats_summary, sponsorCatsSummary(activity, prefs));
 		sponsorCats.setOnClickListener(v -> showSponsorCats(activity, prefs, sponsorCats));
@@ -223,6 +226,8 @@ final class SettingsDialog {
 							AppSettings.setPreferAvc(preferAvc.isChecked());
 							AppSettings.setAllowHdr(allowHdr.isChecked());
 							AppSettings.setDownloadsWifiOnly(downloadsWifiOnly.isChecked());
+							AppSettings.setDownloadsNightly(downloadsNightly.isChecked());
+							NightDownloadsWorker.apply(activity.getApplicationContext());
 							AppSettings.setFloatingPlayer(minimizeTo.value);
 							if (videoCache.value != AppSettings.videoCache()) {
 								AppSettings.setVideoCache(videoCache.value);

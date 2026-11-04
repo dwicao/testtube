@@ -51,6 +51,8 @@ public class DownloadService extends Service {
 	public static final String EXTRA_TASK_ID = "extra_task_id";
 	/** Pauses every running download (notification action). */
 	public static final String ACTION_PAUSE_ALL = "com.testtube.app.action.PAUSE_ALL_DOWNLOADS";
+	/** Resumes every paused download (night scheduler). */
+	public static final String ACTION_RESUME_ALL = "com.testtube.app.action.RESUME_ALL_DOWNLOADS";
 	private static final String CHANNEL_ID = "download_channel";
 	private static final int NOTIFICATION_ID = 1001;
 	private static final int REQUEST_PAUSE_ALL = 1002;
@@ -161,6 +163,8 @@ public class DownloadService extends Service {
 	public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
 		if (intent != null && ACTION_PAUSE_ALL.equals(intent.getAction())) {
 			pauseAll();
+		} else if (intent != null && ACTION_RESUME_ALL.equals(intent.getAction())) {
+			resumeAll();
 		}
 		return START_NOT_STICKY;
 	}

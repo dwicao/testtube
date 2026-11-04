@@ -191,6 +191,18 @@ public class PlaybackService extends Service {
 		return ImageUtils.squareBitmap(this, url, NOTIFICATION_ART_PX);
 	}
 
+	/** Current playback position for the chronometer, 0 when unknown. */
+	private long playbackPosition(boolean isPlaying) {
+		try {
+			MediaSessionCompat session = mediaSession;
+			if (session == null || !isPlaying) return 0L;
+			PlaybackStateCompat playback = session.getController().getPlaybackState();
+			return playback != null ? Math.max(0L, playback.getPosition()) : 0L;
+		} catch (RuntimeException e) {
+			return 0L;
+		}
+	}
+
 	@Nullable
 	private Notification buildNotification(boolean isPlaying) {
 		MediaSessionCompat session = mediaSession;
@@ -214,6 +226,11 @@ public class PlaybackService extends Service {
 						.setContentTitle(title)
 						.setContentText(artist)
 						.setLargeIcon(largeIcon)
+						// Elapsed time while playing, frozen while paused.
+						.setUsesChronometer(isPlaying)
+						.setWhen(isPlaying && metadata != null && metadata.containsKey(MediaMetadataCompat.METADATA_KEY_DURATION)
+										? System.currentTimeMillis() - Math.max(0L, playbackPosition(isPlaying))
+										: System.currentTimeMillis())
 						.setContentIntent(contentIntent)
 						.setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_STOP))
 						.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -270,6 +287,7 @@ public class PlaybackService extends Service {
 		session.setMetadata(initialMetadata);
 		Notification initialNotification = buildNotification(lastIsPlayingState);
 		if (initialNotification != null && !shouldAbort()) startInForeground(initialNotification);
+		updateWidget(lastIsPlayingState);
 		try {
 			executorService.execute(() -> {
 				if (shouldAbort()) return;
@@ -352,6 +370,28 @@ public class PlaybackService extends Service {
 		}
 		lastIsPlayingState = isPlaying;
 		lastWantsToPlay = wantsToPlay;
+		updateWidget(isPlaying);
+	}
+
+	/** Pushes title/artist/play state to the homescreen widget, if one is placed. */
+	private void updateWidget(boolean isPlaying) {
+		try {
+			android.appwidget.AppWidgetManager widgets = android.appwidget.AppWidgetManager.getInstance(this);
+			String title = null;
+			String artist = null;
+			MediaSessionCompat session = mediaSession;
+			if (session != null) {
+				MediaMetadataCompat metadata = session.getController().getMetadata();
+				if (metadata != null) {
+					title = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
+					artist = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
+				}
+			}
+			com.testtube.app.ui.widget.TestTubeWidgetProvider.update(this, widgets,
+							com.testtube.app.ui.widget.TestTubeWidgetProvider.placedIds(this),
+							isPlaying, title, artist);
+		} catch (RuntimeException ignored) {
+		}
 	}
 
 	public void updateQueueNavigationAvailability(@NonNull QueueNav availability) {

@@ -142,8 +142,21 @@ public class Controller {
 	private final Runnable hideHintRunnable = this::hideHint;
 	@Nullable
 	private TextView hintText;
+	/** When playback should pause itself, or 0 for no sleep timer. */
+	private long sleepUntilMs;
+	/** Whether the nerd-stats overlay is on. */
+	private boolean statsVisible;
 	/** Segment start of the last auto-skip, for tap-to-undo; -1 when the hint isn't a skip. */
 	private volatile long lastSkipFromMs = -1L;
+	@NonNull
+	private final Runnable sleepRunnable = () -> {
+		sleepUntilMs = 0L;
+		try {
+			engine.pause();
+		} catch (RuntimeException ignored) {
+		}
+		showHint(activity.getString(R.string.sleep_timer_done), HINT_HIDE_DELAY_MS);
+	};
 	@NonNull
 	private ControllerState state = ControllerState.initial();
 	private long lastVideoRenderedCount = 0;
@@ -589,57 +602,19 @@ public class Controller {
 			});
 			setupBottomSheetOption(bottomSheetView, R.id.option_download, b -> {
 				bottomSheetDialog.dismiss();
-				String videoId = engine.getVideoId();
-				if (videoId == null || videoId.isBlank()) {
-					showHint(activity.getString(R.string.queue_item_unavailable), HINT_HIDE_DELAY_MS);
-					return;
-				}
-				// If already downloading, show progress with a shortcut to Downloads.
-				try {
-					com.testtube.app.downloader.core.history.DownloadHistoryRepository history =
-									AppGraph.of(activity).downloadHistory();
-					String fileName = null;
-					int progress = -1;
-					for (com.testtube.app.downloader.core.history.DownloadRecord r : history.getAllSorted()) {
-						if (videoId.equals(r.getVideoId())
-										&& (r.getStatus() == com.testtube.app.downloader.core.history.DownloadStatus.RUNNING
-										|| r.getStatus() == com.testtube.app.downloader.core.history.DownloadStatus.QUEUED
-										|| r.getStatus() == com.testtube.app.downloader.core.history.DownloadStatus.MERGING)) {
-							fileName = r.getFileName();
-							progress = r.getProgress();
-							break;
-						}
-					}
-					if (fileName != null) {
-						String title = progress >= 0
-										? activity.getString(R.string.downloading_file, progress + "%")
-										: activity.getString(R.string.status_downloading_simple);
-						Dialogs.builder(activity)
-										.setTitle(title)
-										.setMessage(fileName)
-										.setPositiveButton(R.string.library_downloads, (d, w) -> {
-											try {
-												android.content.Intent intent = new android.content.Intent(
-																activity, com.testtube.app.ui.MainActivity.class);
-												intent.setAction(com.testtube.app.downloader.service.DownloadService.ACTION_OPEN_DOWNLOADS);
-												activity.startActivity(intent);
-											} catch (RuntimeException e) {
-												showHint(activity.getString(R.string.queue_item_unavailable), HINT_HIDE_DELAY_MS);
-											}
-										})
-										.setNegativeButton(R.string.cancel, null)
-										.show();
-						hideControlsAutomatically();
-						return;
-					}
-				} catch (RuntimeException ignored) {
-				}
-				String url = Constant.HOME_URL + "/watch?v=" + videoId;
-				try {
-					new DownloadDialog(url, activity, AppGraph.of(activity).youtubeExtractor()).show();
-				} catch (RuntimeException e) {
-					showHint(activity.getString(R.string.queue_item_unavailable), HINT_HIDE_DELAY_MS);
-				}
+				openDownloadForCurrentVideo();
+			});
+			setupBottomSheetOption(bottomSheetView, R.id.option_speed, b -> {
+				showSpeedOptions();
+				bottomSheetDialog.dismiss();
+			});
+			setupBottomSheetOption(bottomSheetView, R.id.option_sleep, b -> {
+				showSleepOptions();
+				bottomSheetDialog.dismiss();
+			});
+			setupBottomSheetOption(bottomSheetView, R.id.option_stats, b -> {
+				toggleStats();
+				bottomSheetDialog.dismiss();
 			});
 			setupBottomSheetOption(bottomSheetView, R.id.option_pip, b -> {
 				playerView.enterPiP();
@@ -673,6 +648,191 @@ public class Controller {
 			showHint(options[which], HINT_HIDE_DELAY_MS);
 			hideControlsAutomatically();
 		}).setNegativeButton(R.string.cancel, null).show();
+	}
+
+	private void openDownloadForCurrentVideo() {
+		String videoId = engine.getVideoId();
+		if (videoId == null || videoId.isBlank()) {
+			showHint(activity.getString(R.string.queue_item_unavailable), HINT_HIDE_DELAY_MS);
+			return;
+		}
+		// If already downloading, show progress with a shortcut to Downloads.
+		try {
+			com.testtube.app.downloader.core.history.DownloadHistoryRepository history =
+							AppGraph.of(activity).downloadHistory();
+			String fileName = null;
+			int progress = -1;
+			for (com.testtube.app.downloader.core.history.DownloadRecord r : history.getAllSorted()) {
+				if (videoId.equals(r.getVideoId())
+								&& (r.getStatus() == com.testtube.app.downloader.core.history.DownloadStatus.RUNNING
+								|| r.getStatus() == com.testtube.app.downloader.core.history.DownloadStatus.QUEUED
+								|| r.getStatus() == com.testtube.app.downloader.core.history.DownloadStatus.MERGING)) {
+					fileName = r.getFileName();
+					progress = r.getProgress();
+					break;
+				}
+			}
+			if (fileName != null) {
+				String title = progress >= 0
+								? activity.getString(R.string.downloading_file, progress + "%")
+								: activity.getString(R.string.status_downloading_simple);
+				Dialogs.builder(activity)
+								.setTitle(title)
+								.setMessage(fileName)
+								.setPositiveButton(R.string.library_downloads, (d, w) -> {
+									try {
+										android.content.Intent intent = new android.content.Intent(
+														activity, com.testtube.app.ui.MainActivity.class);
+										intent.setAction(com.testtube.app.downloader.service.DownloadService.ACTION_OPEN_DOWNLOADS);
+										activity.startActivity(intent);
+									} catch (RuntimeException e) {
+										showHint(activity.getString(R.string.queue_item_unavailable), HINT_HIDE_DELAY_MS);
+									}
+								})
+								.setNegativeButton(R.string.cancel, null)
+								.show();
+				hideControlsAutomatically();
+				return;
+			}
+		} catch (RuntimeException ignored) {
+		}
+		String url = Constant.HOME_URL + "/watch?v=" + videoId;
+		try {
+			new DownloadDialog(url, activity, AppGraph.of(activity).youtubeExtractor()).show();
+		} catch (RuntimeException e) {
+			showHint(activity.getString(R.string.queue_item_unavailable), HINT_HIDE_DELAY_MS);
+		}
+	}
+
+	private void showSpeedOptions() {
+		float[] speeds = PlayerPreferences.SPEEDS;
+		String[] labels = new String[speeds.length];
+		float current = prefs.getPlaybackSpeed();
+		int checked = 0;
+		for (int i = 0; i < speeds.length; i++) {
+			labels[i] = trimSpeed(speeds[i]) + "x";
+			if (speeds[i] == current) checked = i;
+		}
+		Dialogs.builder(activity)
+						.setTitle(R.string.playback_speed)
+						.setMessage(activity.getString(R.string.playback_speed_pitch))
+						.setSingleChoiceItems(labels, checked, (dialog, which) -> {
+							engine.setPlaybackSpeed(speeds[which]);
+							showHint(labels[which], HINT_HIDE_DELAY_MS);
+							hideControlsAutomatically();
+							dialog.dismiss();
+						})
+						.setNegativeButton(R.string.cancel, null)
+						.show();
+	}
+
+	@NonNull
+	private static String trimSpeed(float speed) {
+		String text = String.valueOf(speed);
+		return text.endsWith(".0") ? text.substring(0, text.length() - 2) : text;
+	}
+
+	/** Minutes offered by the sleep timer, 0 first for "off". */
+	private static final int[] SLEEP_MINUTES = {0, 15, 30, 60, 90};
+
+	private void showSleepOptions() {
+		String[] labels = new String[SLEEP_MINUTES.length];
+		long remainingMs = sleepUntilMs - android.os.SystemClock.uptimeMillis();
+		int checked = 0;
+		for (int i = 0; i < SLEEP_MINUTES.length; i++) {
+			if (SLEEP_MINUTES[i] == 0) {
+				labels[i] = activity.getString(R.string.sleep_off);
+			} else {
+				labels[i] = activity.getString(R.string.sleep_minutes, SLEEP_MINUTES[i]);
+			}
+			if (SLEEP_MINUTES[i] > 0 && remainingMs > 0
+							&& Math.abs(remainingMs - SLEEP_MINUTES[i] * 60_000L) < 60_000L) {
+				checked = i;
+			}
+		}
+		Dialogs.builder(activity)
+						.setTitle(R.string.sleep_timer)
+						.setSingleChoiceItems(labels, checked, (dialog, which) -> {
+							handler.removeCallbacks(sleepRunnable);
+							if (SLEEP_MINUTES[which] == 0) {
+								sleepUntilMs = 0L;
+								showHint(activity.getString(R.string.sleep_off), HINT_HIDE_DELAY_MS);
+							} else {
+								sleepUntilMs = android.os.SystemClock.uptimeMillis() + SLEEP_MINUTES[which] * 60_000L;
+								handler.postDelayed(sleepRunnable, SLEEP_MINUTES[which] * 60_000L);
+								showHint(activity.getString(R.string.sleep_minutes, SLEEP_MINUTES[which]), HINT_HIDE_DELAY_MS);
+							}
+							hideControlsAutomatically();
+							dialog.dismiss();
+						})
+						.setNegativeButton(R.string.cancel, null)
+						.show();
+	}
+
+	private void toggleStats() {
+		statsVisible = !statsVisible;
+		if (!statsVisible) {
+			handler.removeCallbacks(statsTicker);
+			playerView.hideStats();
+			hideControlsAutomatically();
+			return;
+		}
+		showHint(activity.getString(R.string.stats_for_nerds), HINT_HIDE_DELAY_MS);
+		hideControlsAutomatically();
+		handler.post(statsTicker);
+	}
+
+	private final Runnable statsTicker = new Runnable() {
+		@Override
+		public void run() {
+			handler.removeCallbacks(this);
+			if (!statsVisible || activity.isFinishing() || activity.isDestroyed()) return;
+			try {
+				playerView.showStats(statsText());
+			} catch (RuntimeException ignored) {
+			}
+			handler.postDelayed(this, 500L);
+		}
+	};
+
+	@NonNull
+	private String statsText() {
+		Format video = engine.getVideoFormat();
+		Format audio = engine.getAudioFormat();
+		StringBuilder sb = new StringBuilder();
+		sb.append(engine.getQualityLabel() != null ? engine.getQualityLabel() : engine.getQuality());
+		if (video != null && video.width > 0) sb.append("  ").append(video.width).append('x').append(video.height);
+		if (video != null && video.codecs != null) sb.append("  ").append(shortCodec(video.codecs));
+		if (video != null && video.bitrate > 0) sb.append("  ").append(video.bitrate / 1000).append("kbps");
+		if (audio != null && audio.bitrate > 0) sb.append("  a").append(audio.bitrate / 1000).append("kbps");
+		try {
+			Player exact = playerView.getPlayer();
+			if (exact != null && exact.getDuration() > 0) {
+				long bufferedMs = Math.max(0L, exact.getBufferedPosition() - exact.getCurrentPosition());
+				sb.append("  buf ").append(bufferedMs / 1000).append('s');
+			}
+		} catch (RuntimeException ignored) {
+		}
+		try {
+			androidx.media3.exoplayer.DecoderCounters counters = engine.getVideoDecoderCounters();
+			if (counters != null && counters.droppedBufferCount > 0) {
+				sb.append("  drop ").append(counters.droppedBufferCount);
+			}
+		} catch (RuntimeException ignored) {
+		}
+		return sb.toString();
+	}
+
+	@NonNull
+	private static String shortCodec(@Nullable String codecs) {
+		if (codecs == null || codecs.isBlank()) return "?";
+		String lower = codecs.toLowerCase(java.util.Locale.ROOT);
+		if (lower.startsWith("avc")) return "avc";
+		if (lower.contains("vp09")) return "vp9";
+		if (lower.contains("av01")) return "av1";
+		if (lower.contains("hev") || lower.contains("hvc") || lower.contains("h265")) return "hevc";
+		int dot = codecs.indexOf('.');
+		return dot > 0 ? codecs.substring(0, dot) : codecs;
 	}
 
 	@NonNull

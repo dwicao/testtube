@@ -599,6 +599,79 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 						});
 					});
 
+	/** Writes the queue as JSON; callers pick the file. */
+	private final ActivityResultLauncher<String> queueExportPicker =
+					registerForActivityResult(new ActivityResultContracts.CreateDocument("application/json"), uri -> {
+						if (uri == null) return;
+						AppGraph app = AppGraph.of(this);
+						String json;
+						try {
+							json = app.gson().toJson(app.queueRepository().getItems().toArray(new QueueItem[0]));
+						} catch (RuntimeException e) {
+							Log.w("MainActivity", "queue export failed", e);
+							return;
+						}
+						app.executor().execute(() -> {
+							boolean saved = false;
+							try (OutputStream stream = getContentResolver().openOutputStream(uri)) {
+								if (stream != null) {
+									stream.write(json.getBytes(StandardCharsets.UTF_8));
+									saved = true;
+								}
+							} catch (IOException | RuntimeException e) {
+								Log.w("MainActivity", "queue export failed", e);
+							}
+							boolean done = saved;
+							runOnUiThread(() -> {
+								if (isDestroyed()) return;
+								ToastUtils.show(this, done ? R.string.queue_saved : R.string.queue_save_failed);
+							});
+						});
+					});
+
+	/** Reads a queue file written by {@link #queueExportPicker} and appends valid entries. */
+	private final ActivityResultLauncher<String[]> queueImportPicker =
+					registerForActivityResult(new ActivityResultContracts.OpenDocument(), uri -> {
+						if (uri == null) return;
+						AppGraph app = AppGraph.of(this);
+						app.executor().execute(() -> {
+							int added = -1;
+							try (InputStream stream = getContentResolver().openInputStream(uri)) {
+								if (stream != null) {
+									ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+									byte[] chunk = new byte[8192];
+									int read;
+									while ((read = stream.read(chunk)) != -1 && buffer.size() < MAX_IMPORT_BYTES) {
+										buffer.write(chunk, 0, read);
+									}
+									QueueItem[] items = app.gson().fromJson(buffer.toString(StandardCharsets.UTF_8.name()),
+													QueueItem[].class);
+									added = 0;
+									if (items != null) {
+										for (QueueItem item : items) {
+											if (item == null || item.getVideoId() == null || item.getVideoId().isBlank()
+															|| item.getVideoUrl() == null || item.getTitle() == null
+															|| item.getTitle().isBlank()) {
+												continue;
+											}
+											app.queueRepository().add(item.copy());
+											added++;
+										}
+									}
+								}
+							} catch (IOException | RuntimeException e) {
+								Log.w("MainActivity", "queue import failed", e);
+							}
+							int count = added;
+							runOnUiThread(() -> {
+								if (isDestroyed()) return;
+								ToastUtils.show(this, count < 0
+												? getString(R.string.queue_load_failed)
+												: getString(R.string.queue_loaded, count));
+							});
+						});
+					});
+
 	private void setSubscriptionsAccount(boolean enabled) {
 		MMKV.defaultMMKV().encode(KEY_SUBS_ACCOUNT, enabled);
 	}
@@ -740,6 +813,24 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 			@Override
 			public void clearQueue() {
 				viewModel.clearQueue();
+			}
+
+			@Override
+			public void saveQueue() {
+				try {
+					queueExportPicker.launch("testtube-queue.json");
+				} catch (RuntimeException e) {
+					ToastUtils.show(MainActivity.this, R.string.queue_save_failed);
+				}
+			}
+
+			@Override
+			public void loadQueue() {
+				try {
+					queueImportPicker.launch(new String[]{"application/json", "text/plain", "*/*"});
+				} catch (RuntimeException e) {
+					ToastUtils.show(MainActivity.this, R.string.queue_load_failed);
+				}
 			}
 		});
 		if (bottomChrome != null) {

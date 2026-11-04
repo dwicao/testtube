@@ -1,11 +1,11 @@
 {
-  "tag": "v3.0.14",
-  "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.14/testtube3.0.14.apk",
-  "sha256": "8d6e4ee8854f0bb7689a2ef33da5661bd2d99cec24585f65756df39939f6b59b",
-  "size": 6044025,
-  "notes": "Fix canary gating + multicatech: gate canary behind TESTTUBE_CANARY, single-catch in openReleasesPage",
+  "tag": "v3.0.15",
+  "versionCode": 30015,
+  "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.15/testtube3.0.15.apk",
+  "sha256": null,
+  "size": -1,
+  "notes": "Sleep timer, playback speed, queue save/load, night downloads, tappable chapters note, stats overlay, richer notification, search filters, comment likes/replies, home widget.",
   "prerelease": false,
-  "versionCode": 30014,
   "notice": "",
   "noticeTag": "",
   "minVersionCode": 0

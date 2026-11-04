@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.0.15
+
+- Sleep timer (More options, 15/30/60/90 min, pauses when done)
+- Playback speed 0.5–2x in More options (pitch stays locked, remembered per app)
+- Queue save/load as JSON files (Library → queue tab)
+- Night downloads: resume paused queue daily at 02:00 on unmetered networks
+- Chapters already exist via the segments button (tap to jump, long-press for preview); no change needed
+- Stats-for-nerds overlay toggle (resolution, codec, bitrate, buffer, dropped frames)
+- Richer notification: elapsed-time chronometer, all actions in compact view
+- Search filters: All / Videos / Channels / Playlists chips
+- Comments: like button + reply composer for signed-in accounts (best-effort InnerTube endpoints, errors shown)
+- Homescreen widget: title, play/pause, next (uses notification media-button intents)
+
 ## 3.0.14
 
 - Upstream breakage radar: scheduled extractor canary (every 6h) with auto-issue on failure
