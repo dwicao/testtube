@@ -45,14 +45,14 @@ public class ContentLanguageTest {
 	@Test
 	public void sortsByPublishedDate() {
 		List<FeedItem> items = new ArrayList<>(List.of(video("a", "3 days ago"), video("b", "2 hours ago")));
-		FeedItem.sortNewestFirst(items);
+		FeedItem.sortByUploadDate(items);
 		assertEquals("b", items.get(0).videoId());
 	}
 
 	@Test
 	public void keepsTheOrderWhenADateCannotBeRead() {
 		List<FeedItem> items = new ArrayList<>(List.of(video("a", "3 days ago"), video("b", "soon")));
-		FeedItem.sortNewestFirst(items);
+		FeedItem.sortByUploadDate(items);
 		assertEquals("a", items.get(0).videoId());
 	}
 
