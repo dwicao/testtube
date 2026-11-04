@@ -1,9 +1,9 @@
 {
   "tag": "v3.0.10",
-  "versionCode": 30010,
   "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.10/testtube3.0.10.apk",
-  "sha256": null,
-  "size": -1,
-  "notes": "Forced H264 fallback + Prefer H264 toggle: HDR/AV1-only videos play AVC/MUXED instead of blue.",
-  "prerelease": false
+  "sha256": "3021b26b6ab1b0579d3250fbce3df327db6a9fbdee1449488182c9204509e742",
+  "size": 6029709,
+  "notes": "Force H264 fallback + Prefer H264 toggle (fix remaining blue videos)\n\nAVC-first adaptive, then SDR-only, then MUXED. Toggle in Playback.",
+  "prerelease": false,
+  "versionCode": 30010
 }
