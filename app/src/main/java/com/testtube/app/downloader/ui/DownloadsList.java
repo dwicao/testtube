@@ -593,7 +593,7 @@ public final class DownloadsList {
 				} else {
 					String videoId = videoIdOf(record);
 					if (videoId.isBlank()) ImageUtils.showThumb(thumbnail);
-					else ImageUtils.loadThumb(thumbnail, "https://i.ytimg.com/vi/" + videoId + "/mqdefault.jpg");
+					else ImageUtils.loadThumb(thumbnail, "https://i.ytimg.com/vi/" + videoId + "/hqdefault.jpg");
 				}
 				bindProgress(record);
 			}

@@ -180,7 +180,7 @@ public final class LocalHistoryController {
 			when.setText(DateUtils.getRelativeTimeSpanString(entry.watchedAt(),
 							System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS));
 			ImageUtils.loadThumb(thumbnail, entry.thumbnailUrl() != null ? entry.thumbnailUrl()
-							: "https://i.ytimg.com/vi/" + entry.videoId() + "/mqdefault.jpg");
+							: "https://i.ytimg.com/vi/" + entry.videoId() + "/hqdefault.jpg");
 			itemView.setOnClickListener(v -> listener.onPlay(entry.videoId()));
 			more.setOnClickListener(v -> {
 				PopupMenu menu = new PopupMenu(v.getContext(), v);

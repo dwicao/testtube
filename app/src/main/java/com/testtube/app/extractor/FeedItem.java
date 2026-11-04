@@ -73,12 +73,12 @@ public record FeedItem(@NonNull Kind kind,
 	}
 
 	/**
-	 * 320x180 (16:9) thumbnail for list rows. About a third of the size of hqdefault, and without
-	 * the black bars.
+	 * 480x360 (4:3) thumbnail for list rows, cropped to 16:9 by the views. Sharper than
+	 * mqdefault (320x180) on modern phones, still light on data.
 	 */
 	@NonNull
 	public static String thumbnailFor(@NonNull String videoId) {
-		return "https://i.ytimg.com/vi/" + videoId + "/mqdefault.jpg";
+		return "https://i.ytimg.com/vi/" + videoId + "/hqdefault.jpg";
 	}
 
 	/**

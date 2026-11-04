@@ -152,8 +152,8 @@ public final class ImageUtils {
 	@NonNull
 	private static RequestBuilder<Drawable> styled(@NonNull RequestBuilder<Drawable> request,
 	                                               @DrawableRes int placeholder, @Nullable Resources.Theme theme) {
-		// Cap decoded size for feed thumbs: full-res decode wastes memory, views crop anyway.
-		RequestBuilder<Drawable> out = request.override(480, 270)
+		// 854x480 (FWVGA 16:9): sharp on 1080p phones, ~2x the old 480x270 decode.
+		RequestBuilder<Drawable> out = request.override(854, 480)
 						.transition(DrawableTransitionOptions.withCrossFade(FADE_MS));
 		if (placeholder == 0) return out;
 		out = out.placeholder(placeholder).error(placeholder);

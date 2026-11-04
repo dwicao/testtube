@@ -35,8 +35,11 @@ import androidx.media3.exoplayer.DecoderCounters;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.testtube.app.AppGraph;
 import com.testtube.app.AppSettings;
+import com.testtube.app.Constant;
 import com.testtube.app.R;
+import com.testtube.app.downloader.ui.DownloadDialog;
 import com.testtube.app.ui.Dialogs;
 import com.testtube.app.extractor.StreamCatalog;
 import com.testtube.app.nav.TabManager;
@@ -579,6 +582,20 @@ public class Controller {
 			setupBottomSheetOption(bottomSheetView, R.id.option_audio_track, b -> {
 				showAudioTrackOptions();
 				bottomSheetDialog.dismiss();
+			});
+			setupBottomSheetOption(bottomSheetView, R.id.option_download, b -> {
+				bottomSheetDialog.dismiss();
+				String videoId = engine.getVideoId();
+				if (videoId == null || videoId.isBlank()) {
+					showHint(activity.getString(R.string.queue_item_unavailable), HINT_HIDE_DELAY_MS);
+					return;
+				}
+				String url = Constant.HOME_URL + "/watch?v=" + videoId;
+				try {
+					new DownloadDialog(url, activity, AppGraph.of(activity).youtubeExtractor()).show();
+				} catch (RuntimeException e) {
+					showHint(activity.getString(R.string.queue_item_unavailable), HINT_HIDE_DELAY_MS);
+				}
 			});
 			setupBottomSheetOption(bottomSheetView, R.id.option_pip, b -> {
 				playerView.enterPiP();
