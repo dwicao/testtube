@@ -201,9 +201,8 @@ final class SettingsDialog {
 						R.string.setting_prereleases_summary, updates.prereleasesEnabled());
 		// Saved right away, so "Check for updates" below already uses it
 		prereleases.setOnCheckedChangeListener((button, checked) -> updates.setPrereleases(checked));
-		View backupSection = null;
 		if (!welcome) {
-			backupSection = form.section(R.string.settings_section_backup);
+			ViewGroup backupSection = form.section(R.string.settings_section_backup);
 			form.value(backupSection, R.string.backup_now, R.string.backup_now_summary, "")
 							.setOnClickListener(v -> onBackup.run());
 			form.value(backupSection, R.string.restore_now, R.string.restore_now_summary, "")
