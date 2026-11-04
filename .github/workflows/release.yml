@@ -58,7 +58,8 @@ jobs:
           mv /tmp/cmdtools-tmp/cmdline-tools/* "$ANDROID_HOME/cmdline-tools/latest/"
           rm -rf /tmp/cmdtools-tmp cmdtools.zip
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platform-tools" "platforms;android-37" "build-tools;36.0.0"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platform-tools" "platforms;android-36" "build-tools;36.0.0" || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-37" || echo "android-37 not in sdkmanager yet, Gradle will download it"
           echo "SDK installed:"
           ls "$ANDROID_HOME/build-tools"
 
