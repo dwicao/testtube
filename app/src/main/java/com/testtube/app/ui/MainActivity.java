@@ -858,7 +858,6 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 	}
 
 	private void handlePiPChanged(boolean isInPictureInPictureMode) {
-	private void handlePiPChanged(boolean isInPictureInPictureMode) {
 		// Closing the floating window, rather than expanding it, leaves the activity stopped
 		boolean closed = !isInPictureInPictureMode && getLifecycle().getCurrentState() == Lifecycle.State.CREATED;
 		player.onPictureInPictureModeChanged(isInPictureInPictureMode, closed);
