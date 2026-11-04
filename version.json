@@ -1,11 +1,11 @@
 {
   "tag": "v3.0.16",
-  "versionCode": 30016,
   "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.16/testtube3.0.16.apk",
-  "sha256": null,
-  "size": -1,
-  "notes": "Hotfix startup crash: no WorkManager auto-init, crash reports always shown + archived to Downloads, welcome dialog cannot brick the app.",
+  "sha256": "e7371b3ef0a892f951ee223a4b15b6460ec9765d923626648d3b3736bcbc4f82",
+  "size": 6193927,
+  "notes": "v3.0.16 hotfix startup crash + self-reporting crash logs",
   "prerelease": false,
+  "versionCode": 30016,
   "notice": "",
   "noticeTag": "",
   "minVersionCode": 0
