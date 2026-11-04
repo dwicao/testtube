@@ -382,6 +382,9 @@
     <string name="download_requires_wifi">다운로드에 Wi-Fi가 필요합니다 (설정 → 재생)</string>
     <string name="download_pause_all">모두 일시정지</string>
     <string name="download_resume_all">모두 다시 시작</string>
+    <string name="update_open_github">GitHub 릴리스 열기</string>
+    <string name="upstream_broken_title">동영상이 재생되지 않나요?</string>
+    <string name="upstream_broken_message">여러 동영상이 연속으로 로드되지 않았습니다. YouTube가 변경되었거나 연결 문제일 수 있습니다. 업데이트를 확인할까요?</string>
     <string name="setting_sponsor_cats">SponsorBlock 카테고리</string>
     <string name="setting_sponsor_cats_summary">건너뛸 구간 종류</string>
     <string name="skipped_sponsor">스폰서 건너뜀 %1$d초</string>

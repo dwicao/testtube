@@ -147,8 +147,17 @@ jobs:
               old = json.load(f)
               if "versionCode" in old:
                 data["versionCode"] = old["versionCode"]
+              # A notice broadcast stays live across releases until cleared by hand.
+              # To broadcast without an APK: edit version.json on main directly
+              # (set notice/noticeTag, optionally minVersionCode) and commit.
+              for key in ("notice", "noticeTag", "minVersionCode"):
+                if key in old:
+                  data[key] = old[key]
           except Exception:
             pass
+          data.setdefault("notice", "")
+          data.setdefault("noticeTag", "")
+          data.setdefault("minVersionCode", 0)
           with open(f"/tmp/version-{tag}.json", "w") as f:
             json.dump(data, f, indent=2)
           print(json.dumps(data, indent=2))

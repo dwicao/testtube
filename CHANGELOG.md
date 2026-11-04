@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.0.14
+
+- Upstream breakage radar: scheduled extractor canary (every 6h) with auto-issue on failure
+- `version.json` broadcasts: `notice`/`noticeTag` info dialogs + `minVersionCode` update-required prompts
+- Playback errors on HDR streams fall straight back to SDR muxed; repeated extraction failures suggest checking for updates
+- New strings translated (update_open_github, upstream notices)
+
 ## 3.0.12
 
 - Shorts now use a single player + cache prefetch instead of two players (less RAM, battery and mobile data)

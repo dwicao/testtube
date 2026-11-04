@@ -382,6 +382,9 @@
     <string name="download_requires_wifi">下载需要 Wi-Fi（设置 → 播放）</string>
     <string name="download_pause_all">全部暂停</string>
     <string name="download_resume_all">全部继续</string>
+    <string name="update_open_github">打开 GitHub 发布页</string>
+    <string name="upstream_broken_title">视频无法播放？</string>
+    <string name="upstream_broken_message">多个视频连续加载失败。可能是 YouTube 改了东西，也可能是你的网络问题。要检查更新吗？</string>
     <string name="setting_sponsor_cats">SponsorBlock 类别</string>
     <string name="setting_sponsor_cats_summary">要跳过的片段类型</string>
     <string name="skipped_sponsor">已跳过赞助 %1$d 秒</string>

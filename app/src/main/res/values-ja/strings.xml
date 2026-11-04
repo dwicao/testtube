@@ -382,6 +382,9 @@
     <string name="download_requires_wifi">ダウンロードにはWi-Fiが必要です（設定 → 再生）</string>
     <string name="download_pause_all">すべて一時停止</string>
     <string name="download_resume_all">すべて再開</string>
+    <string name="update_open_github">GitHubリリースを開く</string>
+    <string name="upstream_broken_title">動画が再生できない？</string>
+    <string name="upstream_broken_message">複数の動画が続けて読み込めませんでした。YouTube側の変更か、接続の問題かもしれません。更新を確認しますか？</string>
     <string name="setting_sponsor_cats">SponsorBlockカテゴリ</string>
     <string name="setting_sponsor_cats_summary">スキップする区間の種類</string>
     <string name="skipped_sponsor">スポンサーをスキップ（%1$d秒）</string>

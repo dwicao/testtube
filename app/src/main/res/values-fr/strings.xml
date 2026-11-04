@@ -384,6 +384,9 @@
     <string name="download_requires_wifi">Les téléchargements nécessitent le Wi-Fi (Réglages → Lecture)</string>
     <string name="download_pause_all">Tout mettre en pause</string>
     <string name="download_resume_all">Tout reprendre</string>
+    <string name="update_open_github">Ouvrir les versions GitHub</string>
+    <string name="upstream_broken_title">Vidéos illisibles ?</string>
+    <string name="upstream_broken_message">Plusieurs vidéos ont échoué à la suite. YouTube a peut-être changé quelque chose, ou ta connexion est en cause. Vérifier les mises à jour ?</string>
     <string name="setting_sponsor_cats">Catégories SponsorBlock</string>
     <string name="setting_sponsor_cats_summary">Segments à sauter</string>
     <string name="skipped_sponsor">Sponsor sauté : %1$ds</string>

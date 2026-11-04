@@ -1,9 +1,12 @@
 {
-  "tag": "v3.0.13",
-  "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.13/testtube3.0.13.apk",
-  "sha256": "9258f129e0d767c706b1095add7648c4300d3db903cab0b2e9d11923217dc0d9",
-  "size": 6041397,
-  "notes": "v3.0.13: CI test+lint, CHANGELOG catch-up, downloads Wi-Fi only + pause/resume all\n\n- check.yml runs testDebugUnitTest + lintRelease on push/PR\n- CHANGELOG 3.0.3-3.0.13; fastlane changelogs 30012-30013\n- Downloads on Wi-Fi only toggle; service enforces + auto-pauses on switch to mobile\n- Pause-all/resume-all: service API, notification action, Downloads tab bulk bar",
+  "tag": "v3.0.14",
+  "versionCode": 30014,
+  "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.14/testtube3.0.14.apk",
+  "sha256": null,
+  "size": -1,
+  "notes": "Upstream radar: scheduled extractor canary, update-required notices, playback-error client rotation.",
   "prerelease": false,
-  "versionCode": 30013
+  "notice": "",
+  "noticeTag": "",
+  "minVersionCode": 0
 }

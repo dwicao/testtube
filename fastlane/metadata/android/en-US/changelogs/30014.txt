@@ -1,0 +1,1 @@
+- Upstream breakage radar: scheduled extractor canary, version.json notice/minVersionCode broadcasts, playback errors fall back across clients

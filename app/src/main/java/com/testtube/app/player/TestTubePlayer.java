@@ -29,6 +29,7 @@ import com.testtube.app.extractor.ExtractionSession;
 import com.testtube.app.extractor.PlaybackDetails;
 import com.testtube.app.extractor.PlaybackPlan;
 import com.testtube.app.extractor.PlaybackPlanner;
+import com.testtube.app.extractor.UpstreamHealth;
 import com.testtube.app.extractor.VideoDetails;
 import com.testtube.app.extractor.YoutubeExtractor;
 import com.testtube.app.net.Failure;
@@ -302,6 +303,7 @@ public class TestTubePlayer {
 								showFailure(e, videoId);
 								return;
 							}
+							UpstreamHealth.recordSuccess();
 							autoRetriedId = null;
 							this.activeId = videoId;
 							activeDurationSeconds = er.video().getDuration();
@@ -327,6 +329,8 @@ public class TestTubePlayer {
 							Failure failure = Failure.report(cause);
 							activity.runOnUiThread(() -> {
 								if (!Objects.equals(this.queuedId, videoId)) return;
+								UpstreamHealth.recordFailure(failure, videoId);
+								boolean upstream = UpstreamHealth.shouldSuggestUpdate();
 								// Removed, private, age-restricted, blocked…: in a playlist or the
 								// queue, say why and move on instead of stopping on an error
 								if (!failure.retryable && engine.skipUnavailable(videoId)) {
@@ -334,6 +338,10 @@ public class TestTubePlayer {
 									return;
 								}
 								if (!retryLater(failure, videoId)) showFailure(cause, videoId);
+								if (upstream) {
+									UpstreamHealth.markSuggested();
+									showUpstreamDialog();
+								}
 							});
 							return null;
 						});
@@ -423,6 +431,25 @@ public class TestTubePlayer {
 			autoRetriedId = videoId;
 			playAgain(videoId);
 		});
+	}
+
+	/**
+	 * Several different videos failed to extract in a row with an unexpected error: YouTube
+	 * probably changed something. Suggest checking for updates instead of another dead-end retry.
+	 */
+	private void showUpstreamDialog() {
+		if (activity.isFinishing() || activity.isDestroyed()) return;
+		com.testtube.app.ui.Dialogs.builder(activity)
+						.setTitle(R.string.upstream_broken_title)
+						.setMessage(activity.getString(R.string.upstream_broken_message))
+						.setPositiveButton(R.string.update_check_now, (d, w) -> {
+							try {
+								com.testtube.app.AppGraph.of(activity).updateManager().check(activity, true);
+							} catch (RuntimeException ignored) {
+							}
+						})
+						.setNegativeButton(R.string.cancel, null)
+						.show();
 	}
 
 	public void hide() {

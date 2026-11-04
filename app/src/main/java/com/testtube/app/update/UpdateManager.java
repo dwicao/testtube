@@ -77,13 +77,15 @@ public final class UpdateManager {
 	private static final String KEY_PRERELEASES = "update_prereleases";
 	private static final String KEY_SNOOZED_TAG = "update_snoozed_tag";
 	private static final String KEY_SNOOZED_UNTIL = "update_snoozed_until";
+	private static final String KEY_NOTICE_TAG = "update_notice_tag";
 	private static final long START_DELAY_MS = 5_000L;
 	private static final long SNOOZE_MS = 24L * 60 * 60 * 1000;
 	private static final int NOTES_LIMIT = 600;
 	private static final String UPDATE_DIR = "updates";
 
 	private record Release(String tag, String notes, String apkUrl, long size, @Nullable String sha256,
-	                       boolean prerelease) {
+	                       boolean prerelease, @Nullable String notice, @NonNull String noticeTag,
+	                       long minVersionCode) {
 	}
 
 	private final OkHttpClient client;
@@ -137,13 +139,30 @@ public final class UpdateManager {
 				return;
 			}
 			String current = currentVersion(activity);
+			long installedCode = currentVersionCode(activity);
 			boolean newer = release != null && isNewer(release.tag(), current);
+			boolean forced = release != null && release.minVersionCode() > 0
+							&& release.minVersionCode() > installedCode;
+			boolean unseenNotice = release != null && !release.noticeTag().isEmpty()
+							&& release.notice() != null && !release.notice().isBlank()
+							&& !release.noticeTag().equals(store.decodeString(KEY_NOTICE_TAG, null));
 			runOnUi(activity, () -> {
+				if (forced) {
+					// A forced notice ignores the 24h snooze: it reappears until updated.
+					showForcedNotice(activity, release, current, newer);
+					return;
+				}
 				if (!newer) {
-					if (manual) Toast.makeText(activity,
-									activity.getString(R.string.update_none, current), Toast.LENGTH_LONG).show();
-				} else if (manual || !isSnoozed(release.tag())) {
-					showOffer(activity, release, current);
+					if (unseenNotice) {
+						showNoticeDialog(activity, release, false);
+					} else if (manual) {
+						Toast.makeText(activity,
+										activity.getString(R.string.update_none, current), Toast.LENGTH_LONG).show();
+					}
+					return;
+				}
+				if (manual || !isSnoozed(release.tag()) || unseenNotice) {
+					showOffer(activity, release, current, unseenNotice ? release.notice() : null);
 				}
 			});
 		});
@@ -227,7 +246,26 @@ public final class UpdateManager {
 						&& json.get("prerelease").getAsBoolean();
 		String notes = string(json, "notes");
 		if (notes.isEmpty()) notes = string(json, "body").trim();
-		return new Release(tag, notes, apkUrl, size, sha, prerelease);
+		String notice = string(json, "notice").trim();
+		String noticeTag = string(json, "noticeTag").trim();
+		if (noticeTag.isEmpty()) noticeTag = string(json, "notice_tag").trim();
+		if (notice.isEmpty() || noticeTag.isEmpty()) {
+			notice = null;
+			noticeTag = "";
+		} else if (notice.length() > NOTES_LIMIT) {
+			notice = notice.substring(0, NOTES_LIMIT) + "…";
+		}
+		long minVersionCode = 0L;
+		try {
+			if (json.has("minVersionCode") && !json.get("minVersionCode").isJsonNull()) {
+				minVersionCode = json.get("minVersionCode").getAsLong();
+			} else if (json.has("min_version_code") && !json.get("min_version_code").isJsonNull()) {
+				minVersionCode = json.get("min_version_code").getAsLong();
+			}
+		} catch (RuntimeException ignored) {
+		}
+		if (minVersionCode < 0) minVersionCode = 0;
+		return new Release(tag, notes, apkUrl, size, sha, prerelease, notice, noticeTag, minVersionCode);
 	}
 
 	@NonNull
@@ -258,7 +296,7 @@ public final class UpdateManager {
 			String digest = string(asset, "digest");
 			String sha = digest.startsWith("sha256:") ? digest.substring(7).toLowerCase(Locale.ROOT) : null;
 			long size = asset.has("size") ? asset.get("size").getAsLong() : -1L;
-			return new Release(tag, string(json, "body").trim(), url, size, sha, prerelease);
+			return new Release(tag, string(json, "body").trim(), url, size, sha, prerelease, null, "", 0L);
 		}
 		return null;
 	}
@@ -274,6 +312,15 @@ public final class UpdateManager {
 			return name == null ? "" : name;
 		} catch (PackageManager.NameNotFoundException e) {
 			return "";
+		}
+	}
+
+	private static long currentVersionCode(Activity activity) {
+		try {
+			PackageInfo info = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0);
+			return PackageInfoCompat.getLongVersionCode(info);
+		} catch (PackageManager.NameNotFoundException | RuntimeException e) {
+			return 0L;
 		}
 	}
 
@@ -329,11 +376,13 @@ public final class UpdateManager {
 		return out;
 	}
 
-	private void showOffer(Activity activity, Release release, String current) {
+	private void showOffer(Activity activity, Release release, String current, @Nullable String notice) {
 		if (activity.isFinishing() || activity.isDestroyed()) return;
+		if (notice != null) markNoticeShown(release);
 		String notes = release.notes().length() > NOTES_LIMIT
 						? release.notes().substring(0, NOTES_LIMIT) + "…" : release.notes();
 		String message = activity.getString(R.string.update_message, release.tag(), current)
+						+ (notice != null && !notice.isBlank() ? "\n\n" + notice.trim() : "")
 						+ (notes.isEmpty() ? "" : "\n\n" + notes);
 		Dialogs.builder(activity)
 						.setTitle(release.prerelease() ? R.string.update_title_prerelease : R.string.update_title)
@@ -344,6 +393,63 @@ public final class UpdateManager {
 							store.encode(KEY_SNOOZED_UNTIL, System.currentTimeMillis() + SNOOZE_MS);
 						})
 						.show();
+	}
+
+	/**
+	 * A broadcast from version.json: YouTube may have changed something and this app may be too
+	 * old to play. Shows every start until updated (no snooze). With a newer release available
+	 * it updates in-app, otherwise it opens the releases page in the browser.
+	 */
+	private void showForcedNotice(Activity activity, Release release, String current, boolean newer) {
+		if (activity.isFinishing() || activity.isDestroyed()) return;
+		String notice = release.notice() != null ? release.notice().trim() : "";
+		String message = notice
+						+ (newer ? "\n\n" + activity.getString(R.string.update_message, release.tag(), current) : "");
+		Dialogs.builder(activity)
+						.setTitle(release.prerelease() ? R.string.update_title_prerelease : R.string.update_title)
+						.setMessage(message)
+						.setPositiveButton(newer ? R.string.update_action : R.string.update_open_github, (d, w) -> {
+							if (newer) {
+								startUpdate(activity, release);
+							} else {
+								openReleasesPage(activity);
+							}
+						})
+						.setNegativeButton(R.string.update_later, null)
+						.show();
+	}
+
+	/** An informational broadcast, shown once per notice tag. */
+	private void showNoticeDialog(Activity activity, Release release, boolean newer) {
+		if (activity.isFinishing() || activity.isDestroyed()) return;
+		markNoticeShown(release);
+		String notice = release.notice() != null ? release.notice().trim() : "";
+		Dialogs.builder(activity)
+						.setTitle(R.string.update_title)
+						.setMessage(notice)
+						.setPositiveButton(newer ? R.string.update_action : android.R.string.ok, (d, w) -> {
+							if (newer) startUpdate(activity, release);
+						})
+						.setNegativeButton(R.string.cancel, null)
+						.show();
+	}
+
+	private void markNoticeShown(@NonNull Release release) {
+		if (!release.noticeTag().isEmpty()) {
+			try {
+				store.encode(KEY_NOTICE_TAG, release.noticeTag());
+			} catch (RuntimeException ignored) {
+			}
+		}
+	}
+
+	private static void openReleasesPage(@NonNull Activity activity) {
+		try {
+			activity.startActivity(new Intent(Intent.ACTION_VIEW,
+							Uri.parse("https://github.com/dwicao/testtube/releases")));
+		} catch (ActivityNotFoundException | RuntimeException e) {
+			Toast.makeText(activity, R.string.update_check_failed, Toast.LENGTH_LONG).show();
+		}
 	}
 
 	private void startUpdate(Activity activity, Release release) {

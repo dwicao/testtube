@@ -1,0 +1,94 @@
+name: Upstream canary
+
+# Early warning for the "Litube pattern": YouTube changes something and playback
+# silently breaks everywhere. Extracts two stable public videos with the vendored
+# NewPipe extractor; a failure (with YouTube itself reachable) means OUR side broke.
+on:
+  schedule:
+    # Every 6 hours, staggered past the hour.
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Android SDK (manual)
+        run: |
+          set -euo pipefail
+          export ANDROID_HOME="$HOME/android-sdk"
+          export ANDROID_SDK_ROOT="$HOME/android-sdk"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+          mkdir -p "$ANDROID_HOME/cmdline-tools"
+          cd /tmp
+          curl -fsSL -o cmdtools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          rm -rf "$ANDROID_HOME/cmdline-tools/latest"
+          mkdir -p "$ANDROID_HOME/cmdline-tools/latest"
+          unzip -q cmdtools.zip -d /tmp/cmdtools-tmp
+          mv /tmp/cmdtools-tmp/cmdline-tools/* "$ANDROID_HOME/cmdline-tools/latest/"
+          rm -rf /tmp/cmdtools-tmp cmdtools.zip
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platform-tools" "platforms;android-36" "build-tools;36.0.0" || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-37" || echo "android-37 not in sdkmanager yet, Gradle will download it"
+
+      - name: Preflight — is YouTube itself reachable?
+        id: preflight
+        run: |
+          set +e
+          for id in aqz-KE-bpKQ dQw4w9WgXcQ; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 25 "https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=$id&format=json")
+            echo "oEmbed $id -> HTTP $code"
+            if [ "$code" != "200" ]; then
+              echo "reachable=false" >> "$GITHUB_OUTPUT"
+              echo "YouTube oEmbed unreachable (HTTP $code) — skipping canary, this is not our bug."
+              exit 0
+            fi
+          done
+          echo "reachable=true" >> "$GITHUB_OUTPUT"
+
+      - name: Run extractor canary
+        if: steps.preflight.outputs.reachable == 'true'
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon :app:testDebugUnitTest --tests "com.testtube.app.extractor.UpstreamCanaryTest" --stacktrace --console=plain
+
+      - name: Open issue on breakage (one at a time)
+        if: failure() && steps.preflight.outputs.reachable == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh label create --repo "$GITHUB_REPOSITORY" upstream-breakage \
+            --color "B60205" --description "YouTube changed something; playback/extraction broken" || true
+          existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --label upstream-breakage --state open --limit 1 --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            echo "Upstream-breakage issue #$existing already open, commenting with the new run."
+            gh issue comment --repo "$GITHUB_REPOSITORY" "$existing" --body "Canary still failing: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            exit 0
+          fi
+          gh issue create --repo "$GITHUB_REPOSITORY" \
+            --title "Upstream breakage: extractor canary failing" \
+            --label upstream-breakage \
+            --body "The scheduled extractor canary failed while YouTube itself is reachable, so the vendored NewPipe extractor (or our use of it) likely broke.
+
+          Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+
+          Suggested first steps:
+          1. Check upstream TeamNewPipe/NewPipeExtractor for a fix and sync \`newpipe-extractor/\`.
+          2. If YouTube changed InnerTube requirements, check the PO token BotGuard path (\`assets/potoken/\`) and client versions.
+          3. If confirmed, broadcast via \`version.json\` \`notice\` + \`minVersionCode\` so old apps tell users to update."
