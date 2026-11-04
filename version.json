@@ -1,9 +1,9 @@
 {
   "tag": "v3.0.12",
-  "versionCode": 30012,
   "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.12/testtube3.0.12.apk",
-  "sha256": null,
-  "size": -1,
-  "notes": "Single-player Shorts, Allow HDR, SponsorBlock categories, download progress dialog, Share crash report.",
-  "prerelease": false
+  "sha256": "d34cfb94934d433646d77df8e811ef67c43097aba4115a4601c64ff4df69516a",
+  "size": 6038025,
+  "notes": "v3.0.12: single-player Shorts, Allow HDR, sponsor cats, dl dialog, translations, F-Droid, no fake baseline\n\n- ShortsEngine single ExoPlayer + StreamPreloader cache prefetch (was dual players)\n- Allow HDR toggle (off) honored in planner + codec priority; HDR errors fall back to SDR muxed\n- SponsorBlock categories picker (9 cats, memCache cats-aware) + skip toast with tap-to-undo\n- More options Download: progress dialog + Open Downloads shortcut\n- ErrorDialog Share button (refactored report builder)\n- Full translations: 6 prior + allow_hdr/sponsor_cats/skipped/undo x8 locales\n- F-Droid/fastlane: changelogs 30003-30012, phone screenshots\n- Removed fake baseline-prof.txt stub + profileinstaller dep (no Macrobenchmark profile yet)\n- check.yml: debug compile check on main pushes/PRs",
+  "prerelease": false,
+  "versionCode": 30012
 }
