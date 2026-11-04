@@ -458,6 +458,4 @@
     <string name="backup_restart_title">Yeniden başlatma gerekli</string>
     <string name="backup_restart_message">Ayarlar geri yüklendi. Uygulamak için yeniden başlatın.</string>
     <string name="restart_now">Yeniden başlat</string>
-    <string name="sleep_timer_30min">30 dk uyku</string>
-    <string name="sleep_timer_off">Zamanlayıcıyı kapat</string>
 </resources>

@@ -455,6 +455,4 @@
     <string name="backup_restart_title">需要重启</string>
     <string name="backup_restart_message">设置已恢复。请重启以全部生效。</string>
     <string name="restart_now">重启</string>
-    <string name="sleep_timer_30min">睡眠30分钟</string>
-    <string name="sleep_timer_off">关闭定时</string>
 </resources>

@@ -457,6 +457,4 @@
     <string name="backup_restart_title">Redémarrage requis</string>
     <string name="backup_restart_message">Réglages restaurés. Redémarre pour tout appliquer.</string>
     <string name="restart_now">Redémarrer</string>
-    <string name="sleep_timer_30min">Veille 30 min</string>
-    <string name="sleep_timer_off">Désactiver le minuteur</string>
 </resources>

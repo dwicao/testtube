@@ -455,6 +455,4 @@
     <string name="backup_restart_title">需要重新啟動</string>
     <string name="backup_restart_message">設定已還原。請重新啟動以全部生效。</string>
     <string name="restart_now">重新啟動</string>
-    <string name="sleep_timer_30min">睡眠30分鐘</string>
-    <string name="sleep_timer_off">關閉定時</string>
 </resources>

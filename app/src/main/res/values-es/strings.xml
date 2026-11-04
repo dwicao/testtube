@@ -459,6 +459,4 @@
     <string name="backup_restart_title">Reinicio necesario</string>
     <string name="backup_restart_message">Ajustes restaurados. Reinicia ahora para aplicar todo.</string>
     <string name="restart_now">Reiniciar</string>
-    <string name="sleep_timer_30min">Dormir 30 min</string>
-    <string name="sleep_timer_off">Apagar temporizador</string>
 </resources>

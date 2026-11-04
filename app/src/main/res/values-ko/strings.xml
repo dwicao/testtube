@@ -455,6 +455,4 @@
     <string name="backup_restart_title">다시 시작 필요</string>
     <string name="backup_restart_message">설정을 복원했습니다. 모두 적용하려면 다시 시작하세요.</string>
     <string name="restart_now">다시 시작</string>
-    <string name="sleep_timer_30min">30분 슬립</string>
-    <string name="sleep_timer_off">타이머 끄기</string>
 </resources>

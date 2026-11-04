@@ -247,8 +247,6 @@
     <string name="stats_for_nerds">Stats for nerds</string>
     <string name="playback_speed_remember">Remember</string>
     <string name="playback_speed_once">Just this video</string>
-    <string name="sleep_timer_30min">Sleep 30 min</string>
-    <string name="sleep_timer_off">Sleep off</string>
     <string name="search_filter_all">All</string>
     <string name="search_filter_videos">Videos</string>
     <string name="search_filter_playlists">Playlists</string>

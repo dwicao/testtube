@@ -455,6 +455,4 @@
     <string name="backup_restart_title">再起動が必要です</string>
     <string name="backup_restart_message">設定を復元しました。すべて適用するには再起動してください。</string>
     <string name="restart_now">再起動</string>
-    <string name="sleep_timer_30min">スリープ 30分</string>
-    <string name="sleep_timer_off">タイマー解除</string>
 </resources>
