@@ -448,4 +448,17 @@
     <string name="stats_days">Días activos</string>
     <string name="stats_top_channels">Canales principales</string>
     <string name="watch_later">Ver más tarde</string>
+    <string name="settings_section_backup">Copia de seguridad</string>
+    <string name="backup_now">Hacer copia ahora</string>
+    <string name="backup_now_summary">Guarda todos los ajustes en un archivo JSON</string>
+    <string name="restore_now">Restaurar copia</string>
+    <string name="restore_now_summary">Reemplaza todos los ajustes desde un archivo</string>
+    <string name="backup_saved">Copia guardada</string>
+    <string name="backup_failed">No se pudo guardar la copia</string>
+    <string name="restore_failed">No se pudo cargar la copia</string>
+    <string name="backup_restart_title">Reinicio necesario</string>
+    <string name="backup_restart_message">Ajustes restaurados. Reinicia ahora para aplicar todo.</string>
+    <string name="restart_now">Reiniciar</string>
+    <string name="sleep_timer_30min">Dormir 30 min</string>
+    <string name="sleep_timer_off">Apagar temporizador</string>
 </resources>

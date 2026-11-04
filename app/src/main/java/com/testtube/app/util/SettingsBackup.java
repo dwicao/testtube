@@ -117,7 +117,7 @@ public final class SettingsBackup {
 								settings.optString("gestureDoubleTap", null), GestureAction.DoubleTap.SKIP));
 		AppSettings.setGesturesEnabled(gestures);
 		AppSettings.setCommentingEnabled(settings.optBoolean("commenting", false));
-		AppSettings.VideoCache cache = AppSettings.VideoCache.parse(settings.optString("videoCache", null));
+		AppSettings.VideoCache cache = videoCacheOrDefault(settings.optString("videoCache", ""));
 		AppSettings.setVideoCache(cache);
 		AppSettings.setShowSubscriptions(settings.optBoolean("showSubscriptions", true));
 		AppSettings.setGreyOutWatched(settings.optBoolean("greyWatched", true));
@@ -186,6 +186,26 @@ public final class SettingsBackup {
 			return Enum.valueOf(type, name);
 		} catch (RuntimeException e) {
 			return fallback;
+		}
+	}
+
+	/** VideoCache.parse is package-private; replicate it including the legacy names. */
+	@NonNull
+	private static AppSettings.VideoCache videoCacheOrDefault(@NonNull String stored) {
+		switch (stored) {
+			case "FAST":
+				return AppSettings.VideoCache.LARGE;
+			case "BALANCED":
+				return AppSettings.VideoCache.MEDIUM;
+			case "SAVER":
+				return AppSettings.VideoCache.SMALL;
+			default:
+				break;
+		}
+		try {
+			return AppSettings.VideoCache.valueOf(stored);
+		} catch (IllegalArgumentException | NullPointerException e) {
+			return AppSettings.VideoCache.LARGE;
 		}
 	}
 

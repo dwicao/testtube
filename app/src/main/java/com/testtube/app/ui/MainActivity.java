@@ -972,23 +972,7 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 				pickQueueFile();
 			}
 
-			@Override
-			public void saveQueue() {
-				try {
-					queueExportPicker.launch("testtube-queue.json");
-				} catch (RuntimeException e) {
-					ToastUtils.show(MainActivity.this, R.string.queue_save_failed);
-				}
-			}
 
-			@Override
-			public void loadQueue() {
-				try {
-					queueImportPicker.launch(new String[]{"application/json", "text/plain", "*/*"});
-				} catch (RuntimeException e) {
-					ToastUtils.show(MainActivity.this, R.string.queue_load_failed);
-				}
-			}
 		});
 		if (bottomChrome != null) {
 			bottomChrome.addAll(view, R.id.panel_queue_list, R.id.panel_queue_empty, R.id.history_list,

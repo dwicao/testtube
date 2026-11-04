@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.0.18
+
+- Sleep timer in the player and in the notification (toggle 30 min)
+- Playback speed 0.5–2x, remembered globally or just this video (pitch stays locked)
+- Watch later: add any history entry to the queue
+- Data saver mode (480p everywhere, no preloads)
+- Watch stats tab (videos, hours, active days, top channels)
+- Full settings backup/restore to JSON with restart
+- Comment likes and replies when signed in
+- Enriched notifications (elapsed time, all actions) and search filters (All/Videos/Channels/Playlists)
+- Homescreen player widget; scheduled night downloads (02:00, unmetered)
+
 ## 3.0.17
 
 - Sleep timer in the player and as a notification action

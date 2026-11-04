@@ -444,4 +444,17 @@
     <string name="stats_days">活跃天数</string>
     <string name="stats_top_channels">热门频道</string>
     <string name="watch_later">稍后观看</string>
+    <string name="settings_section_backup">备份</string>
+    <string name="backup_now">立即备份</string>
+    <string name="backup_now_summary">将所有设置保存到 JSON 文件</string>
+    <string name="restore_now">恢复备份</string>
+    <string name="restore_now_summary">从备份文件替换所有设置</string>
+    <string name="backup_saved">备份已保存</string>
+    <string name="backup_failed">备份保存失败</string>
+    <string name="restore_failed">恢复失败</string>
+    <string name="backup_restart_title">需要重启</string>
+    <string name="backup_restart_message">设置已恢复。请重启以全部生效。</string>
+    <string name="restart_now">重启</string>
+    <string name="sleep_timer_30min">睡眠30分钟</string>
+    <string name="sleep_timer_off">关闭定时</string>
 </resources>

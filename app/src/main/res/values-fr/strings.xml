@@ -446,4 +446,17 @@
     <string name="stats_days">Jours actifs</string>
     <string name="stats_top_channels">Top chaînes</string>
     <string name="watch_later">Regarder plus tard</string>
+    <string name="settings_section_backup">Sauvegarde</string>
+    <string name="backup_now">Sauvegarder</string>
+    <string name="backup_now_summary">Enregistre tous les réglages dans un fichier JSON</string>
+    <string name="restore_now">Restaurer</string>
+    <string name="restore_now_summary">Remplace tous les réglages depuis un fichier</string>
+    <string name="backup_saved">Sauvegarde enregistrée</string>
+    <string name="backup_failed">Échec de la sauvegarde</string>
+    <string name="restore_failed">Échec de la restauration</string>
+    <string name="backup_restart_title">Redémarrage requis</string>
+    <string name="backup_restart_message">Réglages restaurés. Redémarre pour tout appliquer.</string>
+    <string name="restart_now">Redémarrer</string>
+    <string name="sleep_timer_30min">Veille 30 min</string>
+    <string name="sleep_timer_off">Désactiver le minuteur</string>
 </resources>

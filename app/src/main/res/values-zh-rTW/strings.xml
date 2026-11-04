@@ -444,4 +444,17 @@
     <string name="stats_days">活躍天數</string>
     <string name="stats_top_channels">熱門頻道</string>
     <string name="watch_later">稍後觀看</string>
+    <string name="settings_section_backup">備份</string>
+    <string name="backup_now">立即備份</string>
+    <string name="backup_now_summary">將所有設定儲存到 JSON 檔案</string>
+    <string name="restore_now">還原備份</string>
+    <string name="restore_now_summary">從備份檔取代所有設定</string>
+    <string name="backup_saved">備份已儲存</string>
+    <string name="backup_failed">備份儲存失敗</string>
+    <string name="restore_failed">還原失敗</string>
+    <string name="backup_restart_title">需要重新啟動</string>
+    <string name="backup_restart_message">設定已還原。請重新啟動以全部生效。</string>
+    <string name="restart_now">重新啟動</string>
+    <string name="sleep_timer_30min">睡眠30分鐘</string>
+    <string name="sleep_timer_off">關閉定時</string>
 </resources>

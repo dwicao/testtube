@@ -210,6 +210,17 @@
     <string name="setting_downloads_wifi_only_summary">Pause new and running downloads on mobile data</string>
     <string name="setting_downloads_nightly">Night downloads</string>
     <string name="setting_downloads_nightly_summary">Resume paused downloads daily at 02:00 on unmetered networks</string>
+    <string name="settings_section_backup">Backup</string>
+    <string name="backup_now">Back up now</string>
+    <string name="backup_now_summary">Save all settings to a JSON file</string>
+    <string name="restore_now">Restore backup</string>
+    <string name="restore_now_summary">Replace all settings from a backup file</string>
+    <string name="backup_saved">Backup saved</string>
+    <string name="backup_failed">Could not save the backup</string>
+    <string name="restore_failed">Could not load the backup</string>
+    <string name="backup_restart_title">Restart needed</string>
+    <string name="backup_restart_message">Settings were restored. Restart now to apply everything.</string>
+    <string name="restart_now">Restart</string>
     <string name="data_saver">Data saver</string>
     <string name="data_saver_summary">480p everywhere, no preloading. Pair with Downloads on Wi-Fi only</string>
     <string name="widget_name">TestTube player</string>
@@ -228,6 +239,8 @@
     <string name="playback_speed">Playback speed</string>
     <string name="playback_speed_pitch">Pitch stays locked at any speed</string>
     <string name="sleep_timer">Sleep timer</string>
+    <string name="sleep_timer_30min">Sleep 30 min</string>
+    <string name="sleep_timer_off">Sleep off</string>
     <string name="sleep_off">Off</string>
     <string name="sleep_minutes">%1$d min</string>
     <string name="sleep_timer_done">Sleep timer done, paused</string>

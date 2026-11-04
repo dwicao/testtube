@@ -447,4 +447,17 @@
     <string name="stats_days">Aktif günler</string>
     <string name="stats_top_channels">En iyi kanallar</string>
     <string name="watch_later">Sonra izle</string>
+    <string name="settings_section_backup">Yedekleme</string>
+    <string name="backup_now">Şimdi yedekle</string>
+    <string name="backup_now_summary">Tüm ayarları JSON dosyasına kaydet</string>
+    <string name="restore_now">Geri yükle</string>
+    <string name="restore_now_summary">Dosyadan tüm ayarları değiştir</string>
+    <string name="backup_saved">Yedek kaydedildi</string>
+    <string name="backup_failed">Yedek kaydedilemedi</string>
+    <string name="restore_failed">Geri yüklenemedi</string>
+    <string name="backup_restart_title">Yeniden başlatma gerekli</string>
+    <string name="backup_restart_message">Ayarlar geri yüklendi. Uygulamak için yeniden başlatın.</string>
+    <string name="restart_now">Yeniden başlat</string>
+    <string name="sleep_timer_30min">30 dk uyku</string>
+    <string name="sleep_timer_off">Zamanlayıcıyı kapat</string>
 </resources>

@@ -447,4 +447,17 @@
     <string name="stats_days">Активных дней</string>
     <string name="stats_top_channels">Топ каналов</string>
     <string name="watch_later">Посмотреть позже</string>
+    <string name="settings_section_backup">Резервная копия</string>
+    <string name="backup_now">Создать копию</string>
+    <string name="backup_now_summary">Сохранить все настройки в JSON-файл</string>
+    <string name="restore_now">Восстановить</string>
+    <string name="restore_now_summary">Заменить все настройки из файла</string>
+    <string name="backup_saved">Копия сохранена</string>
+    <string name="backup_failed">Не удалось сохранить копию</string>
+    <string name="restore_failed">Не удалось восстановить</string>
+    <string name="backup_restart_title">Нужен перезапуск</string>
+    <string name="backup_restart_message">Настройки восстановлены. Перезапустите, чтобы применить всё.</string>
+    <string name="restart_now">Перезапустить</string>
+    <string name="sleep_timer_30min">Сон через 30 мин</string>
+    <string name="sleep_timer_off">Выключить таймер</string>
 </resources>
