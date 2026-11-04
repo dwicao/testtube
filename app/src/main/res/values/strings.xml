@@ -408,7 +408,7 @@
     <string name="minimize_bottom_bar">Bottom bar</string>
     <string name="minimize_floating">Floating window</string>
     <string name="minimize_pip">Picture-in-picture</string>
-    <string name="pip_unavailable">Picture-in-picture isn't available right now</string>
+    <string name="pip_unavailable">Picture-in-picture isn\'t available right now</string>
     <string name="settings_section_gestures">Gestures</string>
     <string name="setting_gestures">Custom gestures</string>
     <string name="setting_gestures_summary">Off: swipe down minimizes</string>
