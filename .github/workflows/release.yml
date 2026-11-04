@@ -105,9 +105,17 @@ jobs:
       - name: Prepare release assets + version.json
         id: assets
         run: |
-          set -euo pipefail
+          set -eu
           TAG="${{ steps.tag.outputs.tag }}"
-          APK_SRC=$(ls dist/testtube*.apk app/build/outputs/apk/release/*.apk 2>/dev/null | head -n 1)
+          # Find APK without letting a missing glob abort the step (ls returns 2 if any pattern misses).
+          set +o pipefail || true
+          APK_SRC=$(ls dist/testtube*.apk app/build/outputs/apk/release/*.apk 2>/dev/null | head -n 1 || true)
+          echo "APK_SRC=${APK_SRC:-<empty>}"
+          ls -lh dist/ app/build/outputs/apk/release/ || true
+          if [ -z "$APK_SRC" ]; then
+            echo "No APK found"
+            exit 1
+          fi
           # Normalise asset name: testtube<version>.apk (e.g. testtube3.0.1.apk)
           VER="${TAG#v}"
           ASSET="testtube${VER}.apk"
