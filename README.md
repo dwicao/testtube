@@ -8,6 +8,17 @@ TestTube is an ad-free YouTube client for Android. No account needed: Home, sear
 
 Requires Android 8.0 (API 26) or later.
 
+> Fork: [dwicao/testtube](https://github.com/dwicao/testtube) — hardened + self-updating build of [techniixdotcom/testtube](https://github.com/techniixdotcom/testtube). See [Why this fork?](#why-this-fork) below. APKs: https://github.com/dwicao/testtube/releases
+
+## Screenshots
+**NiiX Theme**
+<p align="center">
+<img src="screens/1.jpeg" alt="" width="200">
+<img src="screens/2.jpeg" alt="" width="200">
+<img src="screens/3.jpeg" alt="" width="200">
+<img src="screens/4.jpeg" alt="" width="200">
+</p>
+
 ## Features
 * [x] **Light, Dark and NiiX theme** 
 * [x] **Works with or without login** 
@@ -23,6 +34,19 @@ Requires Android 8.0 (API 26) or later.
 * [x] **Built-in video and queue downloader**
 * [x] **Watched videos greyed out**
 * [x] **Light on data**
+
+## Why this fork?
+
+Upstream is `techniixdotcom/testtube`. This fork (`dwicao/testtube`) keeps the same app and UI, but hardens it and ships its own signed releases with in-app updates:
+
+* **Independent releases:** tags like `v3.0.3` build in GitHub Actions (`.github/workflows/release.yml`), sign with the public AOSP test key, and publish to https://github.com/dwicao/testtube/releases. The app checks `version.json` on `main` first, then the GitHub API, so it updates from this fork, not upstream.
+* **Security:** login WebView URL guard fixed for API 24+ (allowlist), live-chat `videoId` validated + encoded, PoToken WebView locked down (SafeBrowsing on, no file/content access), `FileProvider` narrowed to `Download/TestTube/`, `https`-only `autoVerify` deep links, update APKs require SHA-256 + same-signer + versionCode, authed YouTube traffic is `no-store` (never in the shared HTTP cache, evicted on logout).
+* **Privacy (docs match code):** README now says what actually leaves the phone — shared visitor cookies, history-based Home discovery, SponsorBlock categories + 1h mem cache, AiSList ETag, `version.json`/GitHub update checks. Third hidden BotGuard WebView documented.
+* **Stability:** no more leaked `ExoPlayer` on font/density change, `DownloadService` stops itself + demotes stale `RUNNING→PAUSED` + throttled progress writes + capped history (500), pause/resume generation token, `VideoCacheEvictor` synchronized, PiP dual overload, media-session detach.
+* **Performance/data:** no warmup/preload on mobile data, `AvatarCache`/`FeedAdapter` LRU instead of wipe, manifest cache 500→100, feed thumbs `override(480,270)`.
+
+Test-key note: CI signs with the well-known AOSP `testkey` (password `android`). Anyone has that key, so treat these APKs as test builds — Android still blocks cross-signer updates.
+
 ## How it works
 
 Almost everything is native: the player, Home, Subscriptions, search, channel and playlist pages (every channel tab), History, the queue, the screen under the video (Description/Comments tabs, suggestions) and the downloader are drawn by the app itself and get their data directly from YouTube through the NewPipe extractor. This is faster, smoother and fully under our control.
@@ -40,20 +64,11 @@ Subscriptions come from one of two places. By default the app shows the latest v
 * Hide AI videos (off by default): when switched on, the app downloads the community AiSList from raw.githubusercontent.com once a day (If-None-Match). Only IP + User-Agent + ETag are visible, no IDs or cookies.
 * Update checks: the app first asks raw.githubusercontent.com/dwicao/testtube/main/version.json (no API limits), then falls back to api.github.com/repos/dwicao/testtube/releases. Check runs 5 seconds after start, including test versions if “Pre-releases” is on. Updates are downloaded from github.com/dwicao/testtube with mandatory SHA-256 + same-signer + versionCode checks. Only IP + `User-Agent: TestTube` are visible. Switch off by tapping the TestTube logo on Home → Updates → “Check for updates automatically”.
 
-## Releases (fork: dwicao/testtube)
+## Releases (this fork: dwicao/testtube)
 
-* Tag: `git tag v3.0.1 && git push origin v3.0.1` — `.github/workflows/release.yml` builds `assembleRelease`, signs with the public AOSP test key, creates the GitHub Release at `github.com/dwicao/testtube/releases`, uploads `testtube3.0.1.apk`, and updates `version.json` on `main` so the app auto-updates.
+* APKs: https://github.com/dwicao/testtube/releases — e.g. `testtube3.0.3.apk` + `version.json`.
+* Tag: `git tag v3.0.3 && git push origin v3.0.3` — `.github/workflows/release.yml` builds `assembleRelease`, signs with the public AOSP test key, creates the GitHub Release, uploads the APK, and updates `version.json` on `main` so the app auto-updates.
 * Local: `./BUILD.sh` (own key in `~/.testtube/signing`). CI key is the well-known AOSP `testkey` (password `android`) — fine for testing, not for private accounts: anyone can forge updates signed with it, so the app still enforces same-signer installs.
-
-## Screenshots
-**NiiX Theme**
-<p align="center">
-<img src="screens/1.jpeg" alt="" width="200">
-<img src="screens/2.jpeg" alt="" width="200">
-<img src="screens/3.jpeg" alt="" width="200">
-<img src="screens/4.jpeg" alt="" width="200">
-</p>
-
 
 ## License
 
