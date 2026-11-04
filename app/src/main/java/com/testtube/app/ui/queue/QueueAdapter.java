@@ -60,7 +60,7 @@ public final class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHo
 			DiffUtil.DiffResult diff = DiffUtil.calculateDiff(new DiffUtil.Callback() {
 			@Override
 			public int getOldListSize() {
-				return oldItems.size();
+				return oldSnapshot.size();
 			}
 
 			@Override
@@ -94,6 +94,7 @@ public final class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHo
 		new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
 			if (generation.get() != gen) return;
 			notifySafe(() -> diff.dispatchUpdatesTo(this));
+		});
 		});
 	}
 
