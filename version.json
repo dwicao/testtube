@@ -1,9 +1,9 @@
 {
   "tag": "v3.0.6",
-  "versionCode": 30006,
   "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.6/testtube3.0.6.apk",
-  "sha256": null,
-  "size": -1,
-  "notes": "Fix MediaButtonReceiver crash: restore PlaybackService MEDIA_BUTTON handler.",
-  "prerelease": false
+  "sha256": "c880616c8b54915e3c569e75413a492f2dc91fa68c71a2859eb1a8b8c101c552",
+  "size": 6029433,
+  "notes": "Fix MediaButtonReceiver crash: restore PlaybackService MEDIA_BUTTON filter\n\nRemoving the service filter left androidx MediaButtonReceiver with no service\nto forward to -> IllegalStateException on boot/hardware buttons (Android 13).\nRestore original filter; bump v3.0.6",
+  "prerelease": false,
+  "versionCode": 30006
 }
