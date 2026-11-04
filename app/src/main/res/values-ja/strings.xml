@@ -432,4 +432,16 @@
     <string name="widget_name">TestTubeプレイヤー</string>
     <string name="widget_desc">ホーム画面から再生・一時停止・スキップ</string>
     <string name="crash_saved_to_downloads">クラッシュ報告をダウンロードに保存しました</string>
+    <string name="data_saver">データセーバー</string>
+    <string name="data_saver_summary">すべて480p、プリロードなし。Wi-Fiのみと併用がおすすめ</string>
+    <string name="library_stats">統計</string>
+    <string name="playback_speed_once">この動画のみ</string>
+    <string name="playback_speed_remember">記憶する</string>
+    <string name="sleep_timer_30min">スリープ 30分</string>
+    <string name="sleep_timer_off">タイマー解除</string>
+    <string name="stats_videos">視聴動画数</string>
+    <string name="stats_hours">視聴時間</string>
+    <string name="stats_days">アクティブ日数</string>
+    <string name="stats_top_channels">上位チャンネル</string>
+    <string name="watch_later">あとで見る</string>
 </resources>

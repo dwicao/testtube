@@ -18,6 +18,7 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,6 +45,10 @@ public class PlaybackService extends Service {
 	private static final int NOTIFICATION_ART_PX = 512;
 	private static final String CHANNEL_ID = "player_channel";
 	private static final int NOTIFICATION_ID = 100;
+	private static final int REQUEST_SLEEP = 1003;
+	/** Notification action: toggle a 30-minute sleep timer without opening the app. */
+	public static final String ACTION_TOGGLE_SLEEP = "com.testtube.app.action.TOGGLE_SLEEP_TIMER";
+	private static final long SLEEP_MINUTES = 30L;
 	private final Handler handler = new Handler(Looper.getMainLooper());
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 	@NonNull
@@ -56,6 +61,10 @@ public class PlaybackService extends Service {
 	private boolean inForeground;
 	private boolean lastWantsToPlay = true;
 	private volatile boolean destroyed = false;
+	/** Notification sleep timer: uptime millis when playback should pause, 0 when off. */
+	private long sleepUntilMs;
+	@Nullable
+	private Runnable sleepRunnable;
 
 	/**
 	 * Starts the service for the first video. Later videos (autoplay in the background) find it
@@ -134,8 +143,54 @@ public class PlaybackService extends Service {
 		mediaSession.setPlaybackState(initialState);
 	}
 
+	/** Notification action: toggle a 30-minute sleep timer without opening the app. */
+	private void toggleSleepTimer() {
+		handler.removeCallbacks(sleepRunnable);
+		if (sleepRunnable == null) {
+			sleepRunnable = () -> {
+				sleepUntilMs = 0L;
+				try {
+					MediaSessionCompat session = mediaSession;
+					if (session != null) session.getController().getTransportControls().pause();
+				} catch (RuntimeException ignored) {
+					// Session gone (player released): nothing to pause.
+				}
+				refreshNotification();
+			};
+		}
+		if (sleepUntilMs != 0L) {
+			sleepUntilMs = 0L;
+			Toast.makeText(this, R.string.sleep_off, Toast.LENGTH_SHORT).show();
+		} else {
+			sleepUntilMs = android.os.SystemClock.uptimeMillis() + SLEEP_MINUTES * 60_000L;
+			handler.postDelayed(sleepRunnable, SLEEP_MINUTES * 60_000L);
+			Toast.makeText(this, getString(R.string.sleep_minutes, (int) SLEEP_MINUTES), Toast.LENGTH_SHORT).show();
+		}
+		refreshNotification();
+	}
+
+	/** Rebuilds the notification in place (e.g. after the sleep toggle changed its action). */
+	private void refreshNotification() {
+		if (shouldAbort() || notificationManager == null) return;
+		Notification updated = buildNotification(lastIsPlayingState);
+		if (updated == null || shouldAbort()) return;
+		try {
+			if (inForeground) {
+				startForeground(NOTIFICATION_ID, updated);
+			} else {
+				notificationManager.notify(NOTIFICATION_ID, updated);
+			}
+		} catch (RuntimeException e) {
+			Log.w(TAG, "could not refresh notification", e);
+		}
+	}
+
 	@Override
 	public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
+		if (intent != null && ACTION_TOGGLE_SLEEP.equals(intent.getAction())) {
+			toggleSleepTimer();
+			return START_NOT_STICKY;
+		}
 		MediaSessionCompat session = mediaSession;
 		if (intent != null && session != null) MediaButtonReceiver.handleIntent(session, intent);
 		// Nothing to bring back after the system stopped it: the video lives in the app
@@ -256,6 +311,13 @@ public class PlaybackService extends Service {
 			builder.addAction(playPauseIcon, playPauseTitle, playPauseIntent);
 			style.setShowActionsInCompactView(0);
 		}
+		// Sleep timer lives in the expanded view (compact shows the max 3 actions).
+		boolean sleeping = sleepUntilMs != 0L;
+		PendingIntent sleepIntent = PendingIntent.getService(this, REQUEST_SLEEP,
+						new Intent(this, PlaybackService.class).setAction(ACTION_TOGGLE_SLEEP),
+						PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+		builder.addAction(R.drawable.ic_notification,
+						getString(sleeping ? R.string.sleep_timer_off : R.string.sleep_timer_30min), sleepIntent);
 		return builder.setStyle(style).build();
 	}
 

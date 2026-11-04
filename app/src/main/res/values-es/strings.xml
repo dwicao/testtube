@@ -436,4 +436,16 @@
     <string name="widget_name">Reproductor TestTube</string>
     <string name="widget_desc">Reproduce, pausa y salta desde el inicio</string>
     <string name="crash_saved_to_downloads">Informe de cierre guardado en Descargas</string>
+    <string name="data_saver">Ahorro de datos</string>
+    <string name="data_saver_summary">480p en todas partes, sin precargas. Combínalo con Wi-Fi solo</string>
+    <string name="library_stats">Estadísticas</string>
+    <string name="playback_speed_once">Solo este vídeo</string>
+    <string name="playback_speed_remember">Recordar</string>
+    <string name="sleep_timer_30min">Dormir 30 min</string>
+    <string name="sleep_timer_off">Apagar temporizador</string>
+    <string name="stats_videos">Vídeos vistos</string>
+    <string name="stats_hours">Horas vistas</string>
+    <string name="stats_days">Días activos</string>
+    <string name="stats_top_channels">Canales principales</string>
+    <string name="watch_later">Ver más tarde</string>
 </resources>

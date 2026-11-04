@@ -435,4 +435,16 @@
     <string name="widget_name">Плеер TestTube</string>
     <string name="widget_desc">Воспроизведение, пауза и пропуск с главного экрана</string>
     <string name="crash_saved_to_downloads">Отчёт о сбое сохранён в Загрузки</string>
+    <string name="data_saver">Экономия трафика</string>
+    <string name="data_saver_summary">480p везде, без предзагрузки. Сочетайте с «только Wi-Fi»</string>
+    <string name="library_stats">Статистика</string>
+    <string name="playback_speed_once">Только это видео</string>
+    <string name="playback_speed_remember">Запомнить</string>
+    <string name="sleep_timer_30min">Сон через 30 мин</string>
+    <string name="sleep_timer_off">Выключить таймер</string>
+    <string name="stats_videos">Просмотрено видео</string>
+    <string name="stats_hours">Часов просмотрено</string>
+    <string name="stats_days">Активных дней</string>
+    <string name="stats_top_channels">Топ каналов</string>
+    <string name="watch_later">Посмотреть позже</string>
 </resources>

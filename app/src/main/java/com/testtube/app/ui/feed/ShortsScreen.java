@@ -402,7 +402,8 @@ public final class ShortsScreen {
 		String title = video.getTitle();
 		String author = video.getAuthor();
 		String thumbnail = video.getThumbnailUrl();
-		executor.execute(() -> history.record(id, title, author, thumbnail));
+		executor.execute(() -> history.record(id, title, author, thumbnail,
+						video.getDuration() != null ? Math.max(0L, video.getDuration()) : 0L));
 	}
 
 	private void togglePlayback() {

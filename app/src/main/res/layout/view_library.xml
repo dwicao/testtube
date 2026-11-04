@@ -37,6 +37,12 @@
             android:drawableStart="@drawable/ic_download"
             android:text="@string/library_downloads" />
 
+        <TextView
+            android:id="@+id/library_tab_stats"
+            style="@style/Widget.TestTube.LibraryTab"
+            android:drawableStart="@drawable/ic_segment"
+            android:text="@string/library_stats" />
+
         <ImageButton
             android:id="@+id/library_clear"
             android:layout_width="44dp"
@@ -134,5 +140,46 @@
             android:id="@+id/library_page_downloads"
             layout="@layout/view_download_list"
             android:visibility="gone" />
+
+        <ScrollView
+            android:id="@+id/library_page_stats"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/stats_summary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lineSpacingMultiplier="1.4"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/stats_top_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/stats_top_channels"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/stats_top"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lineSpacingMultiplier="1.4"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </ScrollView>
     </FrameLayout>
 </LinearLayout>

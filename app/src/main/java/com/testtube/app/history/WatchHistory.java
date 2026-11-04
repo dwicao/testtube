@@ -34,12 +34,13 @@ public final class WatchHistory {
 	public synchronized void record(@Nullable String videoId,
 	                                @Nullable String title,
 	                                @Nullable String author,
-	                                @Nullable String thumbnailUrl) {
+	                                @Nullable String thumbnailUrl,
+	                                long durationSec) {
 		if (!ContentFilters.isVideoId(videoId)) return;
 		List<Entry> entries = load();
 		entries.removeIf(entry -> videoId.equals(entry.videoId()));
 		entries.add(0, new Entry(videoId, clip(title), clip(author), safeThumbnail(thumbnailUrl),
-						System.currentTimeMillis()));
+						System.currentTimeMillis(), Math.max(0L, durationSec)));
 		while (entries.size() > MAX_ENTRIES) {
 			entries.remove(entries.size() - 1);
 		}
@@ -65,7 +66,8 @@ public final class WatchHistory {
 			}
 			if (known) continue;
 			entries.add(new Entry(entry.videoId(), clip(entry.title()), clip(entry.author()),
-							safeThumbnail(entry.thumbnailUrl()), Math.max(0L, entry.watchedAt())));
+							safeThumbnail(entry.thumbnailUrl()), Math.max(0L, entry.watchedAt()),
+						Math.max(0L, entry.durationSec())));
 			added++;
 		}
 		if (added > 0) {
@@ -133,6 +135,7 @@ public final class WatchHistory {
 	                    @Nullable String title,
 	                    @Nullable String author,
 	                    @Nullable String thumbnailUrl,
-	                    long watchedAt) {
+	                    long watchedAt,
+	                    long durationSec) {
 	}
 }

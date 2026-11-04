@@ -142,6 +142,7 @@ public final class ShortsEngine {
 	public void preload(@NonNull PlaybackDetails details) {
 		String id = details.video().getId();
 		if (id == null) return;
+		if (com.testtube.app.AppSettings.dataSaver()) return;
 		// On mobile data a full preload costs battery + data; the swipe still plays from
 		// extraction, just without the head start — unless the user opted into mobile preload.
 		try {

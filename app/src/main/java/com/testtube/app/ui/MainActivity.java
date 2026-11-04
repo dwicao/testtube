@@ -49,6 +49,7 @@ import com.testtube.app.Constant;
 import com.testtube.app.PlaybackService;
 import com.testtube.app.R;
 import com.testtube.app.downloader.service.DownloadService;
+import com.testtube.app.downloader.service.NightDownloadsWorker;
 import com.testtube.app.downloader.ui.DownloadDialog;
 import com.testtube.app.downloader.ui.DownloadPermissionHost;
 import com.testtube.app.downloader.ui.PlaylistDownloadDialog;
@@ -82,6 +83,7 @@ import com.testtube.app.update.UpdateManager;
 import com.testtube.app.util.CrashLog;
 import com.testtube.app.util.DeviceUtils;
 import com.testtube.app.util.PermissionUtils;
+import com.testtube.app.util.SettingsBackup;
 import com.testtube.app.util.ToastUtils;
 import com.testtube.app.util.UrlUtils;
 import com.testtube.app.util.ViewUtils;
@@ -262,7 +264,8 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 		aiChannels.setOnChanged(this::onContentFiltersChanged);
 		aiChannels.start();
 		View.OnClickListener aboutClick = v -> SettingsDialog.showSettings(this, updates, aiChannels,
-						app.playerPreferences(), contentFilters, this::onShortsSettingChanged, this::onSettingsSaved);
+						app.playerPreferences(), contentFilters, this::onShortsSettingChanged, this::onSettingsSaved,
+						this::exportSettingsBackup, this::pickSettingsBackup);
 		// The chosen theme's logo (NiiX has the pink play); the layout shows the standard one
 		int logo = AppSettings.theme().logo;
 		((ImageView) browserView.findViewById(R.id.browser_logo)).setImageResource(logo);
@@ -672,8 +675,120 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 						});
 					});
 
+	/** Writes the full settings backup the user picks the file for. */
+	private final ActivityResultLauncher<String> settingsExportPicker =
+					registerForActivityResult(new ActivityResultContracts.CreateDocument("application/json"), uri -> {
+						if (uri == null) return;
+						AppGraph app = AppGraph.of(this);
+						String json;
+						try {
+							json = SettingsBackup.exportJson(app.playerPreferences(), app.contentFilters(),
+											app.aiChannelList(), app.updateManager());
+						} catch (Exception e) {
+							Log.w("MainActivity", "settings export failed", e);
+							ToastUtils.show(this, R.string.backup_failed);
+							return;
+						}
+						app.executor().execute(() -> {
+							boolean saved = false;
+							try (java.io.OutputStream stream = getContentResolver().openOutputStream(uri)) {
+								if (stream != null) {
+									stream.write(json.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+									saved = true;
+								}
+							} catch (java.io.IOException | RuntimeException e) {
+								Log.w("MainActivity", "settings export failed", e);
+							}
+							boolean done = saved;
+							runOnUiThread(() -> {
+								if (isDestroyed()) return;
+								ToastUtils.show(this, done ? R.string.backup_saved : R.string.backup_failed);
+							});
+						});
+					});
+
+	/** Reads a settings backup and asks for a restart so everything applies. */
+	private final ActivityResultLauncher<String[]> settingsImportPicker =
+					registerForActivityResult(new ActivityResultContracts.OpenDocument(), uri -> {
+						if (uri == null) return;
+						AppGraph app = AppGraph.of(this);
+						app.executor().execute(() -> {
+							String text = null;
+							try (java.io.InputStream stream = getContentResolver().openInputStream(uri)) {
+								if (stream != null) {
+									java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
+									byte[] chunk = new byte[8192];
+									int read;
+									while ((read = stream.read(chunk)) != -1 && buffer.size() < MAX_IMPORT_BYTES) {
+										buffer.write(chunk, 0, read);
+									}
+									text = buffer.toString(java.nio.charset.StandardCharsets.UTF_8.name());
+								}
+							} catch (java.io.IOException | RuntimeException e) {
+								Log.w("MainActivity", "settings import failed", e);
+							}
+							boolean applied = false;
+							if (text != null && !text.isBlank()) {
+								try {
+									SettingsBackup.importJson(text, app.playerPreferences(), app.contentFilters(),
+													app.aiChannelList(), app.updateManager());
+									NightDownloadsWorker.apply(this);
+									applied = true;
+								} catch (Exception e) {
+									Log.w("MainActivity", "settings import failed", e);
+								}
+							}
+							boolean done = applied;
+							runOnUiThread(() -> {
+								if (isDestroyed()) return;
+								if (!done) {
+									ToastUtils.show(this, R.string.restore_failed);
+									return;
+								}
+								Dialogs.builder(this)
+												.setTitle(R.string.backup_restart_title)
+												.setMessage(getString(R.string.backup_restart_message))
+												.setNegativeButton(R.string.cancel, null)
+												.setPositiveButton(R.string.restart_now, (d, w) -> SettingsBackup.restart(this))
+												.show();
+							});
+						});
+					});
+
+	private void exportSettingsBackup() {		try {
+			settingsExportPicker.launch(SettingsBackup.fileName());
+		} catch (RuntimeException e) {
+			ToastUtils.show(this, R.string.backup_failed);
+		}
+	}
+
+	private void pickSettingsBackup() {
+		try {
+			settingsImportPicker.launch(new String[]{"application/json", "text/*", "*/*"});
+		} catch (RuntimeException e) {
+			ToastUtils.show(this, R.string.restore_failed);
+		}
+	}
+
+	private void exportQueue() {
+		try {
+			queueExportPicker.launch("testtube-queue.json");
+		} catch (RuntimeException e) {
+			ToastUtils.show(this, R.string.queue_save_failed);
+		}
+	}
+
+	private void pickQueueFile() {
+		try {
+			queueImportPicker.launch(new String[]{"application/json", "text/*", "*/*"});
+		} catch (RuntimeException e) {
+			ToastUtils.show(this, R.string.queue_load_failed);
+		}
+	}
+
 	private void setSubscriptionsAccount(boolean enabled) {
 		MMKV.defaultMMKV().encode(KEY_SUBS_ACCOUNT, enabled);
+	}
 	}
 
 	private void bootstrap() {
@@ -846,6 +961,16 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 			@Override
 			public void clearQueue() {
 				viewModel.clearQueue();
+			}
+
+			@Override
+			public void saveQueue() {
+				exportQueue();
+			}
+
+			@Override
+			public void loadQueue() {
+				pickQueueFile();
 			}
 
 			@Override

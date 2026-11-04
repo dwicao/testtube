@@ -210,6 +210,8 @@
     <string name="setting_downloads_wifi_only_summary">Pause new and running downloads on mobile data</string>
     <string name="setting_downloads_nightly">Night downloads</string>
     <string name="setting_downloads_nightly_summary">Resume paused downloads daily at 02:00 on unmetered networks</string>
+    <string name="data_saver">Data saver</string>
+    <string name="data_saver_summary">480p everywhere, no preloading. Pair with Downloads on Wi-Fi only</string>
     <string name="widget_name">TestTube player</string>
     <string name="widget_desc">Play, pause and skip from the home screen</string>
     <string name="download_requires_wifi">Downloads need Wi-Fi (change in Settings → Playback)</string>
@@ -230,6 +232,10 @@
     <string name="sleep_minutes">%1$d min</string>
     <string name="sleep_timer_done">Sleep timer done, paused</string>
     <string name="stats_for_nerds">Stats for nerds</string>
+    <string name="playback_speed_remember">Remember</string>
+    <string name="playback_speed_once">Just this video</string>
+    <string name="sleep_timer_30min">Sleep 30 min</string>
+    <string name="sleep_timer_off">Sleep off</string>
     <string name="search_filter_all">All</string>
     <string name="search_filter_videos">Videos</string>
     <string name="search_filter_playlists">Playlists</string>
@@ -239,6 +245,12 @@
     <string name="queue_save_failed">Could not save the queue</string>
     <string name="queue_loaded">Loaded %1$d video(s)</string>
     <string name="queue_load_failed">Could not load the queue file</string>
+    <string name="watch_later">Watch later</string>
+    <string name="library_stats">Stats</string>
+    <string name="stats_videos">Videos watched</string>
+    <string name="stats_hours">Hours watched</string>
+    <string name="stats_days">Active days</string>
+    <string name="stats_top_channels">Top channels</string>
     <string name="setting_grey_watched">Grey out watched videos</string>
     <string name="setting_grey_watched_summary">Dim videos you\'ve watched</string>
     <string name="setting_watched_dim_description">How dark watched videos are greyed out</string>

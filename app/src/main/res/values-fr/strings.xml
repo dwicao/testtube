@@ -434,4 +434,16 @@
     <string name="widget_name">Lecteur TestTube</string>
     <string name="widget_desc">Lecture, pause et suivant depuis l’accueil</string>
     <string name="crash_saved_to_downloads">Rapport de plantage enregistré dans Téléchargements</string>
+    <string name="data_saver">Économiseur de données</string>
+    <string name="data_saver_summary">480p partout, pas de préchargement. À combiner avec Wi-Fi uniquement</string>
+    <string name="library_stats">Stats</string>
+    <string name="playback_speed_once">Juste cette vidéo</string>
+    <string name="playback_speed_remember">Mémoriser</string>
+    <string name="sleep_timer_30min">Veille 30 min</string>
+    <string name="sleep_timer_off">Désactiver le minuteur</string>
+    <string name="stats_videos">Vidéos vues</string>
+    <string name="stats_hours">Heures vues</string>
+    <string name="stats_days">Jours actifs</string>
+    <string name="stats_top_channels">Top chaînes</string>
+    <string name="watch_later">Regarder plus tard</string>
 </resources>

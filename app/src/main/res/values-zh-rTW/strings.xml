@@ -432,4 +432,16 @@
     <string name="widget_name">TestTube 播放器</string>
     <string name="widget_desc">在主畫面播放、暫停和切換</string>
     <string name="crash_saved_to_downloads">當機報告已儲存到下載</string>
+    <string name="data_saver">省流量模式</string>
+    <string name="data_saver_summary">全部 480p，不預先載入。可搭配僅 Wi-Fi 使用</string>
+    <string name="library_stats">統計</string>
+    <string name="playback_speed_once">僅此影片</string>
+    <string name="playback_speed_remember">記住</string>
+    <string name="sleep_timer_30min">睡眠30分鐘</string>
+    <string name="sleep_timer_off">關閉定時</string>
+    <string name="stats_videos">觀看影片數</string>
+    <string name="stats_hours">觀看時長</string>
+    <string name="stats_days">活躍天數</string>
+    <string name="stats_top_channels">熱門頻道</string>
+    <string name="watch_later">稍後觀看</string>
 </resources>

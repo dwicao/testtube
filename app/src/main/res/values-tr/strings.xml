@@ -435,4 +435,16 @@
     <string name="widget_name">TestTube oynatıcı</string>
     <string name="widget_desc">Ana ekrandan oynat, duraklat ve atla</string>
     <string name="crash_saved_to_downloads">Kilitlenme raporu İndirilenlere kaydedildi</string>
+    <string name="data_saver">Veri tasarrufu</string>
+    <string name="data_saver_summary">Her yerde 480p, ön yükleme yok. Yalnızca Wi-Fi ile birlikte kullanın</string>
+    <string name="library_stats">İstatistik</string>
+    <string name="playback_speed_once">Yalnızca bu video</string>
+    <string name="playback_speed_remember">Hatırla</string>
+    <string name="sleep_timer_30min">30 dk uyku</string>
+    <string name="sleep_timer_off">Zamanlayıcıyı kapat</string>
+    <string name="stats_videos">İzlenen videolar</string>
+    <string name="stats_hours">İzlenen saat</string>
+    <string name="stats_days">Aktif günler</string>
+    <string name="stats_top_channels">En iyi kanallar</string>
+    <string name="watch_later">Sonra izle</string>
 </resources>

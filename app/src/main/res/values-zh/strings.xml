@@ -432,4 +432,16 @@
     <string name="widget_name">TestTube 播放器</string>
     <string name="widget_desc">在主屏幕播放、暂停和切歌</string>
     <string name="crash_saved_to_downloads">崩溃报告已保存到下载</string>
+    <string name="data_saver">省流量模式</string>
+    <string name="data_saver_summary">全部 480p，不预加载。可配合仅 Wi-Fi 使用</string>
+    <string name="library_stats">统计</string>
+    <string name="playback_speed_once">仅此视频</string>
+    <string name="playback_speed_remember">记住</string>
+    <string name="sleep_timer_30min">睡眠30分钟</string>
+    <string name="sleep_timer_off">关闭定时</string>
+    <string name="stats_videos">观看视频数</string>
+    <string name="stats_hours">观看时长</string>
+    <string name="stats_days">活跃天数</string>
+    <string name="stats_top_channels">热门频道</string>
+    <string name="watch_later">稍后观看</string>
 </resources>

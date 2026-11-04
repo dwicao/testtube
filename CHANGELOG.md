@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.0.17
+
+- Sleep timer in the player and as a notification action
+- Playback speed 0.5–2x, per video or remembered (pitch stays locked)
+- Watch-later: add any history entry to the queue
+- Data saver mode (480p everywhere, no preloads)
+- Watch stats tab (videos, hours, active days, top channels)
+- Full settings backup/restore to JSON with restart
+- Downloads: pause-all/resume-all, notification action, scheduled night downloads
+- Comments: like button and replies when signed in
+- Enriched notification (elapsed time, all actions) and search filters (All/Videos/Channels/Playlists)
+- Homescreen player widget
+
 ## 3.0.16
 
 - Hotfix for instant crash on open: WorkManager no longer auto-inits at startup (was killing the app before Application.onCreate, with no report and no dialog)

@@ -1,11 +1,11 @@
 {
-  "tag": "v3.0.16",
-  "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.16/testtube3.0.16.apk",
-  "sha256": "e7371b3ef0a892f951ee223a4b15b6460ec9765d923626648d3b3736bcbc4f82",
-  "size": 6193927,
-  "notes": "v3.0.16 hotfix startup crash + self-reporting crash logs",
+  "tag": "v3.0.17",
+  "versionCode": 30017,
+  "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.17/testtube3.0.17.apk",
+  "sha256": null,
+  "size": -1,
+  "notes": "Sleep timer + speed in notification/player, per-video speed, watch-later, data saver, watch stats tab, full settings backup, pause-all/resume-all, comment likes/replies, enriched notification, search filters, home widget, night downloads.",
   "prerelease": false,
-  "versionCode": 30016,
   "notice": "",
   "noticeTag": "",
   "minVersionCode": 0

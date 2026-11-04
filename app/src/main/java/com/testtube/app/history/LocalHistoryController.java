@@ -66,6 +66,12 @@ public final class LocalHistoryController {
 		return adapter.rows.isEmpty();
 	}
 
+	/** The underlying store, for the Stats tab. */
+	@NonNull
+	public WatchHistory history() {
+		return history;
+	}
+
 	/** Asks, then removes every video from the history. */
 	public void confirmClear() {
 		Dialogs.builder(list.getContext())
@@ -184,10 +190,19 @@ public final class LocalHistoryController {
 			itemView.setOnClickListener(v -> listener.onPlay(entry.videoId()));
 			more.setOnClickListener(v -> {
 				PopupMenu menu = new PopupMenu(v.getContext(), v);
-				menu.getMenu().add(0, 0, 0, R.string.watch_history_remove);
+				menu.getMenu().add(0, 0, 0, R.string.watch_later);
+				menu.getMenu().add(0, 1, 1, R.string.watch_history_remove);
 				menu.setOnMenuItemClickListener(item -> {
-					history.remove(entry.videoId());
-					reload();
+					if (item.getItemId() == 0) {
+						String url = com.testtube.app.Constant.HOME_URL + "/watch?v=" + entry.videoId();
+						com.testtube.app.AppGraph.of(v.getContext()).queueRepository().add(
+										new com.testtube.app.player.queue.QueueItem(entry.videoId(), url,
+														entry.title(), entry.author(), entry.thumbnailUrl()));
+						com.testtube.app.util.ToastUtils.show(v.getContext(), R.string.queue_item_added);
+					} else {
+						history.remove(entry.videoId());
+						reload();
+					}
 					return true;
 				});
 				menu.show();

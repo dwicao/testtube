@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -199,6 +200,24 @@ public final class ContentFilters {
 	private void writeBlocked(@NonNull List<BlockedChannel> items) {
 		mmkv.encode(KEY_BLOCKED_CHANNELS, gson.toJson(items.toArray(new BlockedChannel[0])));
 		blockedIndex = null;
+	}
+
+	/** Replaces the blocked list, e.g. from a settings backup. Invalid entries are dropped. */
+	public synchronized void importBlocked(@NonNull List<BlockedChannel> incoming) {
+		List<BlockedChannel> items = new ArrayList<>();
+		for (BlockedChannel channel : incoming) {
+			if (channel == null || channel.name() == null || channel.name().isBlank()) continue;
+			boolean known = false;
+			for (BlockedChannel existing : items) {
+				if (existing.name().equals(channel.name())
+								&& Objects.equals(existing.path(), channel.path())) {
+					known = true;
+					break;
+				}
+			}
+			if (!known) items.add(channel);
+		}
+		writeBlocked(items);
 	}
 
 	/**

@@ -468,7 +468,7 @@ public class Engine {
 			currentAuthor = author;
 			String thumbnail = video.getThumbnailUrl();
 			HISTORY_WRITER.execute(() -> {
-				watchHistory.record(id, title, author, thumbnail);
+				watchHistory.record(id, title, author, thumbnail, Math.max(0L, durationMs(video) / 1000L));
 				prefs.recordPlayed(id);
 			});
 		}
@@ -674,6 +674,11 @@ public class Engine {
 	/** Sets the speed (pitch stays locked) and remembers it for the next video. */
 	public void setPlaybackSpeed(float speed) {
 		prefs.setPlaybackSpeed(speed);
+		player.setPlaybackParameters(new PlaybackParameters(speed));
+	}
+
+	/** Applies a speed for this video only; the next video uses the remembered speed again. */
+	public void setPlaybackSpeedOnce(float speed) {
 		player.setPlaybackParameters(new PlaybackParameters(speed));
 	}
 
@@ -988,10 +993,12 @@ public class Engine {
 		if (id == null || id.equals(preloadTarget) || id.equals(videoId)) return;
 		preloadTarget = id;
 		// The details are a few kilobytes and always fetched ahead; the video's first seconds only
-		// when the video cache setting allows it, and on mobile only if the user opted in.
+		// when the video cache setting allows it, never on mobile data unless opted in,
+		// and never with data saver on.
 		extractor.getInfo(url, new ExtractionSession().setBackground(true)).whenComplete((details, error) -> {
 			if (error != null || details == null || !id.equals(preloadTarget)) return;
 			if (!AppSettings.videoCache().preloadsNext) return;
+			if (AppSettings.dataSaver()) return;
 			try {
 				if (prefs.isOnMobileData() && !AppSettings.preloadOnMobile()) return;
 			} catch (RuntimeException ignored) {

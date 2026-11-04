@@ -53,7 +53,9 @@ final class SettingsDialog {
 	                        @NonNull ContentFilters filters,
 	                        @NonNull Runnable onShortsChanged,
 	                        @NonNull Runnable onSaved) {
-		show(activity, updates, aiChannels, prefs, filters, true, onShortsChanged, onSaved);
+		show(activity, updates, aiChannels, prefs, filters, true, onShortsChanged, onSaved, () -> {
+		}, () -> {
+		});
 	}
 
 	static void showSettings(@NonNull Activity activity,
@@ -62,8 +64,11 @@ final class SettingsDialog {
 	                         @NonNull PlayerPreferences prefs,
 	                         @NonNull ContentFilters filters,
 	                         @NonNull Runnable onShortsChanged,
-	                         @NonNull Runnable onSaved) {
-		show(activity, updates, aiChannels, prefs, filters, false, onShortsChanged, onSaved);
+	                         @NonNull Runnable onSaved,
+	                         @NonNull Runnable onBackup,
+	                         @NonNull Runnable onRestore) {
+		show(activity, updates, aiChannels, prefs, filters, false, onShortsChanged, onSaved, onBackup,
+						onRestore);
 	}
 
 	private static void show(@NonNull Activity activity,
@@ -73,7 +78,9 @@ final class SettingsDialog {
 	                         @NonNull ContentFilters filters,
 	                         boolean welcome,
 	                         @NonNull Runnable onShortsChanged,
-	                         @NonNull Runnable onSaved) {
+	                         @NonNull Runnable onSaved,
+	                         @NonNull Runnable onBackup,
+	                         @NonNull Runnable onRestore) {
 		LayoutInflater inflater = activity.getLayoutInflater();
 		View view = inflater.inflate(R.layout.dialog_settings, null, false);
 		Form form = new Form(activity, inflater, view.findViewById(R.id.settings_content));
@@ -128,6 +135,8 @@ final class SettingsDialog {
 						R.string.setting_downloads_wifi_only_summary, AppSettings.downloadsWifiOnly());
 		MaterialSwitch downloadsNightly = form.toggle(playback, R.string.setting_downloads_nightly,
 						R.string.setting_downloads_nightly_summary, AppSettings.downloadsNightly());
+		MaterialSwitch dataSaver = form.toggle(playback, R.string.data_saver,
+						R.string.data_saver_summary, AppSettings.dataSaver());
 		View sponsorCats = form.value(playback, R.string.setting_sponsor_cats,
 						R.string.setting_sponsor_cats_summary, sponsorCatsSummary(activity, prefs));
 		sponsorCats.setOnClickListener(v -> showSponsorCats(activity, prefs, sponsorCats));
@@ -192,6 +201,14 @@ final class SettingsDialog {
 						R.string.setting_prereleases_summary, updates.prereleasesEnabled());
 		// Saved right away, so "Check for updates" below already uses it
 		prereleases.setOnCheckedChangeListener((button, checked) -> updates.setPrereleases(checked));
+		View backupSection = null;
+		if (!welcome) {
+			backupSection = form.section(R.string.settings_section_backup);
+			form.value(backupSection, R.string.backup_now, R.string.backup_now_summary, "")
+							.setOnClickListener(v -> onBackup.run());
+			form.value(backupSection, R.string.restore_now, R.string.restore_now_summary, "")
+							.setOnClickListener(v -> onRestore.run());
+		}
 		if (!welcome) {
 			form.value(app, R.string.update_check_now, 0, "").setOnClickListener(v -> updates.check(activity, true));
 		}
@@ -227,6 +244,7 @@ final class SettingsDialog {
 							AppSettings.setAllowHdr(allowHdr.isChecked());
 							AppSettings.setDownloadsWifiOnly(downloadsWifiOnly.isChecked());
 							AppSettings.setDownloadsNightly(downloadsNightly.isChecked());
+							AppSettings.setDataSaver(dataSaver.isChecked());
 							NightDownloadsWorker.apply(activity.getApplicationContext());
 							AppSettings.setFloatingPlayer(minimizeTo.value);
 							if (videoCache.value != AppSettings.videoCache()) {

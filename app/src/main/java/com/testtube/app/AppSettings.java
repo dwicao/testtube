@@ -44,6 +44,7 @@ public final class AppSettings {
 	private static final String KEY_ALLOW_HDR = "allow_hdr";
 	private static final String KEY_DOWNLOADS_WIFI_ONLY = "downloads_wifi_only";
 	private static final String KEY_DOWNLOADS_NIGHTLY = "downloads_nightly";
+	private static final String KEY_DATA_SAVER = "data_saver";
 	private static final String KEY_SPONSOR_CATS = "sponsorblock_cats";
 	private static final int MIN_WATCHED_DIM = 20;
 	private static final int MAX_WATCHED_DIM = 90;
@@ -51,7 +52,7 @@ public final class AppSettings {
 	/** As dark as watched videos were before this became a setting. */
 	private static final int DEFAULT_WATCHED_DIM = 70;
 	/** Raised when the welcome dialog gets new choices, so everyone sees it once more. */
-	private static final int WELCOME_VERSION = 11;
+	private static final int WELCOME_VERSION = 12;
 
 	private static volatile boolean loaded;
 	private static volatile boolean shorts;
@@ -83,6 +84,7 @@ public final class AppSettings {
 	private static volatile boolean allowHdr;
 	private static volatile boolean downloadsWifiOnly;
 	private static volatile boolean downloadsNightly;
+	private static volatile boolean dataSaver;
 
 	private AppSettings() {
 	}
@@ -491,6 +493,21 @@ public final class AppSettings {
 		MMKV.defaultMMKV().encode(KEY_DOWNLOADS_NIGHTLY, enabled);
 	}
 
+	/**
+	 * One-tap light mode: caps quality at 480p on every network and skips preloading.
+	 * For the full effect also turn on “Downloads on Wi-Fi only”.
+	 */
+	public static boolean dataSaver() {
+		load();
+		return dataSaver;
+	}
+
+	public static void setDataSaver(boolean enabled) {
+		load();
+		dataSaver = enabled;
+		MMKV.defaultMMKV().encode(KEY_DATA_SAVER, enabled);
+	}
+
 	public static boolean welcomeShown() {
 		return MMKV.defaultMMKV().decodeInt(KEY_WELCOME_VERSION, 0) >= WELCOME_VERSION;
 	}
@@ -536,6 +553,7 @@ public final class AppSettings {
 			allowHdr = store.decodeBool(KEY_ALLOW_HDR, false);
 			downloadsWifiOnly = store.decodeBool(KEY_DOWNLOADS_WIFI_ONLY, false);
 			downloadsNightly = store.decodeBool(KEY_DOWNLOADS_NIGHTLY, false);
+			dataSaver = store.decodeBool(KEY_DATA_SAVER, false);
 			loaded = true;
 		}
 	}

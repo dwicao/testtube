@@ -709,19 +709,34 @@ public class Controller {
 		float[] speeds = PlayerPreferences.SPEEDS;
 		String[] labels = new String[speeds.length];
 		float current = prefs.getPlaybackSpeed();
+		float playing = engine.getPlaybackRate();
 		int checked = 0;
 		for (int i = 0; i < speeds.length; i++) {
 			labels[i] = trimSpeed(speeds[i]) + "x";
 			if (speeds[i] == current) checked = i;
 		}
+		final int[] picked = {checked};
+		// If the playing video runs a one-off speed, highlight that instead of the remembered one.
+		for (int i = 0; i < speeds.length; i++) {
+			if (speeds[i] == playing) {
+				checked = i;
+				picked[0] = i;
+				break;
+			}
+		}
 		Dialogs.builder(activity)
 						.setTitle(R.string.playback_speed)
 						.setMessage(activity.getString(R.string.playback_speed_pitch))
-						.setSingleChoiceItems(labels, checked, (dialog, which) -> {
-							engine.setPlaybackSpeed(speeds[which]);
-							showHint(labels[which], HINT_HIDE_DELAY_MS);
+						.setSingleChoiceItems(labels, checked, (dialog, which) -> picked[0] = which)
+						.setPositiveButton(R.string.playback_speed_remember, (dialog, which) -> {
+							engine.setPlaybackSpeed(speeds[picked[0]]);
+							showHint(labels[picked[0]], HINT_HIDE_DELAY_MS);
 							hideControlsAutomatically();
-							dialog.dismiss();
+						})
+						.setNeutralButton(R.string.playback_speed_once, (dialog, which) -> {
+							engine.setPlaybackSpeedOnce(speeds[picked[0]]);
+							showHint(labels[picked[0]], HINT_HIDE_DELAY_MS);
+							hideControlsAutomatically();
 						})
 						.setNegativeButton(R.string.cancel, null)
 						.show();

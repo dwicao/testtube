@@ -19,6 +19,7 @@ import com.testtube.app.ui.Dialogs;
 import com.testtube.app.downloader.ui.DownloadsList;
 import com.testtube.app.history.LocalHistoryController;
 import com.testtube.app.history.WatchHistory;
+import com.testtube.app.history.WatchStats;
 import com.testtube.app.player.queue.QueueItem;
 import com.testtube.app.ui.queue.QueueAdapter;
 import com.testtube.app.ui.queue.QueueTouch;
@@ -32,7 +33,7 @@ import java.util.List;
  */
 @UnstableApi
 public final class LibraryScreen {
-	public enum Page {QUEUE, HISTORY, DOWNLOADS}
+	public enum Page {QUEUE, HISTORY, DOWNLOADS, STATS}
 
 	/** What the Library asks of the activity. */
 	public interface Host {
@@ -90,11 +91,13 @@ public final class LibraryScreen {
 		tabs = new TextView[]{
 						root.findViewById(R.id.library_tab_queue),
 						root.findViewById(R.id.library_tab_history),
-						root.findViewById(R.id.library_tab_downloads)};
+						root.findViewById(R.id.library_tab_downloads),
+						root.findViewById(R.id.library_tab_stats)};
 		pages = new View[]{
 						root.findViewById(R.id.library_page_queue),
 						root.findViewById(R.id.library_page_history),
-						root.findViewById(R.id.library_page_downloads)};
+						root.findViewById(R.id.library_page_downloads),
+						root.findViewById(R.id.library_page_stats)};
 		clear = root.findViewById(R.id.library_clear);
 		clear.setOnClickListener(v -> confirmClear());
 		for (Page each : PAGES) {
@@ -197,6 +200,7 @@ public final class LibraryScreen {
 					}
 					downloads.start();
 				}
+				case STATS -> renderStats();
 				case QUEUE -> {
 				}
 			}
@@ -204,11 +208,39 @@ public final class LibraryScreen {
 		updateClear();
 	}
 
+	private void renderStats() {
+		TextView summary = activity.findViewById(R.id.stats_summary);
+		TextView topTitle = activity.findViewById(R.id.stats_top_title);
+		TextView top = activity.findViewById(R.id.stats_top);
+		if (summary == null || top == null) return;
+		WatchStats.Summary stats = WatchStats.summarize(history.history().entries());
+		String hours = String.format(java.util.Locale.getDefault(), "%.1f",
+						stats.secondsKnown() / 3600.0);
+		String body = activity.getString(R.string.stats_videos) + ": " + stats.videos() + "\n"
+						+ activity.getString(R.string.stats_hours) + ": " + hours + "\n"
+						+ activity.getString(R.string.stats_days) + ": " + stats.days();
+		summary.setText(body);
+		if (stats.topChannels().isEmpty()) {
+			if (topTitle != null) topTitle.setVisibility(View.GONE);
+			top.setVisibility(View.GONE);
+		} else {
+			if (topTitle != null) topTitle.setVisibility(View.VISIBLE);
+			top.setVisibility(View.VISIBLE);
+			StringBuilder names = new StringBuilder();
+			for (WatchStats.Channel channel : stats.topChannels()) {
+				if (names.length() > 0) names.append('\n');
+				names.append(channel.name()).append(" — ").append(channel.videos());
+			}
+			top.setText(names.toString());
+		}
+	}
+
 	private void updateClear() {
 		boolean empty = switch (page) {
 			case QUEUE -> queueIsEmpty;
 			case HISTORY -> history.isEmpty();
 			case DOWNLOADS -> downloads == null || downloads.isEmpty();
+			case STATS -> true;
 		};
 		clear.setEnabled(!empty);
 		clear.setAlpha(empty ? DISABLED_ALPHA : 1f);
@@ -216,6 +248,7 @@ public final class LibraryScreen {
 			case QUEUE -> R.string.clear_queue;
 			case HISTORY -> R.string.watch_history_clear;
 			case DOWNLOADS -> R.string.downloads_clear;
+			case STATS -> R.string.library_stats;
 		}));
 	}
 
@@ -230,6 +263,8 @@ public final class LibraryScreen {
 			case HISTORY -> history.confirmClear();
 			case DOWNLOADS -> {
 				if (downloads != null) downloads.confirmClear();
+			}
+			case STATS -> {
 			}
 		}
 	}

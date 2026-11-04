@@ -65,12 +65,10 @@ public final class PlayerPreferences {
 		this.loopModeState = new MutableLiveData<>(readLoopMode());
 	}
 
-	/**
-	 * Quality for the network the phone is on now. Videos without that quality start in the next
-	 * lower one.
-	 */
+	/** Quality for the network the phone is on now. Data saver caps everything at 480p. */
 	@NonNull
 	public String getPreferredQuality() {
+		if (com.testtube.app.AppSettings.dataSaver()) return "480p";
 		return getQuality(onMobileData.getAsBoolean());
 	}
 
