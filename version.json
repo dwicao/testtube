@@ -1,11 +1,11 @@
 {
   "tag": "v3.0.18",
-  "versionCode": 30018,
   "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.18/testtube3.0.18.apk",
-  "sha256": null,
-  "size": -1,
-  "notes": "Sleep timer in notifications, per-video vs remembered speed, watch-later, data saver, watch stats tab, full backup/restore, comment likes/replies, enriched notifications, search filters, home widget, night downloads.",
+  "sha256": "e196337a93407706f786198336a529d3849c8c8911e9b9fae6d96d2f0b88b21d",
+  "size": 6205091,
+  "notes": "Fix backup section ViewGroup type",
   "prerelease": false,
+  "versionCode": 30018,
   "notice": "",
   "noticeTag": "",
   "minVersionCode": 0
