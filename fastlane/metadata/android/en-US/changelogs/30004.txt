@@ -1,0 +1,2 @@
+- Sharper thumbnails (hqdefault + 854x480)
+- Download current video from the player More options menu

@@ -1,0 +1,2 @@
+- Allow HDR toggle, SponsorBlock categories picker, download progress dialog
+- Full translations for all settings (es/fr/ja/ko/ru/tr/zh)

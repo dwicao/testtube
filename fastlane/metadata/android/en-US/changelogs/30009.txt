@@ -1,0 +1,1 @@
+- Forced SDR fallback: HDR-only videos play H264 muxed instead of blue HDR

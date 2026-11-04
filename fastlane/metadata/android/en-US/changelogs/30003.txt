@@ -1,0 +1,2 @@
+- Security/privacy hardening: login WebView allowlist, PoToken lockdown, FileProvider narrowed, https-only links, mandatory SHA-256 + same-signer updates
+- Stability: no leaked players on font change, download service stops itself, capped history, throttled progress

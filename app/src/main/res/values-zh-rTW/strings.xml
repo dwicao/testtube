@@ -379,6 +379,8 @@
     <string name="setting_allow_hdr_summary">VP9.2 / AV1 10 位元。關閉則強制 SDR（修復三星偏藍）</string>
     <string name="setting_sponsor_cats">SponsorBlock 類別</string>
     <string name="setting_sponsor_cats_summary">要略過的片段類型</string>
+    <string name="skipped_sponsor">已略過贊助 %1$d 秒</string>
+    <string name="tap_to_undo">點一下復原</string>
     <string name="setting_clear_cache">清除快取</string>
     <string name="setting_clear_cache_summary">影片、圖片和網頁資料</string>
     <string name="setting_clear_cache_on_exit">結束時清除快取</string>

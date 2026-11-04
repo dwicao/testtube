@@ -1,0 +1,1 @@
+- Fix blue skin on Samsung: disable video tunneling (GPU tone mapping)

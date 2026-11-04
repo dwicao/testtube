@@ -354,8 +354,7 @@ public final class ShortsScreen {
 				target.attachPlayer(playerView);
 			}
 			try {
-				// The preloaded player took over: show that one
-				if (engine.play(result)) playerView.setPlayer(engine.player());
+				engine.play(result);
 			} catch (IllegalArgumentException e) {
 				if (target != null) target.showError();
 				return;

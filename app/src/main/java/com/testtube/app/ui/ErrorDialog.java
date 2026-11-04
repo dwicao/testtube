@@ -3,8 +3,11 @@ package com.testtube.app.ui;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+
+import androidx.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,7 +56,7 @@ public final class ErrorDialog {
 		titleView.setText(displayTitle);
 		stackView.setText(stack);
 
-		Dialogs.builder(context).setView(view).setCancelable(true).setOnDismissListener(onDismissListener).setPositiveButton(R.string.copy, (dialog, which) -> copyDebugInfo(context, displayTitle, stack)).setNegativeButton(R.string.close, (dialog, which) -> dialog.dismiss()).show();
+		Dialogs.builder(context).setView(view).setCancelable(true).setOnDismissListener(onDismissListener).setPositiveButton(R.string.copy, (dialog, which) -> copyDebugInfo(context, displayTitle, stack)).setNeutralButton(R.string.share, (dialog, which) -> shareDebugInfo(context, displayTitle, stack)).setNegativeButton(R.string.close, (dialog, which) -> dialog.dismiss()).show();
 	}
 
 	private static String buildExpandedStackTrace(Throwable throwable) {
@@ -101,17 +104,34 @@ public final class ErrorDialog {
 
 	private static void copyDebugInfo(Context context, String title, String stack) {
 		try {
-			PackageManager pm = context.getPackageManager();
-			PackageInfo pi = pm.getPackageInfo(context.getPackageName(), 0);
-			String version = pi.versionName;
-			String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
-
-			String sb = "App Version: " + version + "\n" + "Date: " + date + "\n" + "Error Message: " + title + "\n" + "Stack Trace:\n" + stack;
-
-			DeviceUtils.copyToClipboard(context, context.getString(R.string.error_title), sb);
+			DeviceUtils.copyToClipboard(context, context.getString(R.string.error_title), reportText(context, title, stack));
 			ToastUtils.show(context, R.string.debug_info_copied);
 		} catch (Exception e) {
 			Log.e(TAG, "Failed to copy debug info", e);
 		}
+	}
+
+	private static void shareDebugInfo(Context context, String title, String stack) {
+		try {
+			Intent send = new Intent(Intent.ACTION_SEND);
+			send.setType("text/plain");
+			send.putExtra(Intent.EXTRA_TEXT, reportText(context, title, stack));
+			context.startActivity(Intent.createChooser(send, context.getString(R.string.share)));
+		} catch (Exception e) {
+			Log.e(TAG, "Failed to share debug info", e);
+		}
+	}
+
+	@NonNull
+	private static String reportText(Context context, String title, String stack) {
+		String version = "";
+		String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+		try {
+			PackageManager pm = context.getPackageManager();
+			PackageInfo pi = pm.getPackageInfo(context.getPackageName(), 0);
+			version = pi.versionName;
+		} catch (Exception ignored) {
+		}
+		return "App Version: " + version + "\n" + "Date: " + date + "\n" + "Error Message: " + title + "\n" + "Stack Trace:\n" + stack;
 	}
 }

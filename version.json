@@ -1,9 +1,9 @@
 {
-  "tag": "v3.0.11",
-  "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.11/testtube3.0.11.apk",
-  "sha256": "cf230dfe5d39d715cf75a1424cc8277c06cf5f60b376959dcb1c1ec778aab489",
-  "size": 6037061,
-  "notes": "Fix sponsorCats listener type (pass row View)",
-  "prerelease": false,
-  "versionCode": 30011
+  "tag": "v3.0.12",
+  "versionCode": 30012,
+  "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.12/testtube3.0.12.apk",
+  "sha256": null,
+  "size": -1,
+  "notes": "Single-player Shorts, Allow HDR, SponsorBlock categories, download progress dialog, Share crash report.",
+  "prerelease": false
 }

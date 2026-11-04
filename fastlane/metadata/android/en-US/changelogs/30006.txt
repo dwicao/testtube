@@ -1,0 +1,1 @@
+- Fix MediaButtonReceiver crash: restore PlaybackService MEDIA_BUTTON handler

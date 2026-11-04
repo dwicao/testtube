@@ -25,8 +25,9 @@ import java.util.function.Supplier;
  * The player of the Shorts tab. Separate from the main player so a Short never touches its queue,
  * history or mini player, but it builds the streams the same way.
  * <p>
- * Two players take turns: while one plays, the other already loads the next Short, so a swipe
- * just switches over instead of starting from nothing.
+ * A single player plus a cache prefetch: while one Short plays, the next one's first seconds are
+ * written into the player cache, so a swipe starts at once without keeping a second
+ * {@link ExoPlayer} (and its decoders, buffers and radio use) alive.
  */
 @UnstableApi
 public final class ShortsEngine {
@@ -54,13 +55,10 @@ public final class ShortsEngine {
 	private final java.util.function.BooleanSupplier isMobile;
 	@NonNull
 	private ExoPlayer player;
-	/** Loads the next Short without playing it. */
-	@NonNull
-	private ExoPlayer standby;
-	@Nullable
-	private String standbyId;
 	@Nullable
 	private Listener listener;
+	@NonNull
+	private final StreamPreloader preloader;
 
 	public ShortsEngine(@NonNull Context context, @Nullable SimpleCache cache, @NonNull Supplier<String> quality,
 			@NonNull java.util.function.BooleanSupplier isMobile) {
@@ -68,8 +66,8 @@ public final class ShortsEngine {
 		this.autoSubtitleFormat = context.getString(R.string.subtitle_auto_generated);
 		this.quality = quality;
 		this.isMobile = isMobile;
+		this.preloader = new StreamPreloader(sources.preloadSource());
 		this.player = build(context);
-		this.standby = build(context);
 	}
 
 	public ShortsEngine(@NonNull Context context, @Nullable SimpleCache cache, @NonNull Supplier<String> quality) {
@@ -111,18 +109,13 @@ public final class ShortsEngine {
 
 			@Override
 			public void onPlayerError(@NonNull PlaybackException error) {
-				if (exo == player) {
-					if (listener != null) listener.onError(error);
-				} else {
-					// The preloaded one broke (expired link etc.); play() will just start fresh
-					standbyId = null;
-				}
+				if (listener != null) listener.onError(error);
 			}
 		});
 		return exo;
 	}
 
-	/** The player on screen; changes when a preloaded Short takes over, see {@link #play}. */
+	/** The player on screen; a single instance for the whole tab. */
 	@NonNull
 	public Player player() {
 		return player;
@@ -133,51 +126,35 @@ public final class ShortsEngine {
 	}
 
 	/**
-	 * Starts a Short from the beginning. Returns true when the preloaded player took over, so the
-	 * view has to show {@link #player()} now.
+	 * Starts a Short from the beginning. The next Short's start is usually already in the player
+	 * cache (see {@link #preload}), so this starts at once.
 	 *
 	 * @throws IllegalArgumentException when the extraction has nothing playable
 	 */
-	public boolean play(@NonNull PlaybackDetails details) {
-		String id = details.video().getId();
-		if (id != null && id.equals(standbyId) && standby.getPlaybackState() != Player.STATE_IDLE) {
-			ExoPlayer previous = player;
-			player = standby;
-			standby = previous;
-			standbyId = null;
-			previous.stop();
-			previous.clearMediaItems();
-			player.seekTo(0L);
-			player.setPlayWhenReady(true);
-			VideoSize size = player.getVideoSize();
-			if (listener != null && size.width > 0) listener.onVideoSize(size);
-			return true;
-		}
+	public void play(@NonNull PlaybackDetails details) {
+		preloader.cancel();
 		player.setMediaSource(PlaybackSourceFactory.create(sources, autoSubtitleFormat, details, plan(details)));
 		player.prepare();
 		player.setPlayWhenReady(true);
-		return false;
 	}
 
-	/** Loads a Short in the background so it starts at once when it's swiped to. */
+	/** Caches the start of a Short in the background so swiping to it starts at once. */
 	public void preload(@NonNull PlaybackDetails details) {
 		String id = details.video().getId();
-		if (id == null || id.equals(standbyId)) return;
-		// On mobile data the standby full preload costs battery + data; the swipe still plays instantly
-		// from extraction, just without the head start — unless the user opted into mobile preload.
+		if (id == null) return;
+		// On mobile data a full preload costs battery + data; the swipe still plays from
+		// extraction, just without the head start — unless the user opted into mobile preload.
 		try {
 			if (isMobile.getAsBoolean() && !com.testtube.app.AppSettings.preloadOnMobile()) return;
 		} catch (RuntimeException ignored) {
 		}
+		// Prefetch with the same capped plan playback uses, so the cached URLs match.
 		try {
-			standby.setMediaSource(PlaybackSourceFactory.create(sources, autoSubtitleFormat, details, plan(details)));
-		} catch (IllegalArgumentException e) {
-			standbyId = null;
-			return;
+			preloader.preload(new PlaybackDetails(details.video(), details.catalog(),
+							details.deliveries(), plan(details), details.segments(), details.subtitles()));
+		} catch (RuntimeException ignored) {
+			// A preload must never break playback; play() extracts again anyway
 		}
-		standbyId = id;
-		standby.setPlayWhenReady(false);
-		standby.prepare();
 	}
 
 	@NonNull
@@ -215,8 +192,10 @@ public final class ShortsEngine {
 
 	public void release() {
 		listener = null;
-		standbyId = null;
+		try {
+			preloader.release();
+		} catch (RuntimeException ignored) {
+		}
 		player.release();
-		standby.release();
 	}
 }

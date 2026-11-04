@@ -379,6 +379,8 @@
     <string name="setting_allow_hdr_summary">VP9.2 / AV1 10비트. 끄면 SDR 고정 (삼성 파란 피부 수정)</string>
     <string name="setting_sponsor_cats">SponsorBlock 카테고리</string>
     <string name="setting_sponsor_cats_summary">건너뛸 구간 종류</string>
+    <string name="skipped_sponsor">스폰서 건너뜀 %1$d초</string>
+    <string name="tap_to_undo">탭하여 되돌리기</string>
     <string name="setting_clear_cache">캐시 지우기</string>
     <string name="setting_clear_cache_summary">동영상, 이미지, 웹 데이터</string>
     <string name="setting_clear_cache_on_exit">종료 시 캐시 삭제</string>

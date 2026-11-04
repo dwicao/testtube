@@ -1,0 +1,1 @@
+- Fix blue skin on HDR videos: prefer SDR (VP9.2/AV1 10-bit deprioritized)

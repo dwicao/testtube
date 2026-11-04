@@ -142,6 +142,8 @@ public class Controller {
 	private final Runnable hideHintRunnable = this::hideHint;
 	@Nullable
 	private TextView hintText;
+	/** Segment start of the last auto-skip, for tap-to-undo; -1 when the hint isn't a skip. */
+	private volatile long lastSkipFromMs = -1L;
 	@NonNull
 	private ControllerState state = ControllerState.initial();
 	private long lastVideoRenderedCount = 0;
@@ -156,6 +158,8 @@ public class Controller {
 		this.zoomListener = zoomListener;
 		this.tabManager = tabManager;
 		this.gestureListener = new PlayerGestureListener(activity, playerView, engine, this);
+		this.engine.setSponsorSkipListener((fromMs, toMs) ->
+						playerView.post(() -> showSponsorSkipped(fromMs, toMs)));
 		this.zoomListener.setOnShowReset(show ->
 						showReset(show && isControlsVisible() && state.mode() == ControllerState.Mode.FULLSCREEN_UNLOCK));
 
@@ -865,6 +869,11 @@ public class Controller {
 
 	public void release() {
 		try {
+			engine.setSponsorSkipListener(null);
+		} catch (RuntimeException ignored) {
+		}
+		lastSkipFromMs = -1L;
+		try {
 			handler.removeCallbacksAndMessages(null);
 		} catch (RuntimeException ignored) {
 		}
@@ -874,9 +883,39 @@ public class Controller {
 		if (hintText == null || activity.isInPictureInPictureMode() || state.isInPictureInPicture() || state.isInMiniPlayer())
 			return;
 		hintText.setText(text);
+		hintText.setOnClickListener(null);
+		hintText.setClickable(false);
+		hintText.setFocusable(false);
+		lastSkipFromMs = -1L;
 		ViewUtils.animateViewAlpha(hintText, 1.0f, View.GONE);
 		handler.removeCallbacks(hideHintRunnable);
 		if (durationMs > 0) handler.postDelayed(hideHintRunnable, durationMs);
+	}
+
+	/** "Skipped sponsor 12s — tap to undo". Tapping the hint jumps back to the segment start. */
+	private void showSponsorSkipped(long fromMs, long toMs) {
+		if (hintText == null || activity.isInPictureInPictureMode() || state.isInPictureInPicture() || state.isInMiniPlayer())
+			return;
+		long secs = Math.max(1L, (toMs - fromMs) / 1000L);
+		lastSkipFromMs = fromMs;
+		hintText.setText(activity.getString(R.string.skipped_sponsor, secs)
+						+ " — " + activity.getString(R.string.tap_to_undo));
+		hintText.setClickable(true);
+		hintText.setFocusable(true);
+		hintText.setOnClickListener(v -> {
+			long from = lastSkipFromMs;
+			lastSkipFromMs = -1L;
+			hideHint();
+			if (from >= 0) {
+				try {
+					engine.seekTo(from);
+				} catch (RuntimeException ignored) {
+				}
+			}
+		});
+		ViewUtils.animateViewAlpha(hintText, 1.0f, View.GONE);
+		handler.removeCallbacks(hideHintRunnable);
+		handler.postDelayed(hideHintRunnable, HINT_HIDE_DELAY_MS);
 	}
 
 	public boolean isFullscreen() {

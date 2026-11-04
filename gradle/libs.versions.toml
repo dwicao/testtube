@@ -23,7 +23,6 @@ webkit = "1.17.1"
 okhttp = "5.5.0"
 recyclerview = "1.4.0"
 lifecycle = "2.11.0"
-profileinstaller = "1.4.1"
 security-crypto = "1.1.0"
 
 [libraries]
@@ -54,7 +53,6 @@ glide-compiler = { module = "com.github.bumptech.glide:compiler", version.ref = 
 swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
 webkit = { group = "androidx.webkit", name = "webkit", version.ref = "webkit" }
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
-profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
 lifecycle-livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata", version.ref = "lifecycle" }
 lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "lifecycle" }
 

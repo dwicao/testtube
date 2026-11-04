@@ -110,6 +110,18 @@ public class Engine {
 	private final TestTubePlayerView boundView;
 	@NonNull
 	private PlayerLoopMode loopMode = PlayerLoopMode.PLAYLIST_NEXT;
+	/** Heard when a sponsor segment is auto-skipped; args are segment start/end in ms. */
+	public interface SponsorSkipListener {
+		void onSponsorSkipped(long fromMs, long toMs);
+	}
+
+	@Nullable
+	private volatile SponsorSkipListener sponsorSkipListener;
+
+	public void setSponsorSkipListener(@Nullable SponsorSkipListener listener) {
+		sponsorSkipListener = listener;
+	}
+
 	@Nullable
 	private String videoId;
 	private final Runnable onTimeUpdate = new Runnable() {
@@ -139,6 +151,13 @@ public class Engine {
 				if (pos >= segment[0] && pos < segment[1]) {
 					player.seekTo(segment[1]);
 					delay = MIN_TICK_MS;
+					SponsorSkipListener listener = sponsorSkipListener;
+					if (listener != null) {
+						try {
+							listener.onSponsorSkipped(segment[0], segment[1]);
+						} catch (RuntimeException ignored) {
+						}
+					}
 					break;
 				}
 				if (segment[0] > pos) delay = Math.min(delay, segment[0] - pos);
@@ -543,10 +562,15 @@ public class Engine {
 			return false;
 		}
 		rememberFailedCandidates(state.plan(), reason == PlaybackRecoveryReason.HTTP_403);
-		PlaybackPlan fallback = PlaybackPlanner.adaptiveFallbackPlan(
-						state.deliveries(),
-						prefs.getPreferredQuality(),
-						this::isBlocked);
+		// If the failing stream is HDR, go straight to MUXED (H264 SDR): retrying other HDR
+		// variants just plays more blue frames on affected firmware.
+		PlaybackPlan fallback = null;
+		if (!isHdrPlan(state.plan())) {
+			fallback = PlaybackPlanner.adaptiveFallbackPlan(
+							state.deliveries(),
+							prefs.getPreferredQuality(),
+							this::isBlocked);
+		}
 		if (fallback == null) {
 			fallback = PlaybackPlanner.muxedFallbackPlan(
 							state.deliveries(),
@@ -612,6 +636,18 @@ public class Engine {
 	private boolean isBlocked(@NonNull StreamCandidate candidate) {
 		return failedAdaptiveCandidates.contains(candidateKey(candidate))
 						|| failedClients.contains(clientKey(candidate));
+	}
+
+	/** Whether the playing video candidate is HDR (VP9.2 / AV1 10-bit). */
+	private static boolean isHdrPlan(@NonNull PlaybackPlan plan) {
+		for (StreamCandidate candidate : new StreamCandidate[]{
+						plan.getVideoCandidate(), plan.getMuxedCandidate()}) {
+			if (candidate != null && candidate.getVideoStream() != null
+							&& PlayerUtils.isLikelyHdr(candidate.getVideoStream().getCodec())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void pause() {

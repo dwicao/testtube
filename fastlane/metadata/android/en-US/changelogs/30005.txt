@@ -1,0 +1,3 @@
+- New privacy controls: Personalize Home, Skip sponsors, Preload on mobile
+- Encrypted login flag, R8 obfuscation, shared OkHttp pool for live streams
+- Queue diff off the main thread, download progress in More options
