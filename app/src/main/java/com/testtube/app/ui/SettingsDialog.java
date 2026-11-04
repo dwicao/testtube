@@ -125,8 +125,7 @@ final class SettingsDialog {
 						R.string.setting_allow_hdr_summary, AppSettings.allowHdr());
 		View sponsorCats = form.value(playback, R.string.setting_sponsor_cats,
 						R.string.setting_sponsor_cats_summary, sponsorCatsSummary(activity, prefs));
-		sponsorCats.setOnClickListener(v -> showSponsorCats(activity, prefs,
-						() -> sponsorCats.findViewById(R.id.setting_value)));
+		sponsorCats.setOnClickListener(v -> showSponsorCats(activity, prefs, sponsorCats));
 		ChoiceRow<Boolean> minimizeTo = new ChoiceRow<>(form, playback, R.string.setting_minimize_to,
 						R.string.setting_minimize_summary, new Boolean[]{false, true},
 						new int[]{R.string.minimize_bottom_bar, R.string.minimize_floating}, AppSettings.floatingPlayer());
