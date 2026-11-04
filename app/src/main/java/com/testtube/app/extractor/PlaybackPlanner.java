@@ -52,9 +52,15 @@ public final class PlaybackPlanner {
 
 		Delivery adaptive = deliveries.first(PlaybackMode.ADAPTIVE);
 		if (adaptive != null) {
-			PlaybackPlan adaptivePlan = adaptivePlan(plan, adaptive, preferredQuality);
-			if (adaptivePlan.getVideoCandidate() != null && adaptivePlan.getAudioCandidate() != null) {
-				return adaptivePlan;
+			// Forced SDR fallback: HDR (VP9.2 / AV1 10-bit) renders blue on Samsung firmware.
+			// If any SDR video exists, plan adaptive from SDR only. If adaptive is HDR-only,
+			// fall through to MUXED below (H264 AVC progressive, always SDR).
+			List<StreamCandidate> sdrVideo = sdrVideoOnly(adaptive.getVideo());
+			if (!sdrVideo.isEmpty()) {
+				PlaybackPlan adaptivePlan = adaptivePlan(plan, adaptive, sdrVideo, adaptive.getAudio(), preferredQuality);
+				if (adaptivePlan.getVideoCandidate() != null && adaptivePlan.getAudioCandidate() != null) {
+					return adaptivePlan;
+				}
 			}
 		}
 
@@ -115,6 +121,16 @@ public final class PlaybackPlanner {
 						.collect(Collectors.toList());
 		PlaybackPlan plan = adaptivePlan(new PlaybackPlan(), adaptive, video, audio, preferredQuality);
 		return plan.getVideoCandidate() != null && plan.getAudioCandidate() != null ? plan : null;
+	}
+
+	@NonNull
+	private static List<StreamCandidate> sdrVideoOnly(@NonNull List<StreamCandidate> candidates) {
+		List<StreamCandidate> out = new ArrayList<>();
+		for (StreamCandidate candidate : candidates) {
+			String codec = candidate.getVideoStream() != null ? candidate.getVideoStream().getCodec() : null;
+			if (!PlayerUtils.isLikelyHdr(codec)) out.add(candidate);
+		}
+		return out;
 	}
 
 	@Nullable
