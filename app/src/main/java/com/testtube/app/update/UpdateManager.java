@@ -447,7 +447,7 @@ public final class UpdateManager {
 		try {
 			activity.startActivity(new Intent(Intent.ACTION_VIEW,
 							Uri.parse("https://github.com/dwicao/testtube/releases")));
-		} catch (ActivityNotFoundException | RuntimeException e) {
+		} catch (RuntimeException e) {
 			Toast.makeText(activity, R.string.update_check_failed, Toast.LENGTH_LONG).show();
 		}
 	}

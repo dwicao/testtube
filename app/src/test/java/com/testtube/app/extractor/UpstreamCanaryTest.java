@@ -41,6 +41,9 @@ public final class UpstreamCanaryTest {
 
 	@BeforeClass
 	public static void initNewPipe() {
+		// Only runs in the scheduled upstream-canary workflow (TESTTUBE_CANARY=1).
+		// Skipped in normal builds/PRs: it needs real network access to YouTube.
+		Assume.assumeTrue("canary only", System.getenv("TESTTUBE_CANARY") != null);
 		NewPipe.init(new Downloader() {
 			private final OkHttpClient client = new OkHttpClient();
 

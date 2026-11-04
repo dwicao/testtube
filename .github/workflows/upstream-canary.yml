@@ -63,6 +63,8 @@ jobs:
 
       - name: Run extractor canary
         if: steps.preflight.outputs.reachable == 'true'
+        env:
+          TESTTUBE_CANARY: '1'
         run: |
           chmod +x gradlew
           ./gradlew --no-daemon :app:testDebugUnitTest --tests "com.testtube.app.extractor.UpstreamCanaryTest" --stacktrace --console=plain
