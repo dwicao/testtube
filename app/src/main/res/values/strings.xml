@@ -404,9 +404,11 @@
     <string name="failure_other">Something went wrong while loading this video. Try again, or tap Details to see what happened.</string>
     <!-- Minimizing, floating window and gestures -->
     <string name="setting_minimize_to">Minimize to</string>
-    <string name="setting_minimize_summary">Bottom bar or floating window</string>
+    <string name="setting_minimize_summary">Bottom bar, floating window or picture-in-picture</string>
     <string name="minimize_bottom_bar">Bottom bar</string>
     <string name="minimize_floating">Floating window</string>
+    <string name="minimize_pip">Picture-in-picture</string>
+    <string name="pip_unavailable">Picture-in-picture isn't available right now</string>
     <string name="settings_section_gestures">Gestures</string>
     <string name="setting_gestures">Custom gestures</string>
     <string name="setting_gestures_summary">Off: swipe down minimizes</string>

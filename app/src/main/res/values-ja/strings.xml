@@ -345,7 +345,7 @@
     <string name="failure_other">この動画の読み込み中に問題が発生しました。もう一度試すか、「詳細」をタップして内容を確認してください。</string>
     <!-- Minimizing, floating window and gestures -->
     <string name="setting_minimize_to">最小化の方法</string>
-    <string name="setting_minimize_summary">下部バーまたはフローティングウィンドウ</string>
+    <string name="setting_minimize_summary">ボトムバー、フローティングウィンドウ、ピクチャーインピクチャー</string>
     <string name="minimize_bottom_bar">下部バー</string>
     <string name="minimize_floating">フローティングウィンドウ</string>
     <string name="settings_section_gestures">ジェスチャー</string>
@@ -455,4 +455,6 @@
     <string name="backup_restart_title">再起動が必要です</string>
     <string name="backup_restart_message">設定を復元しました。すべて適用するには再起動してください。</string>
     <string name="restart_now">再起動</string>
+    <string name="minimize_pip">ピクチャーインピクチャー</string>
+    <string name="pip_unavailable">ピクチャーインピクチャーは今利用できません</string>
 </resources>

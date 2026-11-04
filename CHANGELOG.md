@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.20
+
+- Playback speed is a real control now: 0.5x–2.0x slider + presets, applies live; Remember keeps it for next videos
+- PiP from More options fixed (sheet dismissed first, failure toast instead of silent dead button, broader exception catch)
+- More options sheet guarded against bad window state
+- Minimize to: bottom bar, floating window, or picture-in-picture (default PiP); leaving the app auto-enters PiP except in bottom-bar mode
+- Controls restored when a directly-entered PiP window expands back
+
 ## 3.0.19
 
 - Fix update race: version.json never advertises an unreleased build (versionCode derived from tag, APK asset verified attached before publishing, entries without sha256 rejected)

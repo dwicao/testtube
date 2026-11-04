@@ -7,14 +7,17 @@ import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListPopupWindow;
 import android.widget.ListView;
@@ -35,6 +38,7 @@ import androidx.media3.exoplayer.DecoderCounters;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.slider.Slider;
 import com.testtube.app.AppGraph;
 import com.testtube.app.AppSettings;
 import com.testtube.app.Constant;
@@ -55,6 +59,7 @@ import com.testtube.app.player.engine.Engine;
 import com.testtube.app.player.queue.QueueNav;
 import com.testtube.app.util.DeviceUtils;
 import com.testtube.app.util.ImageUtils;
+import com.testtube.app.util.ToastUtils;
 import com.testtube.app.util.ViewUtils;
 
 import org.schabi.newpipe.extractor.stream.AudioStream;
@@ -569,12 +574,20 @@ public class Controller {
 		setClick(R.id.btn_more, v -> {
 			setControlsVisible(true);
 			if (activity.isInPictureInPictureMode()) return;
-			BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity);
-			View bottomSheetView = activity.getLayoutInflater().inflate(
-							R.layout.bottom_sheet_more_options,
-							new FrameLayout(activity),
-							false);
-			bottomSheetDialog.setContentView(bottomSheetView);
+			if (activity.isFinishing() || activity.isDestroyed()) return;
+			BottomSheetDialog bottomSheetDialog;
+			View bottomSheetView;
+			try {
+				bottomSheetDialog = new BottomSheetDialog(activity);
+				bottomSheetView = activity.getLayoutInflater().inflate(
+								R.layout.bottom_sheet_more_options,
+								new FrameLayout(activity),
+								false);
+				bottomSheetDialog.setContentView(bottomSheetView);
+			} catch (RuntimeException e) {
+				Log.w("Controller", "more options unavailable", e);
+				return;
+			}
 
 			FrameLayout bottomSheet = bottomSheetDialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
 			if (bottomSheet != null) {
@@ -618,14 +631,28 @@ public class Controller {
 				bottomSheetDialog.dismiss();
 			});
 			setupBottomSheetOption(bottomSheetView, R.id.option_pip, b -> {
-				playerView.enterPiP();
+				// Dismiss first: on Samsung devices entering PiP while the sheet is still
+				// attached fails silently, which looked like a dead button.
 				bottomSheetDialog.dismiss();
+				playerView.post(() -> {
+					boolean entered = false;
+					try {
+						entered = playerView.enterPiP();
+					} catch (RuntimeException e) {
+						Log.w("Controller", "enter PiP failed", e);
+					}
+					if (!entered) ToastUtils.show(activity, R.string.pip_unavailable);
+				});
 			});
 			setupBottomSheetOption(bottomSheetView, R.id.option_stream_details, b -> {
 				showVideoDetails();
 				bottomSheetDialog.dismiss();
 			});
-			bottomSheetDialog.show();
+			try {
+				bottomSheetDialog.show();
+			} catch (RuntimeException e) {
+				Log.w("Controller", "more options unavailable", e);
+			}
 		});
 	}
 
@@ -706,46 +733,98 @@ public class Controller {
 	}
 
 	private void showSpeedOptions() {
-		float[] speeds = PlayerPreferences.SPEEDS;
-		String[] labels = new String[speeds.length];
-		float current = prefs.getPlaybackSpeed();
+		// A real control, not just presets: a 0.5x–2.0x slider plus preset buttons.
+		// Everything applies live to this video; "Remember" also keeps it for the next one.
 		float playing = engine.getPlaybackRate();
-		int checked = 0;
+		if (Float.isNaN(playing)) playing = prefs.getPlaybackSpeed();
+		playing = Math.max(SPEED_MIN, Math.min(SPEED_MAX, playing));
+
+		int pad = ViewUtils.dpToPx(activity, 20);
+		LinearLayout root = new LinearLayout(activity);
+		root.setOrientation(LinearLayout.VERTICAL);
+		root.setPadding(pad, ViewUtils.dpToPx(activity, 8), pad, 0);
+
+		TextView value = new TextView(activity);
+		value.setTextSize(22);
+		value.setTypeface(Typeface.DEFAULT_BOLD);
+		LinearLayout.LayoutParams valueParams = new LinearLayout.LayoutParams(
+						ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+		valueParams.gravity = android.view.Gravity.CENTER_HORIZONTAL;
+		root.addView(value, valueParams);
+
+		Slider slider = new Slider(activity);
+		slider.setValueFrom(SPEED_MIN);
+		slider.setValueTo(SPEED_MAX);
+		slider.setStepSize(0.05f);
+		slider.setValue(playing);
+		root.addView(slider, new LinearLayout.LayoutParams(
+						ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+		TextView pitch = new TextView(activity);
+		pitch.setText(R.string.playback_speed_pitch);
+		pitch.setTextSize(12);
+		root.addView(pitch, new LinearLayout.LayoutParams(
+						ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+		float[] speeds = PlayerPreferences.SPEEDS;
+		LinearLayout row = null;
 		for (int i = 0; i < speeds.length; i++) {
-			labels[i] = trimSpeed(speeds[i]) + "x";
-			if (speeds[i] == current) checked = i;
-		}
-		final int[] picked = {checked};
-		// If the playing video runs a one-off speed, highlight that instead of the remembered one.
-		for (int i = 0; i < speeds.length; i++) {
-			if (speeds[i] == playing) {
-				checked = i;
-				picked[0] = i;
-				break;
+			if (i % 4 == 0) {
+				row = new LinearLayout(activity);
+				row.setOrientation(LinearLayout.HORIZONTAL);
+				LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+								ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+				rowParams.topMargin = ViewUtils.dpToPx(activity, 8);
+				root.addView(row, rowParams);
 			}
+			Button preset = new Button(activity, null, com.google.android.material.R.attr.materialButtonOutlinedStyle);
+			preset.setText(trimSpeed(speeds[i]) + "x");
+			preset.setAllCaps(false);
+			float speed = speeds[i];
+			preset.setOnClickListener(v -> slider.setValue(speed));
+			LinearLayout.LayoutParams cell = new LinearLayout.LayoutParams(0,
+							ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+			if (row != null) row.addView(preset, cell);
 		}
+
+		Runnable refreshLabel = () -> value.setText(trimSpeed(slider.getValue()) + "x");
+		refreshLabel.run();
+		slider.addOnChangeListener((s, v, fromUser) -> {
+			engine.setPlaybackSpeedOnce(v);
+			refreshLabel.run();
+		});
+		slider.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
+			@Override
+			public void onStartTrackingTouch(@NonNull Slider s) {
+			}
+
+			@Override
+			public void onStopTrackingTouch(@NonNull Slider s) {
+				showHint(trimSpeed(s.getValue()) + "x", HINT_HIDE_DELAY_MS);
+				hideControlsAutomatically();
+			}
+		});
 		Dialogs.builder(activity)
 						.setTitle(R.string.playback_speed)
-						.setMessage(activity.getString(R.string.playback_speed_pitch))
-						.setSingleChoiceItems(labels, checked, (dialog, which) -> picked[0] = which)
+						.setView(root)
 						.setPositiveButton(R.string.playback_speed_remember, (dialog, which) -> {
-							engine.setPlaybackSpeed(speeds[picked[0]]);
-							showHint(labels[picked[0]], HINT_HIDE_DELAY_MS);
-							hideControlsAutomatically();
-						})
-						.setNeutralButton(R.string.playback_speed_once, (dialog, which) -> {
-							engine.setPlaybackSpeedOnce(speeds[picked[0]]);
-							showHint(labels[picked[0]], HINT_HIDE_DELAY_MS);
+							prefs.setPlaybackSpeed(engine.getPlaybackRate());
+							showHint(trimSpeed(engine.getPlaybackRate()) + "x", HINT_HIDE_DELAY_MS);
 							hideControlsAutomatically();
 						})
 						.setNegativeButton(R.string.cancel, null)
 						.show();
 	}
 
+	private static final float SPEED_MIN = 0.5f;
+	private static final float SPEED_MAX = 2.0f;
+
 	@NonNull
 	private static String trimSpeed(float speed) {
-		String text = String.valueOf(speed);
-		return text.endsWith(".0") ? text.substring(0, text.length() - 2) : text;
+		String text = String.format(java.util.Locale.US, "%.2f", speed);
+		while (text.endsWith("0")) text = text.substring(0, text.length() - 1);
+		if (text.endsWith(".")) text = text.substring(0, text.length() - 1);
+		return text;
 	}
 
 	/** Minutes offered by the sleep timer, 0 first for "off". */

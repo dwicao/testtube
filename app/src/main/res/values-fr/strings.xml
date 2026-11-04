@@ -347,7 +347,7 @@
     <string name="failure_other">Un problème est survenu lors du chargement de cette vidéo. Réessayez, ou touchez Détails pour voir ce qui s\'est passé.</string>
     <!-- Minimizing, floating window and gestures -->
     <string name="setting_minimize_to">Réduire vers</string>
-    <string name="setting_minimize_summary">Barre du bas ou fenêtre flottante</string>
+    <string name="setting_minimize_summary">Barre du bas, fenêtre flottante ou image dans l’image</string>
     <string name="minimize_bottom_bar">Barre du bas</string>
     <string name="minimize_floating">Fenêtre flottante</string>
     <string name="settings_section_gestures">Gestes</string>
@@ -457,4 +457,6 @@
     <string name="backup_restart_title">Redémarrage requis</string>
     <string name="backup_restart_message">Réglages restaurés. Redémarre pour tout appliquer.</string>
     <string name="restart_now">Redémarrer</string>
+    <string name="minimize_pip">Image dans l’image</string>
+    <string name="pip_unavailable">L’image dans l’image n’est pas disponible pour le moment</string>
 </resources>

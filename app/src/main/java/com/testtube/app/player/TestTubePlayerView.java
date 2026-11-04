@@ -160,8 +160,8 @@ public class TestTubePlayerView extends PlayerView {
 		if (!isFs) normalHeight = getHeight();
 		try {
 			if (activity.enterPictureInPictureMode(buildPiPParams(true))) return true;
-		} catch (IllegalStateException e) {
-			// Thrown on devices where picture-in-picture is unavailable after all
+		} catch (IllegalStateException | IllegalArgumentException | SecurityException e) {
+			// Unavailable after all (turned off for the app, bad video size, backgrounded).
 		}
 		normalHeight = previousHeight;
 		return false;

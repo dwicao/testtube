@@ -348,7 +348,7 @@
     <string name="failure_other">При загрузке видео что-то пошло не так. Повторите попытку или нажмите «Подробнее», чтобы узнать причину.</string>
     <!-- Minimizing, floating window and gestures -->
     <string name="setting_minimize_to">Сворачивать в</string>
-    <string name="setting_minimize_summary">Нижняя панель или плавающее окно</string>
+    <string name="setting_minimize_summary">Нижняя панель, плавающее окно или картинка-в-картинке</string>
     <string name="minimize_bottom_bar">Нижнюю панель</string>
     <string name="minimize_floating">Плавающее окно</string>
     <string name="settings_section_gestures">Жесты</string>
@@ -458,4 +458,6 @@
     <string name="backup_restart_title">Нужен перезапуск</string>
     <string name="backup_restart_message">Настройки восстановлены. Перезапустите, чтобы применить всё.</string>
     <string name="restart_now">Перезапустить</string>
+    <string name="minimize_pip">Картинка-в-картинке</string>
+    <string name="pip_unavailable">Картинка-в-картинке сейчас недоступна</string>
 </resources>

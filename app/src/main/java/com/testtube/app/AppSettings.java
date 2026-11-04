@@ -19,6 +19,7 @@ public final class AppSettings {
 	private static final String KEY_SHORTS = "show_shorts";
 	private static final String KEY_CHANNEL_PAGES = "full_channel_pages";
 	private static final String KEY_FLOATING_PLAYER = "floating_player";
+	private static final String KEY_MINIMIZE_TARGET = "minimize_target";
 	/** Before gestures could be set up: false meant brightness and volume swipes. Read once to migrate. */
 	private static final String KEY_SWIPE_MINIMIZES = "swipe_down_minimizes";
 	private static final String KEY_GESTURES = "player_gestures";
@@ -52,12 +53,21 @@ public final class AppSettings {
 	/** As dark as watched videos were before this became a setting. */
 	private static final int DEFAULT_WATCHED_DIM = 70;
 	/** Raised when the welcome dialog gets new choices, so everyone sees it once more. */
-	private static final int WELCOME_VERSION = 12;
+	private static final int WELCOME_VERSION = 13;
 
 	private static volatile boolean loaded;
 	private static volatile boolean shorts;
 	private static volatile boolean channelPages = true;
-	private static volatile boolean floatingPlayer;
+	/** Where minimizing puts the video; replaces the old floating on/off switch. */
+	@NonNull
+	private static volatile MinimizeTarget minimizeTarget = MinimizeTarget.PIP;
+
+	/** Where the minimize button puts the video. PiP for new installs. */
+	public enum MinimizeTarget {
+		BOTTOM_BAR,
+		FLOATING_WINDOW,
+		PIP
+	}
 	private static volatile boolean gestures;
 	@NonNull
 	private static volatile GestureAction.Vertical gestureLeft = GestureAction.Vertical.BRIGHTNESS;
@@ -117,19 +127,33 @@ public final class AppSettings {
 	}
 
 	/**
-	 * Minimizing puts the video in a floating window over the app, and leaving the app while it
-	 * plays keeps it in a picture-in-picture window. When off, minimizing moves it to the bottom bar
-	 * and leaving the app keeps only the sound. Off by default.
+	 * Where minimizing puts the video: bottom bar, floating window over the app, or a
+	 * picture-in-picture window. PiP for new installs; leaving the app keeps playing in
+	 * every mode except the bottom bar, which keeps only the sound.
 	 */
-	public static boolean floatingPlayer() {
+	@NonNull
+	public static MinimizeTarget minimizeTarget() {
 		load();
-		return floatingPlayer;
+		return minimizeTarget;
 	}
 
-	public static void setFloatingPlayer(boolean floating) {
+	public static void setMinimizeTarget(@NonNull MinimizeTarget target) {
 		load();
-		floatingPlayer = floating;
-		MMKV.defaultMMKV().encode(KEY_FLOATING_PLAYER, floating);
+		minimizeTarget = target;
+		MMKV store = MMKV.defaultMMKV();
+		store.encode(KEY_MINIMIZE_TARGET, target.name());
+		store.encode(KEY_FLOATING_PLAYER, target == MinimizeTarget.FLOATING_WINDOW);
+	}
+
+	/** Old floating on/off switch, kept for migration; use {@link #minimizeTarget()} now. */
+	@Deprecated
+	public static boolean floatingPlayer() {
+		return minimizeTarget() == MinimizeTarget.FLOATING_WINDOW;
+	}
+
+	@Deprecated
+	public static void setFloatingPlayer(boolean floating) {
+		setMinimizeTarget(floating ? MinimizeTarget.FLOATING_WINDOW : MinimizeTarget.BOTTOM_BAR);
 	}
 
 	/**
@@ -521,6 +545,22 @@ public final class AppSettings {
 		MMKV.defaultMMKV().encode(KEY_WELCOME_VERSION, WELCOME_VERSION);
 	}
 
+	private static MinimizeTarget readMinimizeTarget(@NonNull MMKV store) {
+		String saved = store.decodeString(KEY_MINIMIZE_TARGET, null);
+		if (saved != null) {
+			try {
+				return MinimizeTarget.valueOf(saved);
+			} catch (IllegalArgumentException ignored) {
+			}
+		}
+		// Migrate the old on/off switch; brand-new installs default to PiP.
+		if (store.containsKey(KEY_MINIMIZE_TARGET) || !store.containsKey(KEY_FLOATING_PLAYER)) {
+			return MinimizeTarget.PIP;
+		}
+		return store.decodeBool(KEY_FLOATING_PLAYER, false)
+						? MinimizeTarget.FLOATING_WINDOW : MinimizeTarget.BOTTOM_BAR;
+	}
+
 	private static void load() {
 		if (loaded) return;
 		synchronized (AppSettings.class) {
@@ -528,7 +568,7 @@ public final class AppSettings {
 			MMKV store = MMKV.defaultMMKV();
 			shorts = store.decodeBool(KEY_SHORTS, false);
 			channelPages = store.decodeBool(KEY_CHANNEL_PAGES, true);
-			floatingPlayer = store.decodeBool(KEY_FLOATING_PLAYER, false);
+			minimizeTarget = readMinimizeTarget(store);
 			// Whoever had turned "swipe down to minimize" off had brightness and volume swipes
 			gestures = store.containsKey(KEY_GESTURES)
 							? store.decodeBool(KEY_GESTURES, false)

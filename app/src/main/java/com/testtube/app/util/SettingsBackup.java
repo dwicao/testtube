@@ -43,7 +43,7 @@ public final class SettingsBackup {
 		settings.put("appTheme", AppSettings.theme().name());
 		settings.put("showShorts", AppSettings.showShorts());
 		settings.put("fullChannelPages", AppSettings.fullChannelPages());
-		settings.put("floatingPlayer", AppSettings.floatingPlayer());
+		settings.put("minimizeTarget", AppSettings.minimizeTarget().name());
 		settings.put("gesturesEnabled", AppSettings.gesturesEnabled());
 		settings.put("gestureLeft", AppSettings.savedGestureLeft().name());
 		settings.put("gestureRight", AppSettings.savedGestureRight().name());
@@ -105,7 +105,10 @@ public final class SettingsBackup {
 		AppSettings.setTheme(enumValue(AppSettings.Theme.class, settings, "appTheme", AppSettings.Theme.SYSTEM));
 		AppSettings.setShowShorts(settings.optBoolean("showShorts", AppSettings.showShorts()));
 		AppSettings.setFullChannelPages(settings.optBoolean("fullChannelPages", true));
-		AppSettings.setFloatingPlayer(settings.optBoolean("floatingPlayer", false));
+		// New key; old backups only have the on/off floating switch.
+		AppSettings.setMinimizeTarget(enumValue(AppSettings.MinimizeTarget.class, settings,
+						"minimizeTarget", settings.optBoolean("floatingPlayer", false)
+								? AppSettings.MinimizeTarget.FLOATING_WINDOW : AppSettings.MinimizeTarget.BOTTOM_BAR));
 		boolean gestures = settings.optBoolean("gesturesEnabled", false);
 		AppSettings.setGestures(GestureAction.parse(GestureAction.Vertical.class,
 								settings.optString("gestureLeft", null), GestureAction.Vertical.BRIGHTNESS),

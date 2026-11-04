@@ -508,9 +508,10 @@ public class TestTubePlayer {
 		return playerView.getVisibility() == View.VISIBLE;
 	}
 
-	/** A video is open and playing, so leaving the app keeps it in the floating window. */
+	/** A video is open and playing, so leaving the app keeps it playing (PiP unless the bottom bar is set). */
 	private boolean floatsOnLeave() {
-		return AppSettings.floatingPlayer() && queuedId != null && engine.isPlaying();
+		return AppSettings.minimizeTarget() != AppSettings.MinimizeTarget.BOTTOM_BAR
+						&& queuedId != null && engine.isPlaying();
 	}
 
 	/**
@@ -597,10 +598,21 @@ public class TestTubePlayer {
 
 	/** Moves the video into the bottom bar; playback continues. */
 	/**
-	 * Minimizes the video: into the floating window over the app, or into the bottom bar, as set in
-	 * the settings.
+	 * Minimizes the video: into a PiP window, a floating window over the app, or the bottom bar,
+	 * as set in the settings. PiP falls back to the floating window when it can't start.
 	 */
 	public void enterInAppMiniPlayer() {
+		if (AppSettings.minimizeTarget() == AppSettings.MinimizeTarget.PIP) {
+			try {
+				if (playerView.enterPiP()) {
+					hideControlsForMini();
+					return;
+				}
+			} catch (RuntimeException ignored) {
+			}
+			ToastUtils.show(activity, activity.getString(R.string.pip_unavailable));
+			// Fall through to the floating window, which always works in-app.
+		}
 		inMiniPlayer = true;
 		stateStore.setInMiniPlayer(true);
 		if (controller.isFullscreen()) controller.exitFullscreenImmediately();
@@ -609,8 +621,15 @@ public class TestTubePlayer {
 		refreshQueueNav();
 	}
 
+	private void hideControlsForMini() {
+		try {
+			controller.setControlsVisible(false);
+		} catch (RuntimeException ignored) {
+		}
+	}
+
 	private void showMinimized() {
-		if (AppSettings.floatingPlayer()) {
+		if (AppSettings.minimizeTarget() == AppSettings.MinimizeTarget.FLOATING_WINDOW) {
 			miniBar().hide();
 			playerView.show();
 			floatingWindow().setPlaying(engine.isPlaying());
@@ -632,7 +651,8 @@ public class TestTubePlayer {
 	/** Where the floating window is, when minimizing goes there; null for the bottom bar. */
 	@Nullable
 	public RectF floatingTarget() {
-		return AppSettings.floatingPlayer() ? floatingWindow().bounds() : null;
+		return AppSettings.minimizeTarget() == AppSettings.MinimizeTarget.FLOATING_WINDOW
+						? floatingWindow().bounds() : null;
 	}
 
 	@NonNull
@@ -794,6 +814,10 @@ public class TestTubePlayer {
 			} else {
 				showMinimized();
 			}
+		} else if (wasInPip) {
+			// PiP entered directly (minimize button or More options): the controls were hidden
+			// for the small window, so bring them back when it expands into the app.
+			controller.setControlsVisible(true);
 		}
 		wasInPip = isInPiP;
 		updateFloatingPlayer();

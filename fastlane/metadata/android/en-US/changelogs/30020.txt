@@ -1,0 +1,1 @@
+- Real speed control (0.5x-2.0x slider + presets, live), fixed More-options PiP, minimize-to-PiP option (default)
