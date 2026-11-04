@@ -17,6 +17,8 @@ permissions:
 jobs:
   build-release:
     runs-on: ubuntu-latest
+    # A genuinely stuck step must die on its own instead of hanging the run badge for 6h.
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v4
