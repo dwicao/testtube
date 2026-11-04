@@ -284,7 +284,9 @@ public class Engine {
 		this.preloader = new StreamPreloader(sources.preloadSource());
 		this.boundView = playerView;
 		DefaultTrackSelector trackSelector = new DefaultTrackSelector(context, new AdaptiveTrackSelection.Factory());
-		trackSelector.setParameters(params(trackSelector).setTunnelingEnabled(true).build());
+		// Tunneling off: on Samsung/Exynos + some Snapdragon firmware it tints skin blue
+		// (HDR tunneled to display without proper tone mapping). GPU path tone-maps correctly.
+		trackSelector.setParameters(params(trackSelector).setTunnelingEnabled(false).build());
 		this.player = new ExoPlayer.Builder(context)
 						.setTrackSelector(trackSelector)
 						.setLoadControl(PlayerLoadControl.create())
