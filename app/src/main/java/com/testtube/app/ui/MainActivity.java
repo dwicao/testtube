@@ -789,7 +789,6 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 	private void setSubscriptionsAccount(boolean enabled) {
 		MMKV.defaultMMKV().encode(KEY_SUBS_ACCOUNT, enabled);
 	}
-	}
 
 	private void bootstrap() {
 		if (bootstrapped) return;
