@@ -57,6 +57,16 @@ final class MiniBar {
 		if (close != null) close.setOnClickListener(v -> onClose.run());
 	}
 
+	void release() {
+		if (root != null) root.setOnClickListener(null);
+		if (previous != null) previous.setOnClickListener(null);
+		if (playPause != null) playPause.setOnClickListener(null);
+		if (next != null) next.setOnClickListener(null);
+		if (close != null) close.setOnClickListener(null);
+		if (thumbnail != null) ImageUtils.clear(thumbnail);
+		thumbnailUrl = null;
+	}
+
 	void show() {
 		if (root != null) root.setVisibility(View.VISIBLE);
 	}

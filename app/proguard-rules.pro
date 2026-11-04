@@ -1,5 +1,4 @@
-# Readable stack traces from user reports; shrinking and optimisation still run.
--dontobfuscate
+# R8 full mode with obfuscation; mapping uploaded per release for deobfuscation.
 -keepattributes Signature,EnclosingMethod,InnerClasses,*Annotation*
 
 # Gson models persisted in MMKV (Gson ships its own rules for TypeToken and @SerializedName).

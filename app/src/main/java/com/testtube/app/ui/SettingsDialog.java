@@ -87,6 +87,8 @@ final class SettingsDialog {
 		ViewGroup feeds = form.section(R.string.settings_section_content);
 		MaterialSwitch searchOnlyHome = form.toggle(feeds, R.string.setting_search_only_home,
 						R.string.setting_search_only_home_summary, AppSettings.searchOnlyHome());
+		MaterialSwitch personalizeHome = form.toggle(feeds, R.string.setting_personalize_home,
+						R.string.setting_personalize_home_summary, AppSettings.personalizeHome());
 		MaterialSwitch shorts = form.toggle(feeds, R.string.setting_shorts, R.string.setting_shorts_summary,
 						AppSettings.showShorts());
 		MaterialSwitch subscriptions = form.toggle(feeds, R.string.setting_subscriptions,
@@ -113,6 +115,10 @@ final class SettingsDialog {
 		QualityRow wifi = new QualityRow(form, playback, R.string.setting_quality_wifi, 0, prefs.getQuality(false));
 		QualityRow mobile = new QualityRow(form, playback, R.string.setting_quality_mobile,
 						R.string.setting_quality_summary, prefs.getQuality(true));
+		MaterialSwitch sponsorblock = form.toggle(playback, R.string.setting_sponsorblock,
+						R.string.setting_sponsorblock_summary, AppSettings.sponsorblockEnabled());
+		MaterialSwitch preloadMobile = form.toggle(playback, R.string.setting_preload_mobile,
+						R.string.setting_preload_mobile_summary, AppSettings.preloadOnMobile());
 		ChoiceRow<Boolean> minimizeTo = new ChoiceRow<>(form, playback, R.string.setting_minimize_to,
 						R.string.setting_minimize_summary, new Boolean[]{false, true},
 						new int[]{R.string.minimize_bottom_bar, R.string.minimize_floating}, AppSettings.floatingPlayer());
@@ -194,6 +200,7 @@ final class SettingsDialog {
 							AppSettings.setShowShorts(shorts.isChecked());
 							AppSettings.setShowSubscriptions(subscriptions.isChecked());
 							AppSettings.setSearchOnlyHome(searchOnlyHome.isChecked());
+							AppSettings.setPersonalizeHome(personalizeHome.isChecked());
 							// Downloads the list when switched on; the lists refresh once it is loaded
 							aiChannels.setEnabled(aiFilter.isChecked());
 							AppSettings.setFullChannelPages(channelPages.isChecked());
@@ -202,6 +209,8 @@ final class SettingsDialog {
 							filters.setWatchedThreshold(Math.round(threshold.getValue()));
 							prefs.setQuality(false, wifi.quality);
 							prefs.setQuality(true, mobile.quality);
+							AppSettings.setSponsorblockEnabled(sponsorblock.isChecked());
+							AppSettings.setPreloadOnMobile(preloadMobile.isChecked());
 							AppSettings.setFloatingPlayer(minimizeTo.value);
 							if (videoCache.value != AppSettings.videoCache()) {
 								AppSettings.setVideoCache(videoCache.value);

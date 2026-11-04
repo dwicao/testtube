@@ -17,6 +17,7 @@ import androidx.media3.exoplayer.dash.DefaultDashChunkSource;
 import androidx.media3.exoplayer.hls.HlsMediaSource;
 import androidx.media3.exoplayer.source.ProgressiveMediaSource;
 
+import androidx.media3.datasource.okhttp.OkHttpDataSource;
 import com.testtube.app.Constant;
 import com.testtube.app.player.engine.datasource.YoutubeHttpDataSource;
 
@@ -32,18 +33,30 @@ final class PlayerDataSource {
 	@Nullable
 	private final SimpleCache cache;
 	@NonNull
-	private final DefaultHttpDataSource.Factory liveHttp;
+	private final DataSource.Factory liveHttp;
 	@NonNull
 	private final YoutubeHttpDataSource.Factory ytDashHttp;
 	@NonNull
 	private final YoutubeHttpDataSource.Factory ytProgressiveHttp;
 
 	PlayerDataSource(@Nullable SimpleCache cache) {
+		this(cache, null);
+	}
+
+	PlayerDataSource(@Nullable SimpleCache cache, @Nullable okhttp3.OkHttpClient okHttp) {
 		this.cache = cache;
-		liveHttp = new DefaultHttpDataSource.Factory()
-						.setUserAgent(Constant.USER_AGENT)
-						.setConnectTimeoutMs(30_000)
-						.setReadTimeoutMs(45_000);
+		if (okHttp != null) {
+			// Live HLS/DASH via shared OkHttp pool (HTTP/2 reuse, common timeouts).
+			// VOD stays on YoutubeHttpDataSource for range/rn/cookie handling.
+			OkHttpDataSource.Factory ok = new OkHttpDataSource.Factory(okHttp);
+			ok.setUserAgent(Constant.USER_AGENT);
+			liveHttp = ok;
+		} else {
+			liveHttp = new DefaultHttpDataSource.Factory()
+							.setUserAgent(Constant.USER_AGENT)
+							.setConnectTimeoutMs(30_000)
+							.setReadTimeoutMs(45_000);
+		}
 		ytDashHttp = youtubeFactory(true, true);
 		ytProgressiveHttp = youtubeFactory(false, true);
 		YoutubeProgressiveDashManifestCreator.getCache().setMaximumSize(MANIFEST_CACHE_SIZE);

@@ -590,6 +590,29 @@ public class Controller {
 					showHint(activity.getString(R.string.queue_item_unavailable), HINT_HIDE_DELAY_MS);
 					return;
 				}
+				// If already downloading, show progress instead of reopening the dialog.
+				try {
+					com.testtube.app.downloader.core.history.DownloadHistoryRepository history =
+									AppGraph.of(activity).downloadHistory();
+					boolean active = false;
+					int progress = -1;
+					for (com.testtube.app.downloader.core.history.DownloadRecord r : history.getAllSorted()) {
+						if (videoId.equals(r.getVideoId())
+										&& (r.getStatus() == com.testtube.app.downloader.core.history.DownloadStatus.RUNNING
+										|| r.getStatus() == com.testtube.app.downloader.core.history.DownloadStatus.QUEUED
+										|| r.getStatus() == com.testtube.app.downloader.core.history.DownloadStatus.MERGING)) {
+							active = true;
+							progress = r.getProgress();
+							break;
+						}
+					}
+					if (active) {
+						String msg = progress >= 0 ? progress + "%" : activity.getString(R.string.status_downloading_simple);
+						showHint(activity.getString(R.string.downloading_file, msg), HINT_HIDE_DELAY_MS);
+						return;
+					}
+				} catch (RuntimeException ignored) {
+				}
 				String url = Constant.HOME_URL + "/watch?v=" + videoId;
 				try {
 					new DownloadDialog(url, activity, AppGraph.of(activity).youtubeExtractor()).show();
@@ -820,6 +843,13 @@ public class Controller {
 		handler.removeCallbacks(hideControls);
 		if (shouldAutoHideControls(engine.isPlaying(), state.isInPictureInPicture())) {
 			handler.postDelayed(hideControls, 3000);
+		}
+	}
+
+	public void release() {
+		try {
+			handler.removeCallbacksAndMessages(null);
+		} catch (RuntimeException ignored) {
 		}
 	}
 

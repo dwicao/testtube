@@ -693,7 +693,8 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 		if (shortsScreen != null || shortsContainer == null || shortsHost == null) return;
 		View view = getLayoutInflater().inflate(R.layout.view_shorts, shortsContainer, true);
 		AppGraph app = AppGraph.of(this);
-		ShortsEngine engine = new ShortsEngine(this, app.simpleCache(), app.playerPreferences()::getPreferredQuality);
+		ShortsEngine engine = new ShortsEngine(this, app.simpleCache(), app.playerPreferences()::getPreferredQuality,
+						() -> app.networkWatcher().isMobile());
 		shortsScreen = new ShortsScreen(view, app.feedClient(), youtubeExtractor, engine, contentFilters,
 						app.watchHistory(), app.executor(), shortsHost);
 		// A Short and a regular video never play at the same time

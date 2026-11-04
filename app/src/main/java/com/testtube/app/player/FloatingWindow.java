@@ -396,6 +396,31 @@ final class FloatingWindow {
 		moving = false;
 	}
 
+	/** Detach everything so a destroyed Activity can't be kept alive. */
+	void release() {
+		cancelSnap();
+		try {
+			handler.removeCallbacksAndMessages(null);
+		} catch (RuntimeException ignored) {
+		}
+		try {
+			overlay.setOnTouchListener(null);
+		} catch (RuntimeException ignored) {
+		}
+		try {
+			if (velocity != null) {
+				velocity.recycle();
+				velocity = null;
+			}
+		} catch (RuntimeException ignored) {
+		}
+		try {
+			player.removeOnLayoutChangeListener(relayout);
+			parent.removeOnLayoutChangeListener(relayout);
+		} catch (RuntimeException ignored) {
+		}
+	}
+
 	private void track(@NonNull MotionEvent ev) {
 		if (velocity == null) velocity = VelocityTracker.obtain();
 		MotionEvent screen = MotionEvent.obtain(ev);

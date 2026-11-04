@@ -37,13 +37,16 @@ public final class AppSettings {
 	private static final String KEY_WELCOME_VERSION = "welcome_version";
 	private static final String KEY_CLEAR_CACHE_ON_EXIT = "clear_cache_on_exit";
 	private static final String KEY_SEARCH_ONLY_HOME = "search_only_home";
+	private static final String KEY_PERSONALIZE_HOME = "personalize_home";
+	private static final String KEY_SPONSORBLOCK = "sponsorblock_enabled";
+	private static final String KEY_PRELOAD_MOBILE = "preload_on_mobile";
 	private static final int MIN_WATCHED_DIM = 20;
 	private static final int MAX_WATCHED_DIM = 90;
 	private static final int WATCHED_DIM_STEP = 5;
 	/** As dark as watched videos were before this became a setting. */
 	private static final int DEFAULT_WATCHED_DIM = 70;
 	/** Raised when the welcome dialog gets new choices, so everyone sees it once more. */
-	private static final int WELCOME_VERSION = 6;
+	private static final int WELCOME_VERSION = 7;
 
 	private static volatile boolean loaded;
 	private static volatile boolean shorts;
@@ -68,6 +71,9 @@ public final class AppSettings {
 	private static volatile Theme theme = Theme.SYSTEM;
 	private static volatile boolean clearCacheOnExit;
 	private static volatile boolean searchOnlyHome;
+	private static volatile boolean personalizeHome = true;
+	private static volatile boolean sponsorblockEnabled = true;
+	private static volatile boolean preloadOnMobile;
 
 	private AppSettings() {
 	}
@@ -381,6 +387,45 @@ public final class AppSettings {
 		MMKV.defaultMMKV().encode(KEY_SEARCH_ONLY_HOME, searchOnly);
 	}
 
+	/**
+	 * Home discovery from local history (4 video IDs + 2 titles sent as search/next).
+	 * On by default; off means Home loads only generic discovery queries. Clearing history stops it too.
+	 */
+	public static boolean personalizeHome() {
+		load();
+		return personalizeHome;
+	}
+
+	public static void setPersonalizeHome(boolean enabled) {
+		load();
+		personalizeHome = enabled;
+		MMKV.defaultMMKV().encode(KEY_PERSONALIZE_HOME, enabled);
+	}
+
+	/** SponsorBlock skipping. On by default; off disables all segment fetching. */
+	public static boolean sponsorblockEnabled() {
+		load();
+		return sponsorblockEnabled;
+	}
+
+	public static void setSponsorblockEnabled(boolean enabled) {
+		load();
+		sponsorblockEnabled = enabled;
+		MMKV.defaultMMKV().encode(KEY_SPONSORBLOCK, enabled);
+	}
+
+	/** Preload next video bytes on mobile data. Off by default (details still prefetch, ~KBs). */
+	public static boolean preloadOnMobile() {
+		load();
+		return preloadOnMobile;
+	}
+
+	public static void setPreloadOnMobile(boolean enabled) {
+		load();
+		preloadOnMobile = enabled;
+		MMKV.defaultMMKV().encode(KEY_PRELOAD_MOBILE, enabled);
+	}
+
 	public static boolean welcomeShown() {
 		return MMKV.defaultMMKV().decodeInt(KEY_WELCOME_VERSION, 0) >= WELCOME_VERSION;
 	}
@@ -419,6 +464,9 @@ public final class AppSettings {
 			theme = GestureAction.parse(Theme.class, store.decodeString(KEY_THEME, null), Theme.SYSTEM);
 			clearCacheOnExit = store.decodeBool(KEY_CLEAR_CACHE_ON_EXIT, false);
 			searchOnlyHome = store.decodeBool(KEY_SEARCH_ONLY_HOME, false);
+			personalizeHome = store.decodeBool(KEY_PERSONALIZE_HOME, true);
+			sponsorblockEnabled = store.decodeBool(KEY_SPONSORBLOCK, true);
+			preloadOnMobile = store.decodeBool(KEY_PRELOAD_MOBILE, false);
 			loaded = true;
 		}
 	}

@@ -13,9 +13,11 @@ import android.webkit.WebViewClient;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.tencent.mmkv.MMKV;
+import android.content.SharedPreferences;
+
 import com.testtube.app.Constant;
 import com.testtube.app.R;
+import com.testtube.app.util.SecureLoginStore;
 
 /**
  * Google sign-in overlay. A plain WebView loads the account login page; the overlay closes once
@@ -23,7 +25,6 @@ import com.testtube.app.R;
  * CookieManager.
  */
 public final class LoginController {
-	private static final String STORE_ID = "testtube_login";
 	private static final String KEY_DONE = "done";
 	private static final String LOGIN_URL =
 					"https://accounts.google.com/ServiceLogin?service=youtube&passive=true"
@@ -32,7 +33,7 @@ public final class LoginController {
 	@NonNull
 	private final Activity activity;
 	@NonNull
-	private final MMKV store;
+	private final SharedPreferences store;
 	@Nullable
 	private WebView webView;
 	@Nullable
@@ -42,17 +43,17 @@ public final class LoginController {
 
 	public LoginController(@NonNull Activity activity) {
 		this.activity = activity;
-		this.store = MMKV.mmkvWithID(STORE_ID);
+		this.store = SecureLoginStore.get(activity);
 	}
 
 	/**
 	 * True when the user has already signed in, or a Google session cookie is present.
 	 */
 	public boolean isSignedIn() {
-		if (store.decodeBool(KEY_DONE, false)) return true;
+		if (store.getBoolean(KEY_DONE, false)) return true;
 		String cookies = CookieManager.getInstance().getCookie("https://accounts.google.com");
 		if (cookies != null && (cookies.contains("SID=") || cookies.contains("HSID="))) {
-			store.encode(KEY_DONE, true);
+			store.edit().putBoolean(KEY_DONE, true).apply();
 			return true;
 		}
 		return false;
@@ -60,7 +61,7 @@ public final class LoginController {
 
 	/** Signs out by removing the shared account cookies. */
 	public void signOut() {
-		store.encode(KEY_DONE, false);
+		store.edit().putBoolean(KEY_DONE, false).apply();
 		CookieManager cookies = CookieManager.getInstance();
 		cookies.removeAllCookies(null);
 		cookies.flush();
@@ -151,7 +152,7 @@ public final class LoginController {
 
 	private void complete(@NonNull ViewGroup container, @NonNull Runnable onComplete) {
 		if (webView == null) return;
-		store.encode(KEY_DONE, true);
+		store.edit().putBoolean(KEY_DONE, true).apply();
 		WebView view = webView;
 		webView = null;
 		view.stopLoading();

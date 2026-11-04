@@ -256,6 +256,21 @@ public class Engine {
 	              @NonNull YoutubeExtractor extractor,
 	              @NonNull ContentFilters contentFilters,
 	              @NonNull WatchHistory watchHistory) {
+		this(context, playerView, simpleCache, null, prefs, tabManager, sponsor, queueRepository, extractor,
+						contentFilters, watchHistory);
+	}
+
+	public Engine(@NonNull Context context,
+	              @NonNull TestTubePlayerView playerView,
+	              @Nullable SimpleCache simpleCache,
+	              @Nullable okhttp3.OkHttpClient okHttp,
+	              @NonNull PlayerPreferences prefs,
+	              @NonNull TabManager tabManager,
+	              @NonNull SponsorBlockManager sponsor,
+	              @NonNull QueueRepository queueRepository,
+	              @NonNull YoutubeExtractor extractor,
+	              @NonNull ContentFilters contentFilters,
+	              @NonNull WatchHistory watchHistory) {
 		this.watchHistory = watchHistory;
 		this.extractor = extractor;
 		this.contentFilters = contentFilters;
@@ -265,7 +280,7 @@ public class Engine {
 		this.tabManager = tabManager;
 		this.sponsor = sponsor;
 		this.queueRepository = queueRepository;
-		this.sources = new PlayerDataSource(simpleCache);
+		this.sources = new PlayerDataSource(simpleCache, okHttp);
 		this.preloader = new StreamPreloader(sources.preloadSource());
 		this.boundView = playerView;
 		DefaultTrackSelector trackSelector = new DefaultTrackSelector(context, new AdaptiveTrackSelection.Factory());
@@ -928,12 +943,12 @@ public class Engine {
 		if (id == null || id.equals(preloadTarget) || id.equals(videoId)) return;
 		preloadTarget = id;
 		// The details are a few kilobytes and always fetched ahead; the video's first seconds only
-		// when the video cache setting allows it, and never on mobile data (up to ~14MB wasted).
+		// when the video cache setting allows it, and on mobile only if the user opted in.
 		extractor.getInfo(url, new ExtractionSession().setBackground(true)).whenComplete((details, error) -> {
 			if (error != null || details == null || !id.equals(preloadTarget)) return;
 			if (!AppSettings.videoCache().preloadsNext) return;
 			try {
-				if (prefs.isOnMobileData()) return;
+				if (prefs.isOnMobileData() && !AppSettings.preloadOnMobile()) return;
 			} catch (RuntimeException ignored) {
 			}
 			UnaryOperator<PlaybackDetails> selector = planSelector;

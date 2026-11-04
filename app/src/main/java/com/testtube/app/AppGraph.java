@@ -123,6 +123,13 @@ public final class AppGraph {
 			Dispatcher dispatcher = new Dispatcher();
 			dispatcher.setMaxRequests(128);
 			dispatcher.setMaxRequestsPerHost(24);
+			// No CertificatePinner on purpose: GitHub rotates certs; a hard leaf pin would brick
+			// updates. TLS + HTTPS-only URLs + SHA-256 of the APK + same-signer check in
+			// UpdateManager is the update security. To pin, add e.g.:
+			// .certificatePinner(new CertificatePinner.Builder()
+			//   .add("api.github.com", "sha256/<leaf>", "sha256/<backup>")
+			//   .add("raw.githubusercontent.com", "sha256/<leaf>", "sha256/<backup>").build())
+			// and update pins before they expire.
 			okHttpClient = new OkHttpClient.Builder()
 							.cache(new Cache(new File(context.getCacheDir(), "okhttp"), HTTP_CACHE_BYTES))
 							.dispatcher(dispatcher)
@@ -300,6 +307,7 @@ public final class AppGraph {
 
 	@NonNull
 	private FeedClient.Taste historyTaste() {
+		if (!AppSettings.personalizeHome()) return new FeedClient.Taste(java.util.Collections.emptyList(), java.util.Collections.emptyList());
 		List<WatchHistory.Entry> entries = new ArrayList<>(watchHistory().entries());
 		entries.sort((x, y) -> Long.compare(y.watchedAt(), x.watchedAt()));
 		List<WatchHistory.Entry> recent = new ArrayList<>(entries.subList(0, Math.min(entries.size(), 30)));

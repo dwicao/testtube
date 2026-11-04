@@ -51,6 +51,8 @@ public final class ShortsEngine {
 	@NonNull
 	private final Supplier<String> quality;
 	@NonNull
+	private final java.util.function.BooleanSupplier isMobile;
+	@NonNull
 	private ExoPlayer player;
 	/** Loads the next Short without playing it. */
 	@NonNull
@@ -60,12 +62,18 @@ public final class ShortsEngine {
 	@Nullable
 	private Listener listener;
 
-	public ShortsEngine(@NonNull Context context, @Nullable SimpleCache cache, @NonNull Supplier<String> quality) {
+	public ShortsEngine(@NonNull Context context, @Nullable SimpleCache cache, @NonNull Supplier<String> quality,
+			@NonNull java.util.function.BooleanSupplier isMobile) {
 		this.sources = new PlayerDataSource(cache);
 		this.autoSubtitleFormat = context.getString(R.string.subtitle_auto_generated);
 		this.quality = quality;
+		this.isMobile = isMobile;
 		this.player = build(context);
 		this.standby = build(context);
+	}
+
+	public ShortsEngine(@NonNull Context context, @Nullable SimpleCache cache, @NonNull Supplier<String> quality) {
+		this(context, cache, quality, () -> false);
 	}
 
 	@NonNull
@@ -155,6 +163,12 @@ public final class ShortsEngine {
 	public void preload(@NonNull PlaybackDetails details) {
 		String id = details.video().getId();
 		if (id == null || id.equals(standbyId)) return;
+		// On mobile data the standby full preload costs battery + data; the swipe still plays instantly
+		// from extraction, just without the head start — unless the user opted into mobile preload.
+		try {
+			if (isMobile.getAsBoolean() && !com.testtube.app.AppSettings.preloadOnMobile()) return;
+		} catch (RuntimeException ignored) {
+		}
 		try {
 			standby.setMediaSource(PlaybackSourceFactory.create(sources, autoSubtitleFormat, details, plan(details)));
 		} catch (IllegalArgumentException e) {

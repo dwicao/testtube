@@ -812,13 +812,32 @@ public class TestTubePlayer {
 		} catch (RuntimeException ignored) {
 		}
 		playbackSvc = null;
+		try {
+			controller.release();
+		} catch (RuntimeException ignored) {
+		}
 		activity.runOnUiThread(() -> {
 			listenToFloatingControls(false);
 			playerView.updatePiPParams(false);
 		});
 		inMiniPlayer = false;
-		if (miniBar != null) miniBar.hide();
-		if (floatingWindow != null) floatingWindow.hide();
+		if (miniBar != null) {
+			try {
+				miniBar.release();
+			} catch (RuntimeException ignored) {
+			}
+			miniBar.hide();
+		}
+		if (floatingWindow != null) {
+			try {
+				floatingWindow.hide();
+			} catch (RuntimeException ignored) {
+			}
+			try {
+				floatingWindow.release();
+			} catch (RuntimeException ignored) {
+			}
+		}
 		engine.release();
 	}
 

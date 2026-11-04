@@ -22,29 +22,42 @@ import java.util.List;
 import java.util.Objects;
 
 public final class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> {
+	private static final java.util.concurrent.ExecutorService DIFF_EXEC =
+					java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
+						Thread t = new Thread(r, "testtube-queue-diff");
+						t.setDaemon(true);
+						return t;
+					});
 	@NonNull
 	private final List<QueueItem> items = new ArrayList<>();
 	@NonNull
 	private final Actions actions;
 	@Nullable
 	private String playingId;
+	private final java.util.concurrent.atomic.AtomicInteger generation = new java.util.concurrent.atomic.AtomicInteger();
 
 	public QueueAdapter(@NonNull Actions actions) {
 		this.actions = actions;
 	}
 
 	/**
-	 * Shows a new queue state. Only rows that actually changed are rebound, so the frequent
-	 * player updates (minimize, play/pause) don't reload every thumbnail.
+	 * Shows a new queue state. Diff runs off the main thread so large queues don't jank;
+	 * only rows that actually changed are rebound.
 	 */
 	public void replaceItems(@NonNull List<QueueItem> newItems, @Nullable String playingId) {
-		List<QueueItem> oldItems = new ArrayList<>(items);
-		String oldPlayingId = this.playingId;
+		int gen = generation.incrementAndGet();
 		List<QueueItem> fresh = new ArrayList<>(newItems.size());
 		for (QueueItem item : newItems) {
 			fresh.add(item.copy());
 		}
-		DiffUtil.DiffResult diff = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+		List<QueueItem> oldSnapshot;
+		String oldPlaying;
+		synchronized (items) {
+			oldSnapshot = new ArrayList<>(items);
+			oldPlaying = this.playingId;
+		}
+		DIFF_EXEC.execute(() -> {
+			DiffUtil.DiffResult diff = DiffUtil.calculateDiff(new DiffUtil.Callback() {
 			@Override
 			public int getOldListSize() {
 				return oldItems.size();
@@ -57,24 +70,31 @@ public final class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHo
 
 			@Override
 			public boolean areItemsTheSame(int oldPosition, int newPosition) {
-				return Objects.equals(oldItems.get(oldPosition).getVideoId(), fresh.get(newPosition).getVideoId());
+				return Objects.equals(oldSnapshot.get(oldPosition).getVideoId(), fresh.get(newPosition).getVideoId());
 			}
 
 			@Override
 			public boolean areContentsTheSame(int oldPosition, int newPosition) {
-				QueueItem before = oldItems.get(oldPosition);
+				QueueItem before = oldSnapshot.get(oldPosition);
 				QueueItem after = fresh.get(newPosition);
 				return Objects.equals(before.getTitle(), after.getTitle())
 								&& Objects.equals(before.getAuthor(), after.getAuthor())
 								&& Objects.equals(before.getThumbnailUrl(), after.getThumbnailUrl())
 								&& Objects.equals(before.getVideoUrl(), after.getVideoUrl())
-								&& isPlaying(before, oldPlayingId) == isPlaying(after, playingId);
+								&& isPlaying(before, oldPlaying) == isPlaying(after, playingId);
 			}
 		});
-		items.clear();
-		items.addAll(fresh);
-		this.playingId = playingId;
-		notifySafe(() -> diff.dispatchUpdatesTo(this));
+		if (generation.get() != gen) return;
+		synchronized (items) {
+			items.clear();
+			items.addAll(fresh);
+			this.playingId = playingId;
+		}
+		// Dispatch on main; RecyclerView requires it.
+		new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+			if (generation.get() != gen) return;
+			notifySafe(() -> diff.dispatchUpdatesTo(this));
+		});
 	}
 
 	private static boolean isPlaying(@NonNull QueueItem item, @Nullable String playingId) {
@@ -82,22 +102,26 @@ public final class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHo
 	}
 
 	public boolean moveItem(int from, int to) {
-		if (from < 0 || from >= items.size() || to < 0 || to >= items.size() || from == to) {
-			return false;
+		synchronized (items) {
+			if (from < 0 || from >= items.size() || to < 0 || to >= items.size() || from == to) {
+				return false;
+			}
+			QueueItem moved = items.remove(from);
+			items.add(to, moved);
 		}
-		QueueItem moved = items.remove(from);
-		items.add(to, moved);
 		notifySafe(() -> notifyItemMoved(from, to));
 		return true;
 	}
 
 	@NonNull
 	public List<QueueItem> snapshotItems() {
-		List<QueueItem> snapshot = new ArrayList<>(items.size());
-		for (QueueItem item : items) {
-			snapshot.add(item.copy());
+		synchronized (items) {
+			List<QueueItem> snapshot = new ArrayList<>(items.size());
+			for (QueueItem item : items) {
+				snapshot.add(item.copy());
+			}
+			return snapshot;
 		}
-		return snapshot;
 	}
 
 	@NonNull
@@ -110,12 +134,21 @@ public final class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHo
 
 	@Override
 	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-		holder.bind(items.get(position), playingId, actions);
+		QueueItem item;
+		String pid;
+		synchronized (items) {
+			if (position < 0 || position >= items.size()) return;
+			item = items.get(position);
+			pid = playingId;
+		}
+		holder.bind(item, pid, actions);
 	}
 
 	@Override
 	public int getItemCount() {
-		return items.size();
+		synchronized (items) {
+			return items.size();
+		}
 	}
 
 	private void notifySafe(@NonNull Runnable task) {

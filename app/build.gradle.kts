@@ -5,8 +5,16 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
-val appVersionName = "v3.0.4"
-val appVersionCode = 30004
+val appVersionName = "v3.0.5"
+fun versionCodeFromName(name: String): Int {
+    val m = Regex("""v?(\d+)\.(\d+)\.(\d+)""").find(name.trim())
+    if (m != null) {
+        val (maj, min, pat) = m.destructured
+        return maj.toInt() * 10000 + min.toInt() * 100 + pat.toInt()
+    }
+    return 30005
+}
+val appVersionCode = versionCodeFromName(appVersionName)
 val apkBaseName = "testtube" + appVersionName.removePrefix("v")
 
 base {
@@ -92,7 +100,7 @@ android {
             excludes += "META-INF/services/javax.script.ScriptEngineFactory"
         }
         jniLibs {
-            useLegacyPackaging = true
+            useLegacyPackaging = false
         }
     }
 }
@@ -113,12 +121,14 @@ dependencies {
     implementation(libs.material)
     implementation(libs.media)
     implementation(libs.media3.datasource)
+    implementation(libs.media3.datasource.okhttp)
     implementation(libs.media3.exoplayer)
     implementation(libs.media3.exoplayer.dash)
     implementation(libs.media3.exoplayer.hls)
     implementation(libs.media3.ui)
     implementation(libs.mmkv)
     implementation(libs.okhttp)
+    implementation(libs.security.crypto)
     implementation(libs.profileinstaller)
     implementation(libs.recyclerview)
     implementation(libs.swiperefreshlayout)

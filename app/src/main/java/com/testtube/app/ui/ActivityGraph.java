@@ -31,7 +31,7 @@ public final class ActivityGraph {
 		tabManager = new TabManager(() -> holder[0], app.playlistSource());
 		TestTubePlayerView playerView = activity.findViewById(R.id.playerView);
 		playerView.bind(app.sponsorBlockManager());
-		Engine engine = new Engine(app.context(), playerView, app.simpleCache(), app.playerPreferences(),
+		Engine engine = new Engine(app.context(), playerView, app.simpleCache(), app.okHttpClient(), app.playerPreferences(),
 						tabManager, app.sponsorBlockManager(), app.queueRepository(), app.youtubeExtractor(),
 						app.contentFilters(), app.watchHistory());
 		engine.setFeedClient(app.feedClient());

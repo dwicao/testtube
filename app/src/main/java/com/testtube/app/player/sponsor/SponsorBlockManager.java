@@ -65,6 +65,10 @@ public final class SponsorBlockManager {
 
 	public void load(@NonNull String videoId) {
 		int token = loadToken.incrementAndGet();
+		if (!com.testtube.app.AppSettings.sponsorblockEnabled()) {
+			segments = Collections.emptyList();
+			return;
+		}
 		CacheEntry cached = memCache.get(videoId);
 		if (cached != null && System.currentTimeMillis() < cached.expiresAt()) {
 			segments = cached.segments();

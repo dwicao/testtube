@@ -39,11 +39,11 @@ Requires Android 8.0 (API 26) or later.
 
 Upstream is `techniixdotcom/testtube`. This fork (`dwicao/testtube`) keeps the same app and UI, but hardens it and ships its own signed releases with in-app updates:
 
-* **Independent releases:** tags like `v3.0.3` build in GitHub Actions (`.github/workflows/release.yml`), sign with the public AOSP test key, and publish to https://github.com/dwicao/testtube/releases. The app checks `version.json` on `main` first, then the GitHub API, so it updates from this fork, not upstream.
-* **Security:** login WebView URL guard fixed for API 24+ (allowlist), live-chat `videoId` validated + encoded, PoToken WebView locked down (SafeBrowsing on, no file/content access), `FileProvider` narrowed to `Download/TestTube/`, `https`-only `autoVerify` deep links, update APKs require SHA-256 + same-signer + versionCode, authed YouTube traffic is `no-store` (never in the shared HTTP cache, evicted on logout).
-* **Privacy (docs match code):** README now says what actually leaves the phone — shared visitor cookies, history-based Home discovery, SponsorBlock categories + 1h mem cache, AiSList ETag, `version.json`/GitHub update checks. Third hidden BotGuard WebView documented.
-* **Stability:** no more leaked `ExoPlayer` on font/density change, `DownloadService` stops itself + demotes stale `RUNNING→PAUSED` + throttled progress writes + capped history (500), pause/resume generation token, `VideoCacheEvictor` synchronized, PiP dual overload, media-session detach.
-* **Performance/data:** no warmup/preload on mobile data, `AvatarCache`/`FeedAdapter` LRU instead of wipe, manifest cache 500→100, feed thumbs `override(480,270)`.
+* **Independent releases:** tags like `v3.0.5` build in GitHub Actions (`.github/workflows/release.yml`), sign with the public AOSP test key, and publish to https://github.com/dwicao/testtube/releases. The app checks `version.json` on `main` first, then the GitHub API, so it updates from this fork, not upstream. `versionCode` is auto-derived from the tag (`v3.0.5` → `30005`).
+* **Security:** login flag in EncryptedSharedPreferences (KeyStore, fallback private prefs) — cookies still in WebView SQLite by OS design, documented; login WebView URL guard fixed for API 24+ (allowlist), live-chat `videoId` validated + encoded, PoToken WebView locked down, `FileProvider` narrowed to `Download/TestTube/`, `https`-only `autoVerify` deep links, update APKs require SHA-256 + same-signer + versionCode, authed YouTube traffic is `no-store`, R8 obfuscation on, `useLegacyPackaging=false`. No hard cert pin (would brick on rotation) — TLS + hash + signer is the update trust.
+* **Privacy (docs match code):** new Settings toggles — Personalize Home (off = generic discovery, no history sent), Skip sponsors (off = no SponsorBlock fetch), Preload on mobile (off = details only, ~KBs). README now says what actually leaves the phone — shared visitor cookies, history-based Home discovery, SponsorBlock categories + 1h mem cache, AiSList ETag, `version.json`/GitHub update checks. Third hidden BotGuard WebView documented.
+* **Stability:** no more leaked `ExoPlayer` on font/density change, `DownloadService` stops itself + demotes stale `RUNNING→PAUSED` + throttled progress writes + capped history (500) + `Call.cancel()` on pause/cancel, pause/resume generation token, `VideoCacheEvictor` synchronized, `FloatingWindow.release()` (velocity + touch + layout), `MiniBar.release()`, `Controller.release()`, `QueueAdapter` diff off main thread, PiP dual overload, media-session detach, Shorts standby preload skipped on mobile unless opted in.
+* **Performance/data:** live HLS/DASH via shared OkHttp pool (HTTP/2 reuse); VOD stays on `YoutubeHttpDataSource` for range/rn/cookies. No warmup/preload on mobile data unless Preload-on-mobile is on, `AvatarCache`/`FeedAdapter` LRU instead of wipe, manifest cache 500→100, feed thumbs `hqdefault` + `override(854,480)`, Shorts capped 720p, More options Download shows progress if already downloading.
 
 Test-key note: CI signs with the well-known AOSP `testkey` (password `android`). Anyone has that key, so treat these APKs as test builds — Android still blocks cross-signer updates.
 
@@ -58,16 +58,16 @@ Subscriptions come from one of two places. By default the app shows the latest v
 ## Privacy
 
 * No analytics, crash reporting or ads in the app. History, queue and followed channels stay on the phone, and backups are off. Crash logs stay in the app's files (cleared after one restart) and are never uploaded.
-* YouTube and Google still see your IP address and the videos you watch, as with any YouTube client. Sign-in, live chat and extractor requests share one visitor (cookies), like a single browser tab.
-* Home discovery (signed out) is built from your recent local history: up to 4 video IDs and 2 titles are sent as YouTube search/next lookups. No toggle yet — clearing history stops it.
-* SponsorBlock: the app sends the first 4 characters of a hash of the video ID + your enabled categories + IP to sponsor.ajay.app. Cached in memory for 1h, never in the shared HTTP cache. There are no dislike-count lookups.
+* YouTube and Google still see your IP address and the videos you watch, as with any YouTube client. Sign-in, live chat and extractor requests share one visitor (cookies), like a single browser tab. Login flag is encrypted (KeyStore); cookies stay in WebView storage by OS design.
+* Home discovery (signed out) is built from your recent local history: up to 4 video IDs and 2 titles are sent as YouTube search/next lookups. Turn off Settings → Personalize Home for generic discovery; clearing history stops it too.
+* SponsorBlock: the app sends the first 4 characters of a hash of the video ID + your enabled categories + IP to sponsor.ajay.app. Cached in memory for 1h, never in the shared HTTP cache. Turn off Settings → Skip sponsors to disable. There are no dislike-count lookups.
 * Hide AI videos (off by default): when switched on, the app downloads the community AiSList from raw.githubusercontent.com once a day (If-None-Match). Only IP + User-Agent + ETag are visible, no IDs or cookies.
 * Update checks: the app first asks raw.githubusercontent.com/dwicao/testtube/main/version.json (no API limits), then falls back to api.github.com/repos/dwicao/testtube/releases. Check runs 5 seconds after start, including test versions if “Pre-releases” is on. Updates are downloaded from github.com/dwicao/testtube with mandatory SHA-256 + same-signer + versionCode checks. Only IP + `User-Agent: TestTube` are visible. Switch off by tapping the TestTube logo on Home → Updates → “Check for updates automatically”.
 
 ## Releases (this fork: dwicao/testtube)
 
-* APKs: https://github.com/dwicao/testtube/releases — e.g. `testtube3.0.3.apk` + `version.json`.
-* Tag: `git tag v3.0.3 && git push origin v3.0.3` — `.github/workflows/release.yml` builds `assembleRelease`, signs with the public AOSP test key, creates the GitHub Release, uploads the APK, and updates `version.json` on `main` so the app auto-updates.
+* APKs: https://github.com/dwicao/testtube/releases — e.g. `testtube3.0.5.apk` + `version.json`.
+* Tag: `git tag v3.0.5 && git push origin v3.0.5` — `.github/workflows/release.yml` builds `assembleRelease`, signs with the public AOSP test key, creates the GitHub Release, uploads the APK, and updates `version.json` on `main` so the app auto-updates.
 * Local: `./BUILD.sh` (own key in `~/.testtube/signing`). CI key is the well-known AOSP `testkey` (password `android`) — fine for testing, not for private accounts: anyone can forge updates signed with it, so the app still enforces same-signer installs.
 
 ## License

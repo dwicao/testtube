@@ -135,11 +135,14 @@ public class StreamDownloaderImpl implements StreamDownloader {
 	private void runTask(TaskContext task) {
 		int gen = task.generation.get();
 		RandomAccessFile raf = null;
+		okhttp3.Call headCall = null;
 		try {
 			// 1. fetch metadata
 			final long total;
 			final boolean range;
-			try (Response head = client.newCall(streamRequest(task.url).head().build()).execute()) {
+			headCall = client.newCall(streamRequest(task.url).head().build());
+			task.inFlightHead = headCall;
+			try (Response head = headCall.execute()) {
 				if (task.generation.get() != gen || task.isInactive()) return;
 				if (!head.isSuccessful()) throw new IOException("HEAD " + head.code());
 				total = Long.parseLong(head.header("Content-Length", "-1"));
@@ -204,6 +207,7 @@ public class StreamDownloaderImpl implements StreamDownloader {
 			if (task.callback != null)
 				task.callback.onError(e instanceof RuntimeException && e.getCause() instanceof Exception ? (Exception) e.getCause() : e);
 		} finally {
+			task.inFlightHead = null;
 			try {
 				if (raf != null) raf.close();
 			} catch (IOException ignored) {
@@ -220,7 +224,9 @@ public class StreamDownloaderImpl implements StreamDownloader {
 		Request.Builder rb = streamRequest(task.url);
 		if (range != null) rb.header("Range", range);
 
-		try (Response resp = client.newCall(rb.build()).execute()) {
+		okhttp3.Call call = client.newCall(rb.build());
+		task.inFlightChunks.add(call);
+		try (Response resp = call.execute()) {
 			if (!resp.isSuccessful()) throw new IOException("GET " + resp.code());
 			try (InputStream is = resp.body().byteStream()) {
 				byte[] buf = new byte[8192];
@@ -245,6 +251,8 @@ public class StreamDownloaderImpl implements StreamDownloader {
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
+		} finally {
+			task.inFlightChunks.remove(call);
 		}
 	}
 
@@ -253,6 +261,16 @@ public class StreamDownloaderImpl implements StreamDownloader {
 		Optional.ofNullable(tasks.get(url)).ifPresent(t -> {
 			t.generation.incrementAndGet();
 			t.paused.set(true);
+			try {
+				if (t.inFlightHead != null) t.inFlightHead.cancel();
+			} catch (RuntimeException ignored) {
+			}
+			for (okhttp3.Call c : t.inFlightChunks.toArray(new okhttp3.Call[0])) {
+				try {
+					c.cancel();
+				} catch (RuntimeException ignored) {
+				}
+			}
 		});
 	}
 
@@ -260,7 +278,18 @@ public class StreamDownloaderImpl implements StreamDownloader {
 	public void cancel(@NonNull String url) {
 		TaskContext t = tasks.remove(url);
 		if (t != null) {
+			t.generation.incrementAndGet();
 			t.cancelled.set(true);
+			try {
+				if (t.inFlightHead != null) t.inFlightHead.cancel();
+			} catch (RuntimeException ignored) {
+			}
+			for (okhttp3.Call c : t.inFlightChunks.toArray(new okhttp3.Call[0])) {
+				try {
+					c.cancel();
+				} catch (RuntimeException ignored) {
+				}
+			}
 			t.future.cancel(true);
 			mmkv.removeValueForKey(t.key);
 			if (t.callback != null) t.callback.onCancel();
@@ -311,6 +340,9 @@ public class StreamDownloaderImpl implements StreamDownloader {
 		final AtomicLong downloadedBytes;
 		final AtomicInteger lastProgress;
 		final AtomicInteger generation = new AtomicInteger();
+		volatile okhttp3.Call inFlightHead;
+		final java.util.Set<okhttp3.Call> inFlightChunks =
+						java.util.Collections.newSetFromMap(new ConcurrentHashMap<>());
 
 		TaskContext(String url, File out, String key, int threads, CompletableFuture<File> future,
 		            ProgressCallback callback, AtomicBoolean paused, AtomicBoolean cancelled,

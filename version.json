@@ -1,9 +1,9 @@
 {
-  "tag": "v3.0.4",
-  "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.4/testtube3.0.4.apk",
-  "sha256": "acff82eb5e8fd55fc5d3ab828b0658c02c890196b1d67fb1bfb480feb5eaf015",
-  "size": 5443149,
-  "notes": "Sharper thumbnails (hqdefault + 854x480) + Download in player More options\n\n- FeedItem.thumbnailFor mqdefault 320x180 -> hqdefault 480x360\n- ImageUtils override 480x270 -> 854x480 FWVGA\n- Downloads/History fallback thumbs to hqdefault\n- bottom_sheet_more_options: Download row between Audio Track and Info\n- Controller: Download current video via DownloadDialog",
-  "prerelease": false,
-  "versionCode": 30004
+  "tag": "v3.0.5",
+  "versionCode": 30005,
+  "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.5/testtube3.0.5.apk",
+  "sha256": null,
+  "size": -1,
+  "notes": "Privacy toggles (Personalize Home, Skip sponsors, Preload on mobile), encrypted login, obfuscation, OkHttp live, queue diff off-main, download progress in More options.",
+  "prerelease": false
 }

@@ -196,6 +196,12 @@
     <string name="setting_subscriptions_summary">Tab in the bottom bar</string>
     <string name="setting_search_only_home">Search-only Home</string>
     <string name="setting_search_only_home_summary">Just the logo and a search bar, no suggested videos</string>
+    <string name="setting_personalize_home">Personalize Home</string>
+    <string name="setting_personalize_home_summary">Use recent history for Home discovery (4 IDs + 2 titles sent to YouTube)</string>
+    <string name="setting_sponsorblock">Skip sponsors</string>
+    <string name="setting_sponsorblock_summary">Fetch SponsorBlock segments (4-char hash + categories + IP to sponsor.ajay.app)</string>
+    <string name="setting_preload_mobile">Preload on mobile data</string>
+    <string name="setting_preload_mobile_summary">Cache next video start on mobile (up to ~14 MB); details always prefetch</string>
     <string name="setting_grey_watched">Grey out watched videos</string>
     <string name="setting_grey_watched_summary">Dim videos you\'ve watched</string>
     <string name="setting_watched_dim_description">How dark watched videos are greyed out</string>
