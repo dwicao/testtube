@@ -216,6 +216,7 @@
     <string name="download_pause_all">Pause all</string>
     <string name="download_resume_all">Resume all</string>
     <string name="update_open_github">Open GitHub releases</string>
+    <string name="crash_saved_to_downloads">Crash report saved to Downloads</string>
     <string name="upstream_broken_title">Videos won\'t play?</string>
     <string name="upstream_broken_message">Several videos failed to load in a row. YouTube may have changed something, or your connection may be down. Check for updates?</string>
     <string name="setting_sponsor_cats">SponsorBlock categories</string>

@@ -484,6 +484,16 @@ public final class NativeBrowser {
 
 	/** All / Videos / Channels / Playlists chips under the search bar. */
 	private void setupFilterChips() {
+		try {
+			setupFilterChipsUnsafe();
+		} catch (RuntimeException e) {
+			// Chips are decoration: a broken style/theme must never block searching.
+			android.util.Log.w("NativeBrowser", "search filters unavailable", e);
+			searchFilters.setVisibility(View.GONE);
+		}
+	}
+
+	private void setupFilterChipsUnsafe() {
 		Context context = filterGroup.getContext();
 		String[] values = {FeedClient.SEARCH_ALL, FeedClient.SEARCH_VIDEOS,
 						FeedClient.SEARCH_CHANNELS, FeedClient.SEARCH_PLAYLISTS};

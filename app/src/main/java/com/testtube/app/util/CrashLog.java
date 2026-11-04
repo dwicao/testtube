@@ -49,12 +49,51 @@ public final class CrashLog {
 		File file = new File(context.getFilesDir(), FILE);
 		if (!file.exists()) return null;
 		try {
-			return new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
-		} catch (IOException e) {
+			return new String(java.nio.file.Files.readAllBytes(file.toPath()), java.nio.charset.StandardCharsets.UTF_8);
+		} catch (java.io.IOException e) {
 			return null;
 		} finally {
 			//noinspection ResultOfMethodCallIgnored
 			file.delete();
+		}
+	}
+
+	/**
+	 * Copies a crash report into Downloads/TestTube/ so it survives even when the app can't
+	 * show its own dialog (e.g. it crashes again on the next start). Best effort, never throws.
+	 *
+	 * @return true when the copy landed somewhere readable
+	 */
+	public static boolean archiveToDownloads(@NonNull Context context, @NonNull String report) {
+		try {
+			String name = "TestTube-crash-" + new java.text.SimpleDateFormat("yyyyMMdd-HHmmss",
+							java.util.Locale.US).format(new java.util.Date()) + ".txt";
+			byte[] bytes = report.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+				android.content.ContentValues values = new android.content.ContentValues();
+				values.put(android.provider.MediaStore.Downloads.DISPLAY_NAME, name);
+				values.put(android.provider.MediaStore.Downloads.MIME_TYPE, "text/plain");
+				values.put(android.provider.MediaStore.Downloads.RELATIVE_PATH, "Download/TestTube/");
+				android.net.Uri uri = context.getContentResolver().insert(
+								android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+				if (uri == null) return false;
+				try (java.io.OutputStream out = context.getContentResolver().openOutputStream(uri)) {
+					if (out == null) return false;
+					out.write(bytes);
+				}
+				return true;
+			}
+			java.io.File dir = new java.io.File(
+							android.os.Environment.getExternalStoragePublicDirectory(
+											android.os.Environment.DIRECTORY_DOWNLOADS), "TestTube");
+			if (!dir.isDirectory() && !dir.mkdirs()) return false;
+			java.io.File out = new java.io.File(dir, name);
+			try (java.io.FileOutputStream stream = new java.io.FileOutputStream(out)) {
+				stream.write(bytes);
+			}
+			return true;
+		} catch (Throwable ignored) {
+			return false;
 		}
 	}
 }

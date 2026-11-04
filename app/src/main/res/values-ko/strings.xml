@@ -431,4 +431,5 @@
     <string name="comment_reply_failed">답글 게시 실패: %1$s</string>
     <string name="widget_name">TestTube 플레이어</string>
     <string name="widget_desc">홈 화면에서 재생/일시정지/건너뛰기</string>
+    <string name="crash_saved_to_downloads">충돌 보고서를 다운로드에 저장했습니다</string>
 </resources>

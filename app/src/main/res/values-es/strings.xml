@@ -435,4 +435,5 @@
     <string name="comment_reply_failed">No se pudo publicar la respuesta: %1$s</string>
     <string name="widget_name">Reproductor TestTube</string>
     <string name="widget_desc">Reproduce, pausa y salta desde el inicio</string>
+    <string name="crash_saved_to_downloads">Informe de cierre guardado en Descargas</string>
 </resources>

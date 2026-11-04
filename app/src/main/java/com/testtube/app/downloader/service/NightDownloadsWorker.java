@@ -45,9 +45,16 @@ public final class NightDownloadsWorker extends Worker {
 		return Result.success();
 	}
 
-	/** (Re)schedules the 02:00 run, or cancels it when switched off. Idempotent. */
+	/** (Re)schedules the 02:00 run, or cancels it when switched off. Idempotent, never throws. */
 	public static void apply(@NonNull Context context) {
-		WorkManager work = WorkManager.getInstance(context.getApplicationContext());
+		try {
+			ensureInitialized(context.getApplicationContext());
+		} catch (Throwable e) {
+			android.util.Log.w("NightDownloads", "WorkManager unavailable, night downloads off", e);
+			return;
+		}
+		try {
+			WorkManager work = WorkManager.getInstance(context.getApplicationContext());
 		if (!AppSettings.downloadsNightly()) {
 			work.cancelUniqueWork(WORK_NAME);
 			return;
@@ -63,6 +70,25 @@ public final class NightDownloadsWorker extends Worker {
 						.addTag(WORK_NAME)
 						.build();
 		work.enqueueUniquePeriodicWork(WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, request);
+		} catch (Throwable e) {
+			android.util.Log.w("NightDownloads", "could not (un)schedule night downloads", e);
+		}
+	}
+
+	/**
+	 * androidx.startup auto-init is stripped from the manifest (a crashing 3rd-party content
+	 * provider would kill the app before Application.onCreate, with no report and no dialog),
+	 * so WorkManager is started here, lazily, on first real use.
+	 */
+	private static void ensureInitialized(@NonNull Context appContext) {
+		try {
+			WorkManager.getInstance(appContext);
+			return;
+		} catch (IllegalStateException notInitialized) {
+			// Fall through to manual init below.
+		}
+		WorkManager.initialize(appContext,
+						new androidx.work.Configuration.Builder().build());
 	}
 
 	private static long delayUntilNextRun() {

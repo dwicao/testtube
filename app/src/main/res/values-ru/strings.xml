@@ -434,4 +434,5 @@
     <string name="comment_reply_failed">Не удалось опубликовать ответ: %1$s</string>
     <string name="widget_name">Плеер TestTube</string>
     <string name="widget_desc">Воспроизведение, пауза и пропуск с главного экрана</string>
+    <string name="crash_saved_to_downloads">Отчёт о сбое сохранён в Загрузки</string>
 </resources>

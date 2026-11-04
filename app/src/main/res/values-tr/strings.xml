@@ -434,4 +434,5 @@
     <string name="comment_reply_failed">Yanıt paylaşılamadı: %1$s</string>
     <string name="widget_name">TestTube oynatıcı</string>
     <string name="widget_desc">Ana ekrandan oynat, duraklat ve atla</string>
+    <string name="crash_saved_to_downloads">Kilitlenme raporu İndirilenlere kaydedildi</string>
 </resources>

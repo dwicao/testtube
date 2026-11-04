@@ -1,11 +1,11 @@
 {
-  "tag": "v3.0.15",
-  "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.15/testtube3.0.15.apk",
-  "sha256": "50571c5c708427f5ab3e3e6276309be8bb0ef636fe719760676be9fe909af5a9",
-  "size": 6193271,
-  "notes": "Fix definite-assignment: init sleepRunnable in constructor",
+  "tag": "v3.0.16",
+  "versionCode": 30016,
+  "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.16/testtube3.0.16.apk",
+  "sha256": null,
+  "size": -1,
+  "notes": "Hotfix startup crash: no WorkManager auto-init, crash reports always shown + archived to Downloads, welcome dialog cannot brick the app.",
   "prerelease": false,
-  "versionCode": 30015,
   "notice": "",
   "noticeTag": "",
   "minVersionCode": 0

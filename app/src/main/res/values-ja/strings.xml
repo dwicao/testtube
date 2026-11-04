@@ -431,4 +431,5 @@
     <string name="comment_reply_failed">返信の投稿に失敗: %1$s</string>
     <string name="widget_name">TestTubeプレイヤー</string>
     <string name="widget_desc">ホーム画面から再生・一時停止・スキップ</string>
+    <string name="crash_saved_to_downloads">クラッシュ報告をダウンロードに保存しました</string>
 </resources>

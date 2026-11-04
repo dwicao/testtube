@@ -431,4 +431,5 @@
     <string name="comment_reply_failed">回覆發佈失敗：%1$s</string>
     <string name="widget_name">TestTube 播放器</string>
     <string name="widget_desc">在主畫面播放、暫停和切換</string>
+    <string name="crash_saved_to_downloads">當機報告已儲存到下載</string>
 </resources>

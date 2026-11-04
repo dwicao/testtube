@@ -39,10 +39,10 @@ public class App extends Application {
 		ContentLanguage.apply(this);
 		graph = new AppGraph(this);
 		initUserAgent();
-		// Re-arm the nightly download worker after reboots and updates (idempotent).
+		// Re-arm the nightly download worker after reboots and updates (idempotent, never throws).
 		try {
 			com.testtube.app.downloader.service.NightDownloadsWorker.apply(this);
-		} catch (RuntimeException ignored) {
+		} catch (Throwable ignored) {
 		}
 	}
 

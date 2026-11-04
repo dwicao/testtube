@@ -680,9 +680,41 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 		if (bootstrapped) return;
 		bootstrapped = true;
 		goTo(R.id.nav_home);
-		String crash = AppSettings.welcomeShown() ? CrashLog.take(this) : null;
-		if (crash != null) ErrorDialog.show(this, getString(R.string.crash_last_time), crash);
-		if (!AppSettings.welcomeShown()) {
+		// Always take the crash file (even before the welcome dialog was ever shown) and archive
+		// a copy to Downloads/TestTube, so the report survives even if the app crashes again
+		// before its own dialog can be read.
+		String crash = null;
+		try {
+			crash = CrashLog.take(this);
+		} catch (Throwable ignored) {
+		}
+		if (crash != null) {
+			try {
+				if (CrashLog.archiveToDownloads(this, crash)) {
+					ToastUtils.show(this, getString(R.string.crash_saved_to_downloads));
+				}
+			} catch (Throwable ignored) {
+			}
+			String report = crash;
+			ErrorDialog.show(this, getString(R.string.crash_last_time), report,
+							dialog -> showWelcomeIfNeeded());
+		} else {
+			showWelcomeIfNeeded();
+		}
+		String initialUrl = restoredUrl;
+		if (initialUrl != null && !initialUrl.isBlank()) {
+			tabManager.openTab(initialUrl, UrlUtils.getPageClass(initialUrl));
+		}
+		handleIntent(getIntent());
+	}
+
+	/**
+	 * First-start dialog, guarded so a broken settings screen can never brick the app into a
+	 * crash loop: if it throws, the welcome is marked as seen and the app just starts.
+	 */
+	private void showWelcomeIfNeeded() {
+		if (AppSettings.welcomeShown()) return;
+		try {
 			AppGraph app = AppGraph.of(this);
 			UpdateManager updates = app.updateManager();
 			SettingsDialog.showWelcome(this, updates, app.aiChannelList(), app.playerPreferences(),
@@ -691,12 +723,13 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 								onSettingsSaved();
 								if (!isFinishing() && !isDestroyed()) updates.checkOnStart(this);
 							});
+		} catch (Throwable e) {
+			Log.w("MainActivity", "welcome dialog failed, skipping", e);
+			try {
+				AppSettings.setWelcomeShown();
+			} catch (Throwable ignored) {
+			}
 		}
-		String initialUrl = restoredUrl;
-		if (initialUrl != null && !initialUrl.isBlank()) {
-			tabManager.openTab(initialUrl, UrlUtils.getPageClass(initialUrl));
-		}
-		handleIntent(getIntent());
 	}
 
 	private void setupBottomNav() {

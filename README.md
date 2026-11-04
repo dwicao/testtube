@@ -66,8 +66,8 @@ Subscriptions come from one of two places. By default the app shows the latest v
 
 ## Releases (this fork: dwicao/testtube)
 
-* APKs: https://github.com/dwicao/testtube/releases — e.g. `testtube3.0.15.apk` + `version.json`.
-* Tag: `git tag v3.0.15 && git push origin v3.0.15` — `.github/workflows/release.yml` builds `assembleRelease`, signs with the public AOSP test key, creates the GitHub Release, uploads the APK, and updates `version.json` on `main` so the app auto-updates. Pushes to `main` run `.github/workflows/check.yml` (debug build + unit tests + lint).
+* APKs: https://github.com/dwicao/testtube/releases — e.g. `testtube3.0.16.apk` + `version.json`.
+* Tag: `git tag v3.0.16 && git push origin v3.0.16` — `.github/workflows/release.yml` builds `assembleRelease`, signs with the public AOSP test key, creates the GitHub Release, uploads the APK, and updates `version.json` on `main` so the app auto-updates. Pushes to `main` run `.github/workflows/check.yml` (debug build + unit tests + lint).
 * Local: `./BUILD.sh` (own key in `~/.testtube/signing`). CI key is the well-known AOSP `testkey` (password `android`) — fine for testing, not for private accounts: anyone can forge updates signed with it, so the app still enforces same-signer installs.
 
 ## License

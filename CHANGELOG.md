@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.16
+
+- Hotfix for instant crash on open: WorkManager no longer auto-inits at startup (was killing the app before Application.onCreate, with no report and no dialog)
+- Crash reports are now ALWAYS shown (not hidden behind the welcome dialog) and a copy is auto-saved to Downloads/TestTube/
+- Welcome dialog can no longer brick the app into a crash loop; search filter chips fail safe
+
 ## 3.0.15
 
 - Sleep timer (More options, 15/30/60/90 min, pauses when done)

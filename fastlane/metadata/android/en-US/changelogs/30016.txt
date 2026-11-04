@@ -1,0 +1,1 @@
+- Hotfix startup crash: no WorkManager auto-init, crash reports always shown + archived to Downloads
