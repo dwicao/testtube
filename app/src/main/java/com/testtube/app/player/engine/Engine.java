@@ -1394,7 +1394,6 @@ public class Engine {
 			if (boundView != null) boundView.setPlayer(null);
 		} catch (RuntimeException ignored) {
 		}
-		player.clearListeners();
 		this.player.release();
 	}
 
