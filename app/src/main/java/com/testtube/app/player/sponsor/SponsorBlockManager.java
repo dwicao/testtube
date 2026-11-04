@@ -43,7 +43,7 @@ public final class SponsorBlockManager {
 	/** In-memory segments per video, 1h expiry, to avoid refetching on rotation/replay. */
 	private final java.util.Map<String, CacheEntry> memCache = new java.util.concurrent.ConcurrentHashMap<>();
 
-	private record CacheEntry(@NonNull List<long[]> segments, long expiresAt) {
+	private record CacheEntry(@NonNull List<long[]> segments, @NonNull Set<String> cats, long expiresAt) {
 	}
 
 	public SponsorBlockManager(@NonNull OkHttpClient client, @NonNull Gson gson, @NonNull PlayerPreferences preferences) {
@@ -65,12 +65,13 @@ public final class SponsorBlockManager {
 
 	public void load(@NonNull String videoId) {
 		int token = loadToken.incrementAndGet();
-		if (!com.testtube.app.AppSettings.sponsorblockEnabled()) {
+		Set<String> cats = preferences.getSponsorBlockCategories();
+		if (cats.isEmpty()) {
 			segments = Collections.emptyList();
 			return;
 		}
 		CacheEntry cached = memCache.get(videoId);
-		if (cached != null && System.currentTimeMillis() < cached.expiresAt()) {
+		if (cached != null && System.currentTimeMillis() < cached.expiresAt() && cached.cats().equals(cats)) {
 			segments = cached.segments();
 			return;
 		} else if (cached != null) {
@@ -78,7 +79,6 @@ public final class SponsorBlockManager {
 		}
 		segments = Collections.emptyList();
 		try {
-			Set<String> cats = preferences.getSponsorBlockCategories();
 			String hash = sha256(videoId).substring(0, 4);
 			String categoriesJson = gson.toJson(cats);
 			HttpUrl url = HttpUrl.parse(API_URL + hash);
@@ -126,7 +126,7 @@ public final class SponsorBlockManager {
 		}
 		if (token == loadToken.get()) {
 			segments = newSegments;
-			memCache.put(videoId, new CacheEntry(newSegments, System.currentTimeMillis() + 3_600_000L));
+			memCache.put(videoId, new CacheEntry(newSegments, targetCats, System.currentTimeMillis() + 3_600_000L));
 		}
 	}
 

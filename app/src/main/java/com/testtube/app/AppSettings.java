@@ -41,13 +41,15 @@ public final class AppSettings {
 	private static final String KEY_SPONSORBLOCK = "sponsorblock_enabled";
 	private static final String KEY_PRELOAD_MOBILE = "preload_on_mobile";
 	private static final String KEY_PREFER_AVC = "prefer_avc";
+	private static final String KEY_ALLOW_HDR = "allow_hdr";
+	private static final String KEY_SPONSOR_CATS = "sponsorblock_cats";
 	private static final int MIN_WATCHED_DIM = 20;
 	private static final int MAX_WATCHED_DIM = 90;
 	private static final int WATCHED_DIM_STEP = 5;
 	/** As dark as watched videos were before this became a setting. */
 	private static final int DEFAULT_WATCHED_DIM = 70;
 	/** Raised when the welcome dialog gets new choices, so everyone sees it once more. */
-	private static final int WELCOME_VERSION = 8;
+	private static final int WELCOME_VERSION = 9;
 
 	private static volatile boolean loaded;
 	private static volatile boolean shorts;
@@ -76,6 +78,7 @@ public final class AppSettings {
 	private static volatile boolean sponsorblockEnabled = true;
 	private static volatile boolean preloadOnMobile;
 	private static volatile boolean preferAvc = true;
+	private static volatile boolean allowHdr;
 
 	private AppSettings() {
 	}
@@ -444,6 +447,22 @@ public final class AppSettings {
 		MMKV.defaultMMKV().encode(KEY_PREFER_AVC, enabled);
 	}
 
+	/**
+	 * Allow HDR video (VP9.2 / AV1 10-bit). Off by default: HDR renders blue on
+	 * Samsung/Exynos firmware without proper tone mapping, so SDR is forced instead.
+	 * Only turn on if your device is known to play HDR correctly.
+	 */
+	public static boolean allowHdr() {
+		load();
+		return allowHdr;
+	}
+
+	public static void setAllowHdr(boolean enabled) {
+		load();
+		allowHdr = enabled;
+		MMKV.defaultMMKV().encode(KEY_ALLOW_HDR, enabled);
+	}
+
 	public static boolean welcomeShown() {
 		return MMKV.defaultMMKV().decodeInt(KEY_WELCOME_VERSION, 0) >= WELCOME_VERSION;
 	}
@@ -486,6 +505,7 @@ public final class AppSettings {
 			sponsorblockEnabled = store.decodeBool(KEY_SPONSORBLOCK, true);
 			preloadOnMobile = store.decodeBool(KEY_PRELOAD_MOBILE, false);
 			preferAvc = store.decodeBool(KEY_PREFER_AVC, true);
+			allowHdr = store.decodeBool(KEY_ALLOW_HDR, false);
 			loaded = true;
 		}
 	}

@@ -370,6 +370,18 @@
     <!-- Video cache -->
     <string name="setting_video_cache">Video önbelleği</string>
     <string name="setting_video_cache_summary">Büyük önbellek, hızlı başlangıç</string>
+    <string name="setting_personalize_home">Ana sayfayı kişiselleştir</string>
+    <string name="setting_personalize_home_summary">Keşfet için geçmişi kullanır (YouTube\'a 4 ID + 2 başlık gönderilir)</string>
+    <string name="setting_sponsorblock">Sponsorları atla</string>
+    <string name="setting_sponsorblock_summary">SponsorBlock bölümlerini getirir (4 karakter hash + kategoriler + IP sponsor.ajay.app\'e)</string>
+    <string name="setting_preload_mobile">Mobil veride ön yükle</string>
+    <string name="setting_preload_mobile_summary">Sonraki videonun başını önbelleğe al (14 MB\'ye kadar); ayrıntılar her zaman</string>
+    <string name="setting_prefer_avc">H264\'ü tercih et</string>
+    <string name="setting_prefer_avc_summary">En uyumlu kod çözücü, HDR mavisi yok. VP9/AV1 için kapat</string>
+    <string name="setting_allow_hdr">HDR\'ye izin ver</string>
+    <string name="setting_allow_hdr_summary">VP9.2 / AV1 10 bit. Kapatınca SDR zorlanır (Samsung\'da mavi teni düzeltir)</string>
+    <string name="setting_sponsor_cats">SponsorBlock kategorileri</string>
+    <string name="setting_sponsor_cats_summary">Atlanacak bölüm türleri</string>
     <string name="setting_clear_cache">Önbelleği temizle</string>
     <string name="setting_clear_cache_summary">Video, resimler ve web verileri</string>
     <string name="setting_clear_cache_on_exit">Çıkışta önbelleği temizle</string>

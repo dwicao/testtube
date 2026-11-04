@@ -28,6 +28,14 @@ public final class PlayerPreferences {
 	private static final String KEY_RECENTLY_PLAYED = "recently_played";
 	private static final int RECENTLY_PLAYED_LIMIT = 500;
 	private static final long RECENTLY_PLAYED_WINDOW_MS = 24L * 60 * 60 * 1000;
+	private static final String KEY_SPONSOR_CATS = "sponsorblock_cats";
+
+	/** All Segment categories SponsorBlock knows, in a stable order for the settings list. */
+	public static final String[] SPONSOR_CATEGORIES = {"sponsor", "intro", "outro", "interaction",
+					"selfpromo", "preview", "filler", "music_offtopic", "poi_highlight"};
+	/** Skipped by default, matching the previous hardcoded behavior. */
+	private static final Set<String> DEFAULT_SPONSOR_CATS =
+					Set.of("sponsor", "selfpromo", "poi_highlight");
 
 	private static final long PROGRESS_EXPIRY_MS = TimeUnit.DAYS.toMillis(3);
 
@@ -201,7 +209,28 @@ public final class PlayerPreferences {
 
 	@NonNull
 	public Set<String> getSponsorBlockCategories() {
-		return Set.of("sponsor", "selfpromo", "poi_highlight");
+		if (!com.testtube.app.AppSettings.sponsorblockEnabled()) return Set.of();
+		String raw = mmkv.decodeString(KEY_SPONSOR_CATS, null);
+		if (raw == null || raw.isBlank()) return DEFAULT_SPONSOR_CATS;
+		try {
+			String[] saved = gson.fromJson(raw, String[].class);
+			if (saved == null || saved.length == 0) return Set.of();
+			java.util.LinkedHashSet<String> out = new java.util.LinkedHashSet<>();
+			for (String s : saved) {
+				if (s != null && !s.isBlank()) out.add(s);
+			}
+			return java.util.Collections.unmodifiableSet(out);
+		} catch (RuntimeException e) {
+			return DEFAULT_SPONSOR_CATS;
+		}
+	}
+
+	public void setSponsorBlockCategories(@NonNull Set<String> categories) {
+		java.util.ArrayList<String> ordered = new java.util.ArrayList<>();
+		for (String known : SPONSOR_CATEGORIES) {
+			if (categories.contains(known)) ordered.add(known);
+		}
+		mmkv.encode(KEY_SPONSOR_CATS, gson.toJson(ordered.toArray(new String[0])));
 	}
 
 	static class Progress {

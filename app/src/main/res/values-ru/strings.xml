@@ -370,6 +370,18 @@
     <!-- Video cache -->
     <string name="setting_video_cache">Кэш видео</string>
     <string name="setting_video_cache_summary">Больше кэш — быстрее запуск</string>
+    <string name="setting_personalize_home">Персонализация главной</string>
+    <string name="setting_personalize_home_summary">Использует историю для рекомендаций (4 ID + 2 названия отправляются YouTube)</string>
+    <string name="setting_sponsorblock">Пропуск спонсоров</string>
+    <string name="setting_sponsorblock_summary">Загружает сегменты SponsorBlock (первые 4 символа хеша + категории + IP на sponsor.ajay.app)</string>
+    <string name="setting_preload_mobile">Предзагрузка по мобильной сети</string>
+    <string name="setting_preload_mobile_summary">Кэширует начало следующего видео (до ~14 МБ); детали всегда</string>
+    <string name="setting_prefer_avc">Предпочитать H264</string>
+    <string name="setting_prefer_avc_summary">Самый совместимый декодер, без синего HDR. Выкл — VP9/AV1</string>
+    <string name="setting_allow_hdr">Разрешить HDR</string>
+    <string name="setting_allow_hdr_summary">VP9.2 / AV1 10 бит. Выкл — принудительный SDR (чинит синюю кожу на Samsung)</string>
+    <string name="setting_sponsor_cats">Категории SponsorBlock</string>
+    <string name="setting_sponsor_cats_summary">Какие сегменты пропускать</string>
     <string name="setting_clear_cache">Очистить кэш</string>
     <string name="setting_clear_cache_summary">Видео, изображения и веб-данные</string>
     <string name="setting_clear_cache_on_exit">Очищать кэш при выходе</string>

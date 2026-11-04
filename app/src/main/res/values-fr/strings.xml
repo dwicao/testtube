@@ -369,6 +369,18 @@
     <!-- Video cache -->
     <string name="setting_video_cache">Cache vidéo</string>
     <string name="setting_video_cache_summary">Plus de cache, démarrage plus rapide</string>
+    <string name="setting_personalize_home">Personnaliser l\'accueil</string>
+    <string name="setting_personalize_home_summary">Utilise ton historique pour découvrir (4 ID + 2 titres envoyés à YouTube)</string>
+    <string name="setting_sponsorblock">Sauter les sponsors</string>
+    <string name="setting_sponsorblock_summary">Récupère les segments SponsorBlock (hash 4 caractères + catégories + IP à sponsor.ajay.app)</string>
+    <string name="setting_preload_mobile">Précharger en données mobiles</string>
+    <string name="setting_preload_mobile_summary">Met en cache le début de la vidéo suivante (jusqu\'à ~14 Mo) ; les détails toujours</string>
+    <string name="setting_prefer_avc">Préférer la vidéo H264</string>
+    <string name="setting_prefer_avc_summary">Décodeur le plus compatible, jamais bleu HDR. Désactive pour VP9/AV1</string>
+    <string name="setting_allow_hdr">Autoriser la vidéo HDR</string>
+    <string name="setting_allow_hdr_summary">VP9.2 / AV1 10 bits. Désactive pour forcer SDR (corrige peau bleue sur Samsung)</string>
+    <string name="setting_sponsor_cats">Catégories SponsorBlock</string>
+    <string name="setting_sponsor_cats_summary">Segments à sauter</string>
     <string name="setting_clear_cache">Vider le cache</string>
     <string name="setting_clear_cache_summary">Vidéo, images et données web</string>
     <string name="setting_clear_cache_on_exit">Vider le cache à la fermeture</string>

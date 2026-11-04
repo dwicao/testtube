@@ -367,6 +367,18 @@
     <!-- Video cache -->
     <string name="setting_video_cache">视频缓存</string>
     <string name="setting_video_cache_summary">缓存越大，启动越快</string>
+    <string name="setting_personalize_home">个性化首页</string>
+    <string name="setting_personalize_home_summary">根据历史推荐（向 YouTube 发送 4 个视频 ID + 2 个标题）</string>
+    <string name="setting_sponsorblock">跳过赞助内容</string>
+    <string name="setting_sponsorblock_summary">获取 SponsorBlock 片段（哈希前 4 位 + 类别 + IP 发送至 sponsor.ajay.app）</string>
+    <string name="setting_preload_mobile">移动数据预加载</string>
+    <string name="setting_preload_mobile_summary">缓存下一个视频开头（最多约 14MB）；详情始终加载</string>
+    <string name="setting_prefer_avc">优先 H264</string>
+    <string name="setting_prefer_avc_summary">兼容性最好的解码器，不会出现 HDR 偏蓝。关闭则用 VP9/AV1</string>
+    <string name="setting_allow_hdr">允许 HDR</string>
+    <string name="setting_allow_hdr_summary">VP9.2 / AV1 10 位。关闭则强制 SDR（修复三星偏蓝）</string>
+    <string name="setting_sponsor_cats">SponsorBlock 类别</string>
+    <string name="setting_sponsor_cats_summary">要跳过的片段类型</string>
     <string name="setting_clear_cache">清除缓存</string>
     <string name="setting_clear_cache_summary">视频、图片和网页数据</string>
     <string name="setting_clear_cache_on_exit">退出时清除缓存</string>

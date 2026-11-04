@@ -33,6 +33,7 @@ public final class PlaybackPlanner {
 	                                @Nullable String preferredQuality) {
 		PlaybackPlan plan = new PlaybackPlan();
 		plan.setStreamType(deliveries.getStreamType());
+		PlayerUtils.setAllowHdr(com.testtube.app.AppSettings.allowHdr());
 
 		boolean live = deliveries.getStreamType() == StreamType.LIVE_STREAM
 						|| deliveries.getStreamType() == StreamType.AUDIO_LIVE_STREAM;
@@ -51,7 +52,14 @@ public final class PlaybackPlanner {
 		}
 
 		Delivery adaptive = deliveries.first(PlaybackMode.ADAPTIVE);
-		if (adaptive != null) {
+		if (adaptive != null && com.testtube.app.AppSettings.allowHdr()) {
+			// HDR allowed: codec priority picks (HDR competes normally), MUXED stays as fallback.
+			PlaybackPlan adaptivePlan = adaptivePlan(plan, adaptive, preferredQuality);
+			if (adaptivePlan.getVideoCandidate() != null && adaptivePlan.getAudioCandidate() != null) {
+				return adaptivePlan;
+			}
+		}
+		if (adaptive != null && !com.testtube.app.AppSettings.allowHdr()) {
 			// Forced compatibility first: H.264 decodes correctly on every firmware.
 			if (com.testtube.app.AppSettings.preferAvc()) {
 				List<StreamCandidate> avcVideo = avcVideoOnly(adaptive.getVideo());

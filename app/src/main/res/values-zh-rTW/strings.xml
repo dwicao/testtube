@@ -367,6 +367,18 @@
     <!-- Video cache -->
     <string name="setting_video_cache">影片快取</string>
     <string name="setting_video_cache_summary">快取越大，啟動越快</string>
+    <string name="setting_personalize_home">個人化首頁</string>
+    <string name="setting_personalize_home_summary">根據歷史記錄推薦（向 YouTube 傳送 4 個影片 ID + 2 個標題）</string>
+    <string name="setting_sponsorblock">略過贊助內容</string>
+    <string name="setting_sponsorblock_summary">取得 SponsorBlock 片段（雜湊前 4 碼 + 類別 + IP 傳送至 sponsor.ajay.app）</string>
+    <string name="setting_preload_mobile">行動數據預先載入</string>
+    <string name="setting_preload_mobile_summary">快取下一部影片開頭（最多約 14MB）；詳細資訊一律載入</string>
+    <string name="setting_prefer_avc">優先 H264</string>
+    <string name="setting_prefer_avc_summary">相容性最佳的解碼器，不會 HDR 偏藍。關閉則用 VP9/AV1</string>
+    <string name="setting_allow_hdr">允許 HDR</string>
+    <string name="setting_allow_hdr_summary">VP9.2 / AV1 10 位元。關閉則強制 SDR（修復三星偏藍）</string>
+    <string name="setting_sponsor_cats">SponsorBlock 類別</string>
+    <string name="setting_sponsor_cats_summary">要略過的片段類型</string>
     <string name="setting_clear_cache">清除快取</string>
     <string name="setting_clear_cache_summary">影片、圖片和網頁資料</string>
     <string name="setting_clear_cache_on_exit">結束時清除快取</string>

@@ -367,6 +367,18 @@
     <!-- Video cache -->
     <string name="setting_video_cache">動画キャッシュ</string>
     <string name="setting_video_cache_summary">大きいほど開始が速い</string>
+    <string name="setting_personalize_home">ホームをパーソナライズ</string>
+    <string name="setting_personalize_home_summary">履歴を使っておすすめ表示（動画ID 4件＋タイトル2件をYouTubeに送信）</string>
+    <string name="setting_sponsorblock">スポンサーをスキップ</string>
+    <string name="setting_sponsorblock_summary">SponsorBlockから区間を取得（ハッシュ先頭4文字＋カテゴリ＋IPをsponsor.ajay.appへ）</string>
+    <string name="setting_preload_mobile">モバイルデータで先読み</string>
+    <string name="setting_preload_mobile_summary">次の動画の冒頭をキャッシュ（最大約14MB）。詳細は常に取得</string>
+    <string name="setting_prefer_avc">H264を優先</string>
+    <string name="setting_prefer_avc_summary">最も互換性のあるデコーダー、HDR青化なし。VP9/AV1を使う場合はオフ</string>
+    <string name="setting_allow_hdr">HDRを許可</string>
+    <string name="setting_allow_hdr_summary">VP9.2 / AV1 10bit。オフでSDR固定（Samsungの青肌を修正）</string>
+    <string name="setting_sponsor_cats">SponsorBlockカテゴリ</string>
+    <string name="setting_sponsor_cats_summary">スキップする区間の種類</string>
     <string name="setting_clear_cache">キャッシュを消去</string>
     <string name="setting_clear_cache_summary">動画、画像、ウェブデータ</string>
     <string name="setting_clear_cache_on_exit">終了時にキャッシュを消去</string>

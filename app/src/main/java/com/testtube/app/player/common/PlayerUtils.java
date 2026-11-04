@@ -21,6 +21,13 @@ import java.util.regex.Pattern;
 @UnstableApi
 public final class PlayerUtils {
 	private static final Pattern FPS_SUFFIX = Pattern.compile("p(\\d+)$", Pattern.CASE_INSENSITIVE);
+	/** When true, HDR codecs compete normally; otherwise they always lose to SDR. */
+	private static volatile boolean allowHdr;
+
+	/** Called from the planner per playback so HDR filtering follows the setting. */
+	public static void setAllowHdr(boolean allow) {
+		allowHdr = allow;
+	}
 
 	public static boolean isPortrait(@NonNull Engine engine) {
 		int videoWidth = engine.getVideoSize().width;
@@ -90,8 +97,8 @@ public final class PlayerUtils {
 	public static int getCodecPriority(@Nullable String codec) {
 		if (codec == null) return 0;
 		// HDR renders blue on Samsung/Exynos firmware without proper tone mapping.
-		// Always lose to any SDR codec so SDR is picked whenever it exists.
-		if (isLikelyHdr(codec)) return -1;
+		// Always lose to any SDR codec so SDR is picked whenever it exists (unless allowed).
+		if (!allowHdr && isLikelyHdr(codec)) return -1;
 		String lower = codec.toLowerCase(Locale.ROOT);
 		if (isAvc(codec)) return 4;
 		if (lower.contains("vp9") || lower.contains("vp8")) return 3;

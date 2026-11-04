@@ -367,6 +367,18 @@
     <!-- Video cache -->
     <string name="setting_video_cache">동영상 캐시</string>
     <string name="setting_video_cache_summary">클수록 빠르게 시작</string>
+    <string name="setting_personalize_home">홈 맞춤 설정</string>
+    <string name="setting_personalize_home_summary">기록으로 홈 추천 (동영상 ID 4개 + 제목 2개 YouTube 전송)</string>
+    <string name="setting_sponsorblock">스폰서 건너뛰기</string>
+    <string name="setting_sponsorblock_summary">SponsorBlock 구간 가져오기 (해시 앞 4자 + 카테고리 + IP를 sponsor.ajay.app로)</string>
+    <string name="setting_preload_mobile">모바일 데이터 미리 로드</string>
+    <string name="setting_preload_mobile_summary">다음 영상 앞부분 캐시 (최대 ~14MB). 세부정보는 항상 가져옴</string>
+    <string name="setting_prefer_avc">H264 우선</string>
+    <string name="setting_prefer_avc_summary">가장 호환성 높은 디코더, HDR 파랗게 없음. VP9/AV1 사용 시 끄기</string>
+    <string name="setting_allow_hdr">HDR 허용</string>
+    <string name="setting_allow_hdr_summary">VP9.2 / AV1 10비트. 끄면 SDR 고정 (삼성 파란 피부 수정)</string>
+    <string name="setting_sponsor_cats">SponsorBlock 카테고리</string>
+    <string name="setting_sponsor_cats_summary">건너뛸 구간 종류</string>
     <string name="setting_clear_cache">캐시 지우기</string>
     <string name="setting_clear_cache_summary">동영상, 이미지, 웹 데이터</string>
     <string name="setting_clear_cache_on_exit">종료 시 캐시 삭제</string>

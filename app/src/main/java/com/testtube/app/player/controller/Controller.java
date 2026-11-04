@@ -590,25 +590,42 @@ public class Controller {
 					showHint(activity.getString(R.string.queue_item_unavailable), HINT_HIDE_DELAY_MS);
 					return;
 				}
-				// If already downloading, show progress instead of reopening the dialog.
+				// If already downloading, show progress with a shortcut to Downloads.
 				try {
 					com.testtube.app.downloader.core.history.DownloadHistoryRepository history =
 									AppGraph.of(activity).downloadHistory();
-					boolean active = false;
+					String fileName = null;
 					int progress = -1;
 					for (com.testtube.app.downloader.core.history.DownloadRecord r : history.getAllSorted()) {
 						if (videoId.equals(r.getVideoId())
 										&& (r.getStatus() == com.testtube.app.downloader.core.history.DownloadStatus.RUNNING
 										|| r.getStatus() == com.testtube.app.downloader.core.history.DownloadStatus.QUEUED
 										|| r.getStatus() == com.testtube.app.downloader.core.history.DownloadStatus.MERGING)) {
-							active = true;
+							fileName = r.getFileName();
 							progress = r.getProgress();
 							break;
 						}
 					}
-					if (active) {
-						String msg = progress >= 0 ? progress + "%" : activity.getString(R.string.status_downloading_simple);
-						showHint(activity.getString(R.string.downloading_file, msg), HINT_HIDE_DELAY_MS);
+					if (fileName != null) {
+						String title = progress >= 0
+										? activity.getString(R.string.downloading_file, progress + "%")
+										: activity.getString(R.string.status_downloading_simple);
+						Dialogs.builder(activity)
+										.setTitle(title)
+										.setMessage(fileName)
+										.setPositiveButton(R.string.library_downloads, (d, w) -> {
+											try {
+												android.content.Intent intent = new android.content.Intent(
+																activity, com.testtube.app.ui.MainActivity.class);
+												intent.setAction(com.testtube.app.downloader.service.DownloadService.ACTION_OPEN_DOWNLOADS);
+												activity.startActivity(intent);
+											} catch (RuntimeException e) {
+												showHint(activity.getString(R.string.queue_item_unavailable), HINT_HIDE_DELAY_MS);
+											}
+										})
+										.setNegativeButton(R.string.cancel, null)
+										.show();
+						hideControlsAutomatically();
 						return;
 					}
 				} catch (RuntimeException ignored) {

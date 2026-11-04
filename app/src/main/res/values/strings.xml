@@ -204,6 +204,10 @@
     <string name="setting_preload_mobile_summary">Cache next video start on mobile (up to ~14 MB); details always prefetch</string>
     <string name="setting_prefer_avc">Prefer H264 video</string>
     <string name="setting_prefer_avc_summary">Most compatible decoder, never HDR blue. Off uses VP9/AV1 when better</string>
+    <string name="setting_allow_hdr">Allow HDR video</string>
+    <string name="setting_allow_hdr_summary">VP9.2 / AV1 10-bit. Off forces SDR (fixes blue skin on Samsung)</string>
+    <string name="setting_sponsor_cats">SponsorBlock categories</string>
+    <string name="setting_sponsor_cats_summary">Which segments get skipped</string>
     <string name="setting_grey_watched">Grey out watched videos</string>
     <string name="setting_grey_watched_summary">Dim videos you\'ve watched</string>
     <string name="setting_watched_dim_description">How dark watched videos are greyed out</string>

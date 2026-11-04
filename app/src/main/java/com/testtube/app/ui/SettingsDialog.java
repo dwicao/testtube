@@ -121,6 +121,12 @@ final class SettingsDialog {
 						R.string.setting_preload_mobile_summary, AppSettings.preloadOnMobile());
 		MaterialSwitch preferAvc = form.toggle(playback, R.string.setting_prefer_avc,
 						R.string.setting_prefer_avc_summary, AppSettings.preferAvc());
+		MaterialSwitch allowHdr = form.toggle(playback, R.string.setting_allow_hdr,
+						R.string.setting_allow_hdr_summary, AppSettings.allowHdr());
+		View sponsorCats = form.value(playback, R.string.setting_sponsor_cats,
+						R.string.setting_sponsor_cats_summary, sponsorCatsSummary(activity, prefs));
+		sponsorCats.setOnClickListener(v -> showSponsorCats(activity, prefs,
+						() -> sponsorCats.findViewById(R.id.setting_value)));
 		ChoiceRow<Boolean> minimizeTo = new ChoiceRow<>(form, playback, R.string.setting_minimize_to,
 						R.string.setting_minimize_summary, new Boolean[]{false, true},
 						new int[]{R.string.minimize_bottom_bar, R.string.minimize_floating}, AppSettings.floatingPlayer());
@@ -214,6 +220,7 @@ final class SettingsDialog {
 							AppSettings.setSponsorblockEnabled(sponsorblock.isChecked());
 							AppSettings.setPreloadOnMobile(preloadMobile.isChecked());
 							AppSettings.setPreferAvc(preferAvc.isChecked());
+							AppSettings.setAllowHdr(allowHdr.isChecked());
 							AppSettings.setFloatingPlayer(minimizeTo.value);
 							if (videoCache.value != AppSettings.videoCache()) {
 								AppSettings.setVideoCache(videoCache.value);
@@ -262,6 +269,38 @@ final class SettingsDialog {
 	}
 
 	private static final String PENDING_SIZE = "…";
+
+	@NonNull
+	private static String sponsorCatsSummary(@NonNull Activity activity,
+	                                         @NonNull PlayerPreferences prefs) {
+		java.util.Set<String> cats = prefs.getSponsorBlockCategories();
+		if (cats.isEmpty()) return activity.getString(R.string.setting_sponsor_cats_summary);
+		String joined = String.join(", ", cats);
+		return joined.length() > 48 ? joined.substring(0, 48) + "…" : joined;
+	}
+
+	private static void showSponsorCats(@NonNull Activity activity,
+	                                    @NonNull PlayerPreferences prefs,
+	                                    @NonNull View valueRow) {
+		String[] cats = PlayerPreferences.SPONSOR_CATEGORIES;
+		java.util.Set<String> current = prefs.getSponsorBlockCategories();
+		boolean[] checked = new boolean[cats.length];
+		for (int i = 0; i < cats.length; i++) checked[i] = current.contains(cats[i]);
+		Dialogs.builder(activity)
+						.setTitle(R.string.setting_sponsor_cats)
+						.setMultiChoiceItems(cats, checked, (dialog, which, isChecked) -> checked[which] = isChecked)
+						.setPositiveButton(R.string.confirm, (dialog, which) -> {
+							java.util.LinkedHashSet<String> next = new java.util.LinkedHashSet<>();
+							for (int i = 0; i < cats.length; i++) {
+								if (checked[i]) next.add(cats[i]);
+							}
+							prefs.setSponsorBlockCategories(next);
+							TextView value = valueRow.findViewById(R.id.setting_value);
+							if (value != null) value.setText(sponsorCatsSummary(activity, prefs));
+						})
+						.setNegativeButton(R.string.cancel, null)
+						.show();
+	}
 
 	private static void showCacheSize(@NonNull Activity activity, @NonNull TextView view) {
 		AppGraph app = AppGraph.of(activity);
