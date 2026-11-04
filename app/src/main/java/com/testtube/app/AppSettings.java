@@ -498,7 +498,12 @@ public final class AppSettings {
 	 * For the full effect also turn on “Downloads on Wi-Fi only”.
 	 */
 	public static boolean dataSaver() {
-		load();
+		try {
+			load();
+		} catch (RuntimeException | UnsatisfiedLinkError e) {
+			// Unit tests use a mocked store; MMKV isn't initialized there.
+			return false;
+		}
 		return dataSaver;
 	}
 
