@@ -140,10 +140,9 @@ final class SettingsDialog {
 		View sponsorCats = form.value(playback, R.string.setting_sponsor_cats,
 						R.string.setting_sponsor_cats_summary, sponsorCatsSummary(activity, prefs));
 		sponsorCats.setOnClickListener(v -> showSponsorCats(activity, prefs, sponsorCats));
-		ChoiceRow<AppSettings.MinimizeTarget> minimizeTo = new ChoiceRow<>(form, playback, R.string.setting_minimize_to,
-						R.string.setting_minimize_summary, AppSettings.MinimizeTarget.values(),
-						new int[]{R.string.minimize_bottom_bar, R.string.minimize_floating, R.string.minimize_pip},
-						AppSettings.minimizeTarget());
+		ChoiceRow<Boolean> minimizeTo = new ChoiceRow<>(form, playback, R.string.setting_minimize_to,
+						R.string.setting_minimize_summary, new Boolean[]{false, true},
+						new int[]{R.string.minimize_bottom_bar, R.string.minimize_floating}, AppSettings.floatingPlayer());
 
 		AppSettings.VideoCache[] cacheValues = AppSettings.VideoCache.values();
 		int[] cacheLabels = new int[cacheValues.length];
@@ -246,7 +245,7 @@ final class SettingsDialog {
 							AppSettings.setDownloadsNightly(downloadsNightly.isChecked());
 							AppSettings.setDataSaver(dataSaver.isChecked());
 							NightDownloadsWorker.apply(activity.getApplicationContext());
-							AppSettings.setMinimizeTarget(minimizeTo.value);
+							AppSettings.setFloatingPlayer(minimizeTo.value);
 							if (videoCache.value != AppSettings.videoCache()) {
 								AppSettings.setVideoCache(videoCache.value);
 								AppGraph.of(activity).applyVideoCacheSize();

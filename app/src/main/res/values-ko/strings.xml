@@ -345,7 +345,7 @@
     <string name="failure_other">이 동영상을 불러오는 중 문제가 발생했습니다. 다시 시도하거나 \'자세히\'를 눌러 내용을 확인하세요.</string>
     <!-- Minimizing, floating window and gestures -->
     <string name="setting_minimize_to">최소화 방식</string>
-    <string name="setting_minimize_summary">하단 바, 플로팅 창 또는 PIP</string>
+    <string name="setting_minimize_summary">하단 바 또는 플로팅 창</string>
     <string name="minimize_bottom_bar">하단 바</string>
     <string name="minimize_floating">플로팅 창</string>
     <string name="settings_section_gestures">제스처</string>
@@ -455,6 +455,6 @@
     <string name="backup_restart_title">다시 시작 필요</string>
     <string name="backup_restart_message">설정을 복원했습니다. 모두 적용하려면 다시 시작하세요.</string>
     <string name="restart_now">다시 시작</string>
-    <string name="minimize_pip">PIP(화면 속 화면)</string>
     <string name="pip_unavailable">PIP를 지금 사용할 수 없습니다</string>
+    <string name="pip_music_only">음악만</string>
 </resources>

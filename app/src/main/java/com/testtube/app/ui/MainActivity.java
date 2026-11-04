@@ -1093,11 +1093,13 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 	private void handlePiPChanged(boolean isInPictureInPictureMode) {
 		// Closing the floating window, rather than expanding it, leaves the activity stopped
 		boolean closed = !isInPictureInPictureMode && getLifecycle().getCurrentState() == Lifecycle.State.CREATED;
+		// Music-only (PiP action) dismisses PiP on purpose: keep the audio playing.
+		boolean musicOnly = player.consumeMusicOnlyExit();
 		player.onPictureInPictureModeChanged(isInPictureInPictureMode, closed);
-		if (closed) player.pause();
+		if (closed && !musicOnly) player.pause();
 	}
 
-	/** Home or recent apps while a video plays: the floating player, when it is switched on. */
+	/** Home or recent apps while a video plays: picture-in-picture, audio keeps playing. */
 	@Override
 	protected void onUserLeaveHint() {
 		super.onUserLeaveHint();

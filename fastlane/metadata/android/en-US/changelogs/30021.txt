@@ -1,0 +1,1 @@
+- Home always opens PiP; new Music-only PiP action keeps audio playing with the window hidden

@@ -349,7 +349,7 @@
     <string name="failure_other">Algo salió mal al cargar este vídeo. Vuelve a intentarlo o toca Detalles para ver qué pasó.</string>
     <!-- Minimizing, floating window and gestures -->
     <string name="setting_minimize_to">Minimizar en</string>
-    <string name="setting_minimize_summary">Barra inferior, ventana flotante o imagen en imagen</string>
+    <string name="setting_minimize_summary">Barra inferior o ventana flotante</string>
     <string name="minimize_bottom_bar">Barra inferior</string>
     <string name="minimize_floating">Ventana flotante</string>
     <string name="settings_section_gestures">Gestos</string>
@@ -459,6 +459,6 @@
     <string name="backup_restart_title">Reinicio necesario</string>
     <string name="backup_restart_message">Ajustes restaurados. Reinicia ahora para aplicar todo.</string>
     <string name="restart_now">Reiniciar</string>
-    <string name="minimize_pip">Imagen en imagen</string>
     <string name="pip_unavailable">La imagen en imagen no está disponible ahora mismo</string>
+    <string name="pip_music_only">Solo música</string>
 </resources>

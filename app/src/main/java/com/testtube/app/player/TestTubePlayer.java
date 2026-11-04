@@ -64,6 +64,7 @@ public class TestTubePlayer {
 	private static final int CONTROL_PREVIOUS = 1;
 	private static final int CONTROL_PLAY_PAUSE = 2;
 	private static final int CONTROL_NEXT = 3;
+	private static final int CONTROL_MUSIC_ONLY = 4;
 
 	@NonNull
 	private final Activity activity;
@@ -127,6 +128,7 @@ public class TestTubePlayer {
 	private VideoDetails currentDetails;
 	private long activeDurationSeconds;
 	private boolean wasInPip;
+	private boolean musicOnlyExit;
 	@Nullable
 	private NetworkWatcher network;
 	@NonNull
@@ -508,10 +510,9 @@ public class TestTubePlayer {
 		return playerView.getVisibility() == View.VISIBLE;
 	}
 
-	/** A video is open and playing, so leaving the app keeps it playing (PiP unless the bottom bar is set). */
+	/** A video is open and playing, so leaving the app keeps it playing in PiP. */
 	private boolean floatsOnLeave() {
-		return AppSettings.minimizeTarget() != AppSettings.MinimizeTarget.BOTTOM_BAR
-						&& queuedId != null && engine.isPlaying();
+		return queuedId != null && engine.isPlaying();
 	}
 
 	/**
@@ -529,19 +530,31 @@ public class TestTubePlayer {
 		}
 	}
 
-	/** Previous, play or pause, and next; the system adds expand and close. */
+	/** Previous, play/pause, next and music-only; the system adds expand and close. */
 	@NonNull
 	private List<RemoteAction> floatingActions() {
 		QueueNav nav = engine.getQueueNavigationAvailability();
 		boolean playing = engine.isPlaying();
-		List<RemoteAction> actions = new ArrayList<>(3);
-		actions.add(floatingAction(CONTROL_PREVIOUS, R.drawable.ic_previous, R.string.mini_bar_previous,
-						nav.isPreviousActionEnabled()));
-		actions.add(floatingAction(CONTROL_PLAY_PAUSE, playing ? R.drawable.ic_pause : R.drawable.ic_play,
-						playing ? R.string.mini_bar_pause : R.string.mini_bar_play, true));
-		actions.add(floatingAction(CONTROL_NEXT, R.drawable.ic_next, R.string.mini_bar_next,
-						nav.isNextActionEnabled()));
-		return actions;
+		RemoteAction previous = floatingAction(CONTROL_PREVIOUS, R.drawable.ic_previous,
+						R.string.mini_bar_previous, nav.isPreviousActionEnabled());
+		RemoteAction toggle = floatingAction(CONTROL_PLAY_PAUSE, playing ? R.drawable.ic_pause : R.drawable.ic_play,
+						playing ? R.string.mini_bar_pause : R.string.mini_bar_play, true);
+		RemoteAction next = floatingAction(CONTROL_NEXT, R.drawable.ic_next, R.string.mini_bar_next,
+						nav.isNextActionEnabled());
+		RemoteAction musicOnly = floatingAction(CONTROL_MUSIC_ONLY, R.drawable.ic_music,
+						R.string.pip_music_only, true);
+		// PiP windows usually fit 3 actions: play/pause and music-only win over prev/next.
+		List<RemoteAction> preferred = List.of(toggle, musicOnly, next, previous);
+		int max = 3;
+		try {
+			max = Math.max(1, activity.getMaxNumPictureInPictureActions());
+		} catch (RuntimeException ignored) {
+		}
+		List<RemoteAction> picked = preferred.subList(0, Math.min(max, preferred.size()));
+		// Back into a stable left-to-right order (identity comparison: same instances).
+		List<RemoteAction> ordered = new ArrayList<>(List.of(previous, toggle, next, musicOnly));
+		ordered.retainAll(picked);
+		return ordered;
 	}
 
 	@NonNull
@@ -569,9 +582,34 @@ public class TestTubePlayer {
 					engine.play();
 				}
 			}
+			case CONTROL_MUSIC_ONLY -> exitPiPKeepAudio();
 			default -> {
 			}
 		}
+	}
+
+	/**
+	 * Music-only: dismisses the PiP window and keeps the audio playing in the background
+	 * (notification controls stay). The flag tells MainActivity not to pause on the way out,
+	 * which is what closing PiP normally does.
+	 */
+	private void exitPiPKeepAudio() {
+		musicOnlyExit = true;
+		try {
+			activity.moveTaskToBack(false);
+		} catch (RuntimeException e) {
+			musicOnlyExit = false;
+		}
+	}
+
+	/**
+	 * Takes and clears the music-only flag. MainActivity calls this on every PiP change so a
+	 * stale flag can never leak into a later close.
+	 */
+	public boolean consumeMusicOnlyExit() {
+		boolean exit = musicOnlyExit;
+		musicOnlyExit = false;
+		return exit;
 	}
 
 	private void listenToFloatingControls(boolean listen) {
@@ -598,34 +636,16 @@ public class TestTubePlayer {
 
 	/** Moves the video into the bottom bar; playback continues. */
 	/**
-	 * Minimizes the video: into a PiP window, a floating window over the app, or the bottom bar,
-	 * as set in the settings. PiP falls back to the floating window when it can't start.
+	 * Minimizes the video inside the app: into the bottom bar, or into the floating window
+	 * over the app when that is set. Leaving the app is separate: home always opens PiP.
 	 */
 	public void enterInAppMiniPlayer() {
-		if (AppSettings.minimizeTarget() == AppSettings.MinimizeTarget.PIP) {
-			try {
-				if (playerView.enterPiP()) {
-					hideControlsForMini();
-					return;
-				}
-			} catch (RuntimeException ignored) {
-			}
-			ToastUtils.show(activity, activity.getString(R.string.pip_unavailable));
-			// Fall through to the floating window, which always works in-app.
-		}
 		inMiniPlayer = true;
 		stateStore.setInMiniPlayer(true);
 		if (controller.isFullscreen()) controller.exitFullscreenImmediately();
 		controller.enterMiniPlayer();
 		showMinimized();
 		refreshQueueNav();
-	}
-
-	private void hideControlsForMini() {
-		try {
-			controller.setControlsVisible(false);
-		} catch (RuntimeException ignored) {
-		}
 	}
 
 	private void showMinimized() {

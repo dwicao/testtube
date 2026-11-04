@@ -60,13 +60,12 @@ public final class AppSettings {
 	private static volatile boolean channelPages = true;
 	/** Where minimizing puts the video; replaces the old floating on/off switch. */
 	@NonNull
-	private static volatile MinimizeTarget minimizeTarget = MinimizeTarget.PIP;
+	private static volatile MinimizeTarget minimizeTarget = MinimizeTarget.BOTTOM_BAR;
 
-	/** Where the minimize button puts the video. PiP for new installs. */
+	/** Where the minimize button puts the video. Bottom bar for new installs. */
 	public enum MinimizeTarget {
 		BOTTOM_BAR,
-		FLOATING_WINDOW,
-		PIP
+		FLOATING_WINDOW
 	}
 	private static volatile boolean gestures;
 	@NonNull
@@ -127,9 +126,9 @@ public final class AppSettings {
 	}
 
 	/**
-	 * Where minimizing puts the video: bottom bar, floating window over the app, or a
-	 * picture-in-picture window. PiP for new installs; leaving the app keeps playing in
-	 * every mode except the bottom bar, which keeps only the sound.
+	 * Where the minimize button puts the video: bottom bar or a floating window over the app.
+	 * Leaving the app (home) while it plays always opens a picture-in-picture window, except
+	 * there is nothing to decide here: the bar is only for browsing inside the app.
 	 */
 	@NonNull
 	public static MinimizeTarget minimizeTarget() {
@@ -551,11 +550,14 @@ public final class AppSettings {
 			try {
 				return MinimizeTarget.valueOf(saved);
 			} catch (IllegalArgumentException ignored) {
+				// "PIP" was briefly a choice in v3.0.20 and then removed; leaving the app
+				// opens PiP anyway now, so it behaves like the bottom bar here.
+				return MinimizeTarget.BOTTOM_BAR;
 			}
 		}
-		// Migrate the old on/off switch; brand-new installs default to PiP.
-		if (store.containsKey(KEY_MINIMIZE_TARGET) || !store.containsKey(KEY_FLOATING_PLAYER)) {
-			return MinimizeTarget.PIP;
+		// Migrate the old on/off switch; brand-new installs get the bottom bar.
+		if (!store.containsKey(KEY_FLOATING_PLAYER)) {
+			return MinimizeTarget.BOTTOM_BAR;
 		}
 		return store.decodeBool(KEY_FLOATING_PLAYER, false)
 						? MinimizeTarget.FLOATING_WINDOW : MinimizeTarget.BOTTOM_BAR;

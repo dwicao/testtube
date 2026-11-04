@@ -348,7 +348,7 @@
     <string name="failure_other">Video yüklenirken bir sorun oluştu. Tekrar deneyin ya da ne olduğunu görmek için Ayrıntılar\'a dokunun.</string>
     <!-- Minimizing, floating window and gestures -->
     <string name="setting_minimize_to">Küçültme yeri</string>
-    <string name="setting_minimize_summary">Alt çubuk, kayan pencere veya resim içinde resim</string>
+    <string name="setting_minimize_summary">Alt çubuk veya kayan pencere</string>
     <string name="minimize_bottom_bar">Alt çubuk</string>
     <string name="minimize_floating">Kayan pencere</string>
     <string name="settings_section_gestures">Hareketler</string>
@@ -458,6 +458,6 @@
     <string name="backup_restart_title">Yeniden başlatma gerekli</string>
     <string name="backup_restart_message">Ayarlar geri yüklendi. Uygulamak için yeniden başlatın.</string>
     <string name="restart_now">Yeniden başlat</string>
-    <string name="minimize_pip">Resim içinde resim</string>
     <string name="pip_unavailable">Resim içinde resim şu anda kullanılamıyor</string>
+    <string name="pip_music_only">Yalnızca müzik</string>
 </resources>

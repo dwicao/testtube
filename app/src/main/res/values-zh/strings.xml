@@ -345,7 +345,7 @@
     <string name="failure_other">加载此视频时出现问题。请重试，或点按“详情”查看原因。</string>
     <!-- Minimizing, floating window and gestures -->
     <string name="setting_minimize_to">最小化到</string>
-    <string name="setting_minimize_summary">底部栏、悬浮窗或画中画</string>
+    <string name="setting_minimize_summary">底部栏或悬浮窗</string>
     <string name="minimize_bottom_bar">底部栏</string>
     <string name="minimize_floating">浮动窗口</string>
     <string name="settings_section_gestures">手势</string>
@@ -455,6 +455,6 @@
     <string name="backup_restart_title">需要重启</string>
     <string name="backup_restart_message">设置已恢复。请重启以全部生效。</string>
     <string name="restart_now">重启</string>
-    <string name="minimize_pip">画中画</string>
     <string name="pip_unavailable">画中画目前不可用</string>
+    <string name="pip_music_only">仅音乐</string>
 </resources>

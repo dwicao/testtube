@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.21
+
+- Minimize in-app stays bottom bar / floating window (default bottom bar, no more PiP option there); pressing Home always opens PiP while a video plays
+- New Music-only PiP action: hides the PiP window, audio keeps playing in the background
+- PiP on small windows fits play/pause + music-only + next (prev stays in notification/app)
+
 ## 3.0.20
 
 - Playback speed is a real control now: 0.5x–2.0x slider + presets, applies live; Remember keeps it for next videos
