@@ -1,11 +1,11 @@
 {
   "tag": "v3.0.14",
-  "versionCode": 30014,
   "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.14/testtube3.0.14.apk",
-  "sha256": null,
-  "size": -1,
-  "notes": "Upstream radar: scheduled extractor canary, update-required notices, playback-error client rotation.",
+  "sha256": "8d6e4ee8854f0bb7689a2ef33da5661bd2d99cec24585f65756df39939f6b59b",
+  "size": 6044025,
+  "notes": "Fix canary gating + multicatech: gate canary behind TESTTUBE_CANARY, single-catch in openReleasesPage",
   "prerelease": false,
+  "versionCode": 30014,
   "notice": "",
   "noticeTag": "",
   "minVersionCode": 0
