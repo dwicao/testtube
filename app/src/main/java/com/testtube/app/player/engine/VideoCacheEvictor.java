@@ -48,27 +48,30 @@ public final class VideoCacheEvictor implements CacheEvictor {
 	}
 
 	@Override
-	public void onStartFile(@NonNull Cache cache, @NonNull String key, long position, long length) {
+	public synchronized void onStartFile(@NonNull Cache cache, @NonNull String key, long position, long length) {
 		if (length != C.LENGTH_UNSET) evict(cache, length);
 	}
 
 	@Override
-	public void onSpanAdded(@NonNull Cache cache, @NonNull CacheSpan span) {
+	public synchronized void onSpanAdded(@NonNull Cache cache, @NonNull CacheSpan span) {
 		leastRecentlyUsed.add(span);
 		currentSize += span.length;
 		evict(cache, 0);
 	}
 
 	@Override
-	public void onSpanRemoved(@NonNull Cache cache, @NonNull CacheSpan span) {
+	public synchronized void onSpanRemoved(@NonNull Cache cache, @NonNull CacheSpan span) {
 		leastRecentlyUsed.remove(span);
 		currentSize -= span.length;
 	}
 
 	@Override
-	public void onSpanTouched(@NonNull Cache cache, @NonNull CacheSpan oldSpan, @NonNull CacheSpan newSpan) {
-		onSpanRemoved(cache, oldSpan);
-		onSpanAdded(cache, newSpan);
+	public synchronized void onSpanTouched(@NonNull Cache cache, @NonNull CacheSpan oldSpan, @NonNull CacheSpan newSpan) {
+		leastRecentlyUsed.remove(oldSpan);
+		currentSize -= oldSpan.length;
+		leastRecentlyUsed.add(newSpan);
+		currentSize += newSpan.length;
+		evict(cache, 0);
 	}
 
 	private void evict(@NonNull Cache cache, long requiredSpace) {

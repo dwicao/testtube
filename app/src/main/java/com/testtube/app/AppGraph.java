@@ -138,10 +138,15 @@ public final class AppGraph {
 
 	/**
 	 * Once the first screen is up: opens the connections a video needs and gets BotGuard going,
-	 * so the first tap on a video doesn't pay for any of it.
+	 * so the first tap on a video doesn't pay for any of it. Skipped on mobile data to save
+	 * radio wakeups and WebView RAM (~30MB); the first play warms lazily instead.
 	 */
 	public void warmUp() {
 		if (!warmedUp.compareAndSet(false, true)) return;
+		try {
+			if (networkWatcher() != null && networkWatcher().isMobile()) return;
+		} catch (RuntimeException ignored) {
+		}
 		Executor background = executor();
 		OkHttpClient client = okHttpClient();
 		for (String host : WARM_HOSTS) {

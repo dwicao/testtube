@@ -80,6 +80,10 @@ public final class DownloaderImpl extends Downloader {
 
 		final Request.Builder builder = new Request.Builder().url(url).method(httpMethod, requestBody)
 						.header("User-Agent", ClientIdentity.userAgentFor(host));
+		if (youtube && !appClient) {
+			// Authenticated YouTube traffic must never sit in the shared HTTP cache.
+			builder.header("Cache-Control", "no-store");
+		}
 		if (youtube && !appClient && !hasHeader(headers, "Accept-Language")) {
 			builder.header("Accept-Language", ClientIdentity.acceptLanguage());
 		}

@@ -159,11 +159,15 @@ public final class PoTokenHost {
 		settings.setJavaScriptEnabled(true);
 		settings.setDomStorageEnabled(false);
 		settings.setDatabaseEnabled(false);
+		settings.setAllowFileAccess(false);
+		settings.setAllowContentAccess(false);
+		settings.setGeolocationEnabled(false);
+		settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
 		// BotGuard runs as the desktop web client, with the same Chrome version as everything else.
 		settings.setUserAgentString(Constant.DESKTOP_USER_AGENT);
 		settings.setBlockNetworkLoads(true);
 		if (WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_ENABLE)) {
-			WebSettingsCompat.setSafeBrowsingEnabled(settings, false);
+			WebSettingsCompat.setSafeBrowsingEnabled(settings, true);
 		}
 		webView.addJavascriptInterface(poTokenBridge, PoTokenBridge.JS_INTERFACE);
 		webView.setWebViewClient(new WebViewClient() {

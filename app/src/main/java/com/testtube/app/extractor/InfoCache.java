@@ -31,6 +31,12 @@ public final class InfoCache {
 	@NonNull
 	private final Gson gson;
 	private final AtomicInteger writes = new AtomicInteger();
+	private static final java.util.concurrent.ExecutorService PRUNE_EXEC =
+					java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
+						Thread t = new Thread(r, "testtube-cache-prune");
+						t.setDaemon(true);
+						return t;
+					});
 
 	public InfoCache(@NonNull MMKV kv,
 	                 @NonNull Gson gson) {
@@ -101,9 +107,10 @@ public final class InfoCache {
 		store.encode(UNTIL_PREFIX + key, System.currentTimeMillis() + ttlMs);
 		store.encode(key, gson.toJson(value));
 		if (writes.incrementAndGet() % PRUNE_EVERY_WRITES == 0) {
-			Thread prune = new Thread(this::pruneExpired, "testtube-cache-prune");
-			prune.setDaemon(true);
-			prune.start();
+			try {
+				PRUNE_EXEC.execute(this::pruneExpired);
+			} catch (RuntimeException ignored) {
+			}
 		}
 	}
 

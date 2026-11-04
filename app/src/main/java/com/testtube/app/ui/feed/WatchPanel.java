@@ -522,7 +522,8 @@ public final class WatchPanel {
 	@SuppressLint("SetJavaScriptEnabled")
 	private void loadChat() {
 		String id = videoId;
-		if (id == null || id.equals(chatVideoId)) return;
+		if (id == null || !id.matches("[A-Za-z0-9_-]{11}")) return;
+		if (id.equals(chatVideoId)) return;
 		if (chatWeb == null) {
 			WebView web = new WebView(chatHost.getContext());
 			WebSettings settings = web.getSettings();
@@ -533,6 +534,10 @@ public final class WatchPanel {
 			settings.setAllowContentAccess(false);
 			settings.setGeolocationEnabled(false);
 			settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
+			try {
+				android.webkit.CookieManager.getInstance().setAcceptThirdPartyCookies(web, false);
+			} catch (Exception ignored) {
+			}
 			// The app is always dark: no white flash before the chat has loaded
 			int surface = ViewUtils.themeColor(chatHost.getContext(), com.google.android.material.R.attr.colorSurface);
 			web.setBackgroundColor(surface);
@@ -557,7 +562,7 @@ public final class WatchPanel {
 			chatWeb = web;
 		}
 		chatVideoId = id;
-		chatWeb.loadUrl("https://www.youtube.com/live_chat?is_popout=1&dark_theme=1&v=" + id);
+		chatWeb.loadUrl("https://www.youtube.com/live_chat?is_popout=1&dark_theme=1&v=" + android.net.Uri.encode(id));
 	}
 
 	/**

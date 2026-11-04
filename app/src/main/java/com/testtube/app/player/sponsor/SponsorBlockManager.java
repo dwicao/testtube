@@ -40,9 +40,15 @@ public final class SponsorBlockManager {
 	/** Incremented on every load and clear so stale requests can't publish their results. */
 	private final AtomicInteger loadToken = new AtomicInteger();
 	private volatile Call inFlight;
+	/** In-memory segments per video, 1h expiry, to avoid refetching on rotation/replay. */
+	private final java.util.Map<String, CacheEntry> memCache = new java.util.concurrent.ConcurrentHashMap<>();
+
+	private record CacheEntry(@NonNull List<long[]> segments, long expiresAt) {
+	}
 
 	public SponsorBlockManager(@NonNull OkHttpClient client, @NonNull Gson gson, @NonNull PlayerPreferences preferences) {
-		this.client = client;
+		// No shared HTTP cache: categories + IP + timing would otherwise sit in the 64MB cache.
+		this.client = client.newBuilder().cache(null).build();
 		this.gson = gson;
 		this.preferences = preferences;
 	}
@@ -59,6 +65,13 @@ public final class SponsorBlockManager {
 
 	public void load(@NonNull String videoId) {
 		int token = loadToken.incrementAndGet();
+		CacheEntry cached = memCache.get(videoId);
+		if (cached != null && System.currentTimeMillis() < cached.expiresAt()) {
+			segments = cached.segments();
+			return;
+		} else if (cached != null) {
+			memCache.remove(videoId);
+		}
 		segments = Collections.emptyList();
 		try {
 			Set<String> cats = preferences.getSponsorBlockCategories();
@@ -109,6 +122,7 @@ public final class SponsorBlockManager {
 		}
 		if (token == loadToken.get()) {
 			segments = newSegments;
+			memCache.put(videoId, new CacheEntry(newSegments, System.currentTimeMillis() + 3_600_000L));
 		}
 	}
 

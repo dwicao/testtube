@@ -54,15 +54,11 @@
         <service
             android:name=".PlaybackService"
             android:exported="false"
-            android:foregroundServiceType="mediaPlayback">
-            <intent-filter>
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
-            </intent-filter>
-        </service>
+            android:foregroundServiceType="mediaPlayback" />
 
         <activity
             android:name=".ui.MainActivity"
-            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|screenLayout|smallestScreenSize|uiMode"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|screenLayout|smallestScreenSize|uiMode|density|fontScale|layoutDirection"
             android:exported="true"
             android:launchMode="singleTask"
             android:supportsPictureInPicture="true">
@@ -72,13 +68,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <intent-filter>
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="www.youtube.com" />
                 <data android:host="m.youtube.com" />
@@ -94,13 +89,12 @@
                 <data android:pathPattern="/@.*" />
             </intent-filter>
 
-            <intent-filter>
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="youtu.be" />
             </intent-filter>

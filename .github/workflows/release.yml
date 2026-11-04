@@ -1,0 +1,167 @@
+name: Release APK (AOSP test key)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v3.0.1). Used for manual runs.'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve tag
+        id: tag
+        run: |
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          elif [ -n "${{ inputs.tag }}" ]; then
+            echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=v3.0.0" >> "$GITHUB_OUTPUT"
+          fi
+          cat "$GITHUB_OUTPUT"
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android platform + build-tools
+        run: |
+          sdkmanager --install "platform-tools" "platforms;android-37" "build-tools;36.0.0"
+          yes | sdkmanager --licenses || true
+
+      - name: Download AOSP test key (public testkey)
+        run: |
+          mkdir -p "$RUNNER_TEMP/aosp-key"
+          curl -fsSL -o "$RUNNER_TEMP/aosp-key/testkey.pk8" https://raw.githubusercontent.com/aosp-mirror/platform_build/master/target/product/security/testkey.pk8
+          curl -fsSL -o "$RUNNER_TEMP/aosp-key/testkey.x509.pem" https://raw.githubusercontent.com/aosp-mirror/platform_build/master/target/product/security/testkey.x509.pem
+          ls -l "$RUNNER_TEMP/aosp-key"
+          # Convert DER pk8 -> PEM key, then bundle as PKCS12 for Gradle/apksigner.
+          openssl pkcs8 -inform DER -nocrypt -in "$RUNNER_TEMP/aosp-key/testkey.pk8" -out "$RUNNER_TEMP/aosp-key/testkey.key"
+          openssl pkcs12 -export \
+            -in "$RUNNER_TEMP/aosp-key/testkey.x509.pem" \
+            -inkey "$RUNNER_TEMP/aosp-key/testkey.key" \
+            -out "$RUNNER_TEMP/aosp-key/testkey.p12" \
+            -name testkey \
+            -password pass:android
+          echo "AOSP test key ready (public test key, password: android)"
+          # Fingerprint for logs (not secret — this is the well-known AOSP test key).
+          keytool -list -v -keystore "$RUNNER_TEMP/aosp-key/testkey.p12" -storetype PKCS12 -storepass android -alias testkey | grep -E "SHA256|Alias" || true
+
+      - name: Build signed release APK
+        env:
+          TESTTUBE_KEYSTORE_FILE: ${{ runner.temp }}/aosp-key/testkey.p12
+          TESTTUBE_KEYSTORE_PASSWORD: android
+          TESTTUBE_KEY_ALIAS: testkey
+          TESTTUBE_KEY_PASSWORD: android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon :app:assembleRelease --stacktrace --console=plain
+          ls -lh app/build/outputs/apk/release/ dist/ || true
+
+      - name: Verify APK signature
+        run: |
+          APK=$(ls dist/testtube*.apk app/build/outputs/apk/release/*.apk 2>/dev/null | head -n 1)
+          echo "APK=$APK" >> "$GITHUB_ENV"
+          echo "Found: $APK"
+          ls -lh "$APK"
+          BUILD_TOOLS=$(ls -d "$ANDROID_HOME/build-tools/"*/ | sort -V | tail -n 1)
+          "$BUILD_TOOLS/apksigner" verify --print-certs "$APK" | head -n 20
+          "$BUILD_TOOLS/apksigner" verify "$APK"
+
+      - name: Prepare release assets + version.json
+        id: assets
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.tag.outputs.tag }}"
+          APK_SRC=$(ls dist/testtube*.apk app/build/outputs/apk/release/*.apk 2>/dev/null | head -n 1)
+          # Normalise asset name: testtube<version>.apk (e.g. testtube3.0.1.apk)
+          VER="${TAG#v}"
+          ASSET="testtube${VER}.apk"
+          cp "$APK_SRC" "$RUNNER_TEMP/$ASSET"
+          SHA=$(sha256sum "$RUNNER_TEMP/$ASSET" | awk '{print $1}')
+          SIZE=$(stat -c%s "$RUNNER_TEMP/$ASSET")
+          echo "asset=$RUNNER_TEMP/$ASSET" >> "$GITHUB_OUTPUT"
+          echo "asset_name=$ASSET" >> "$GITHUB_OUTPUT"
+          echo "sha256=$SHA" >> "$GITHUB_OUTPUT"
+          echo "size=$SIZE" >> "$GITHUB_OUTPUT"
+          echo "SHA256=$SHA SIZE=$SIZE"
+          # version.json for in-app updater (UpdateManager fetches
+          # https://raw.githubusercontent.com/dwicao/testtube/main/version.json first).
+          NOTES=$(git log -1 --pretty=%B || echo "")
+          # Escape notes for JSON via python.
+          python3 - "$TAG" "$ASSET" "$SHA" "$SIZE" "$NOTES" <<'PY'
+          import json, sys
+          tag, asset, sha, size, notes = sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4]), sys.argv[5]
+          data = {
+            "tag": tag,
+            "apkUrl": f"https://github.com/dwicao/testtube/releases/download/{tag}/{asset}",
+            "sha256": sha,
+            "size": size,
+            "notes": notes[:2000],
+            "prerelease": ("beta" in tag.lower() or "alpha" in tag.lower() or "rc" in tag.lower()),
+          }
+          try:
+            with open("version.json") as f:
+              old = json.load(f)
+              if "versionCode" in old:
+                data["versionCode"] = old["versionCode"]
+          except Exception:
+            pass
+          with open(f"/tmp/version-{tag}.json", "w") as f:
+            json.dump(data, f, indent=2)
+          print(json.dumps(data, indent=2))
+          PY
+          cat "/tmp/version-${TAG}.json"
+          cp "/tmp/version-${TAG}.json" ./version.dist.json
+
+      - name: Create GitHub Release + upload APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: ${{ steps.tag.outputs.tag }}
+          draft: false
+          prerelease: ${{ contains(steps.tag.outputs.tag, 'beta') || contains(steps.tag.outputs.tag, 'alpha') || contains(steps.tag.outputs.tag, 'rc') }}
+          generate_release_notes: true
+          files: |
+            ${{ steps.assets.outputs.asset }}
+            version.dist.json
+
+      - name: Update version.json on main (for in-app updater)
+        if: github.ref_type == 'tag'
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.tag.outputs.tag }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main || true
+          git checkout main || git checkout -b main
+          cp "/tmp/version-${TAG}.json" version.json
+          # Keep versionCode in sync if tag bumped versionName; CI does not auto-bump code.
+          cat version.json
+          git add version.json
+          if git diff --cached --quiet; then
+            echo "version.json already up to date"
+          else
+            git commit -m "Update version.json for ${TAG} [skip ci]"
+            git push origin HEAD:main
+          fi

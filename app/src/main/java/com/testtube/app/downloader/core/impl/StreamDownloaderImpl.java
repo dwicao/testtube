@@ -133,12 +133,14 @@ public class StreamDownloaderImpl implements StreamDownloader {
 	}
 
 	private void runTask(TaskContext task) {
+		int gen = task.generation.get();
 		RandomAccessFile raf = null;
 		try {
 			// 1. fetch metadata
 			final long total;
 			final boolean range;
 			try (Response head = client.newCall(streamRequest(task.url).head().build()).execute()) {
+				if (task.generation.get() != gen || task.isInactive()) return;
 				if (!head.isSuccessful()) throw new IOException("HEAD " + head.code());
 				total = Long.parseLong(head.header("Content-Length", "-1"));
 				range = head.code() == 206 || "bytes".equalsIgnoreCase(head.header("Accept-Ranges"));
@@ -181,8 +183,8 @@ public class StreamDownloaderImpl implements StreamDownloader {
 					running[w] = CompletableFuture.runAsync(() -> {
 						Integer next;
 						while ((next = pending.poll()) != null) {
-							if (task.isInactive()) return;
-							downloadChunk(task, next, chunks, part, total, range, finalRaf, bits);
+							if (task.generation.get() != gen || task.isInactive()) return;
+							downloadChunk(task, next, chunks, part, total, range, finalRaf, bits, gen);
 						}
 					}, executor);
 				}
@@ -190,19 +192,17 @@ public class StreamDownloaderImpl implements StreamDownloader {
 			}
 
 			// 5. clean up
-			if (!task.isInactive()) {
-				mmkv.removeValueForKey(task.key);
-				tasks.remove(task.url);
-				task.future.complete(task.out);
-				if (task.callback != null) task.callback.onComplete(task.out);
-			}
+			if (task.generation.get() != gen || task.isInactive()) return;
+			mmkv.removeValueForKey(task.key);
+			tasks.remove(task.url);
+			task.future.complete(task.out);
+			if (task.callback != null) task.callback.onComplete(task.out);
 		} catch (Exception e) {
-			if (!task.isInactive()) {
-				tasks.remove(task.url);
-				task.future.completeExceptionally(e);
-				if (task.callback != null)
-					task.callback.onError(e instanceof RuntimeException && e.getCause() instanceof Exception ? (Exception) e.getCause() : e);
-			}
+			if (task.generation.get() != gen || task.isInactive()) return;
+			tasks.remove(task.url);
+			task.future.completeExceptionally(e);
+			if (task.callback != null)
+				task.callback.onError(e instanceof RuntimeException && e.getCause() instanceof Exception ? (Exception) e.getCause() : e);
 		} finally {
 			try {
 				if (raf != null) raf.close();
@@ -211,8 +211,8 @@ public class StreamDownloaderImpl implements StreamDownloader {
 		}
 	}
 
-	private void downloadChunk(TaskContext task, int idx, int totalChunks, long partSize, long totalLen, boolean rangeSupported, RandomAccessFile raf, BitSet bits) {
-		if (task.isInactive()) return;
+	private void downloadChunk(TaskContext task, int idx, int totalChunks, long partSize, long totalLen, boolean rangeSupported, RandomAccessFile raf, BitSet bits, int gen) {
+		if (task.generation.get() != gen || task.isInactive()) return;
 		long start = idx * partSize;
 		long end = (idx == totalChunks - 1 && totalLen > 0) ? totalLen - 1 : (start + partSize - 1);
 		String range = rangeSupported && totalLen > 0 ? "bytes=" + start + "-" + end : null;
@@ -227,7 +227,7 @@ public class StreamDownloaderImpl implements StreamDownloader {
 				int read;
 				long offset = start;
 				while ((read = is.read(buf)) != -1) {
-					if (task.isInactive()) throw new IOException("Stop");
+					if (task.generation.get() != gen || task.isInactive()) throw new IOException("Stop");
 					synchronized (task.lock) {
 						raf.seek(offset);
 						raf.write(buf, 0, read);
@@ -250,7 +250,10 @@ public class StreamDownloaderImpl implements StreamDownloader {
 
 	@Override
 	public void pause(@NonNull String url) {
-		Optional.ofNullable(tasks.get(url)).ifPresent(t -> t.paused.set(true));
+		Optional.ofNullable(tasks.get(url)).ifPresent(t -> {
+			t.generation.incrementAndGet();
+			t.paused.set(true);
+		});
 	}
 
 	@Override
@@ -267,7 +270,10 @@ public class StreamDownloaderImpl implements StreamDownloader {
 	@Override
 	public void resume(@NonNull String url) {
 		TaskContext t = tasks.get(url);
-		if (t != null && t.paused.compareAndSet(true, false)) startTask(t);
+		if (t != null && t.paused.compareAndSet(true, false)) {
+			t.generation.incrementAndGet();
+			startTask(t);
+		}
 	}
 
 	private void startTask(@NonNull TaskContext task) {
@@ -304,6 +310,7 @@ public class StreamDownloaderImpl implements StreamDownloader {
 		final AtomicInteger done;
 		final AtomicLong downloadedBytes;
 		final AtomicInteger lastProgress;
+		final AtomicInteger generation = new AtomicInteger();
 
 		TaskContext(String url, File out, String key, int threads, CompletableFuture<File> future,
 		            ProgressCallback callback, AtomicBoolean paused, AtomicBoolean cancelled,

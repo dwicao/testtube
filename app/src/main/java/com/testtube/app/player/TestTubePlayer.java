@@ -799,12 +799,19 @@ public class TestTubePlayer {
 		cancelExtraction();
 		if (task != null) task.cancel(true);
 		activeId = null;
+		queuedId = null;
+		autoRetriedId = null;
 		queueRepo.removeListener(queueListener);
 		stateStore.clear();
 		wasInPip = false;
 		onRestore = null;
 		onClose = null;
 		if (network != null) network.removeListener(networkListener);
+		try {
+			if (playbackSvc != null) playbackSvc.detach();
+		} catch (RuntimeException ignored) {
+		}
+		playbackSvc = null;
 		activity.runOnUiThread(() -> {
 			listenToFloatingControls(false);
 			playerView.updatePiPParams(false);

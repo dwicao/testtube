@@ -111,16 +111,42 @@ public final class LoginController {
 			}
 
 			@Override
+			public boolean shouldOverrideUrlLoading(@NonNull WebView view,
+					@NonNull android.webkit.WebResourceRequest request) {
+				String url = request.getUrl() != null ? request.getUrl().toString() : "";
+				if (isYoutubeUrl(url)) {
+					complete(container, onComplete);
+					return true;
+				}
+				return !isAllowedUrl(url);
+			}
+
+			@Override
 			public boolean shouldOverrideUrlLoading(@NonNull WebView view, @NonNull String url) {
 				if (isYoutubeUrl(url)) {
 					complete(container, onComplete);
 					return true;
 				}
 				// Sign-in pages are https only; intent:, file:, javascript: and plain http are refused.
-				return !url.regionMatches(true, 0, "https://", 0, 8);
+				return !isAllowedUrl(url);
 			}
 		});
 		webView.loadUrl(LOGIN_URL);
+	}
+
+	private static boolean isAllowedUrl(@NonNull String url) {
+		// Sign-in pages are https only; intent:, file:, javascript: and plain http are refused.
+		if (!url.regionMatches(true, 0, "https://", 0, 8)) return false;
+		try {
+			String host = Uri.parse(url).getHost();
+			return host != null && (host.equals("accounts.google.com")
+							|| host.equals("accounts.youtube.com")
+							|| host.equals(Constant.YOUTUBE_DOMAIN)
+							|| host.equals("www." + Constant.YOUTUBE_DOMAIN)
+							|| host.equals(Constant.YOUTUBE_MOBILE_HOST));
+		} catch (RuntimeException ignored) {
+			return false;
+		}
 	}
 
 	private void complete(@NonNull ViewGroup container, @NonNull Runnable onComplete) {

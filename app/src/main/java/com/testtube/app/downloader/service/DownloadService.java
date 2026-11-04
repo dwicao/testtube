@@ -85,6 +85,32 @@ public class DownloadService extends Service {
 		historyRepository = app.downloadHistory();
 		notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		createNotificationChannel();
+		// Process death leaves RUNNING records with no worker; demote to PAUSED so UI stops spinning.
+		try {
+			for (com.testtube.app.downloader.core.history.DownloadRecord record : historyRepository.getAllSorted()) {
+				if (isRunningState(record.getStatus())) {
+					record.setStatus(DownloadStatus.PAUSED);
+					record.setUpdatedAt(System.currentTimeMillis());
+					historyRepository.upsert(record);
+				}
+			}
+		} catch (RuntimeException e) {
+			Log.w(TAG, "could not demote stale downloads", e);
+		}
+	}
+
+	@Override
+	public void onDestroy() {
+		try {
+			stopForeground(STOP_FOREGROUND_REMOVE);
+		} catch (RuntimeException ignored) {
+		}
+		try {
+			notificationManager.cancel(NOTIFICATION_ID);
+		} catch (RuntimeException ignored) {
+		}
+		notificationBuilder = null;
+		super.onDestroy();
 	}
 
 	private void createNotificationChannel() {
@@ -117,6 +143,9 @@ public class DownloadService extends Service {
 	public void refreshPlaylistRecord(@NonNull String taskId) {
 		updateParentRecord(taskId);
 	}
+
+	private final Map<String, Long> lastProgressWrite = new ConcurrentHashMap<>();
+	private final Map<String, Integer> lastProgressValue = new ConcurrentHashMap<>();
 
 	private void startTask(@NonNull Task task) {
 		String taskId = task.videoId();
@@ -151,7 +180,18 @@ public class DownloadService extends Service {
 		downloader.setCallback(taskId, new DownloadListener() {
 			@Override
 			public void onProgress(int progress, long downloaded, long total) {
-				updateRecordProgress(taskId, progress, downloaded, total, DownloadStatus.RUNNING);
+				// Throttle history writes: full-JSON rewrite each tick is expensive.
+				// Persist at most every 500ms or 1% delta; notification still updates.
+				long now = System.currentTimeMillis();
+				Long lastWrite = lastProgressWrite.get(taskId);
+				Integer lastValue = lastProgressValue.get(taskId);
+				boolean shouldWrite = lastWrite == null || now - lastWrite > 500
+								|| lastValue == null || Math.abs(progress - lastValue) >= 1;
+				if (shouldWrite) {
+					lastProgressWrite.put(taskId, now);
+					lastProgressValue.put(taskId, progress);
+					updateRecordProgress(taskId, progress, downloaded, total, DownloadStatus.RUNNING);
+				}
 				updateNotificationProgress(task.fileName(), progress);
 			}
 
@@ -347,8 +387,27 @@ public class DownloadService extends Service {
 	 */
 	@Override
 	public void onTimeout(int startId, int fgsType) {
-		stopForeground(STOP_FOREGROUND_DETACH);
-		stopSelf();
+		// Pause everything so callbacks stop touching a dead notification, then stop.
+		try {
+			for (String taskId : new java.util.ArrayList<>(activeIds)) {
+				try {
+					downloader.pause(taskId);
+				} catch (RuntimeException ignored) {
+				}
+				try {
+					updateRecordProgress(taskId, -1, -1, -1, DownloadStatus.PAUSED);
+				} catch (RuntimeException ignored) {
+				}
+			}
+		} finally {
+			stopForeground(STOP_FOREGROUND_REMOVE);
+			try {
+				notificationManager.cancel(NOTIFICATION_ID);
+			} catch (RuntimeException ignored) {
+			}
+			notificationBuilder = null;
+			stopSelf();
+		}
 	}
 
 	private synchronized void updateNotificationProgress(String fileName, int progress) {
@@ -390,6 +449,8 @@ public class DownloadService extends Service {
 	private synchronized void onTaskCompleted(@NonNull String taskId, @NonNull String fileName, boolean success) {
 		activeIds.remove(taskId);
 		activeNames.remove(taskId);
+		lastProgressWrite.remove(taskId);
+		lastProgressValue.remove(taskId);
 		if (activeIds.isEmpty()) {
 			finalizeNotification(fileName, success);
 		} else {
@@ -400,10 +461,13 @@ public class DownloadService extends Service {
 	private synchronized void onTaskCancelled(@NonNull String taskId) {
 		activeIds.remove(taskId);
 		activeNames.remove(taskId);
+		lastProgressWrite.remove(taskId);
+		lastProgressValue.remove(taskId);
 		if (activeIds.isEmpty()) {
 			stopForeground(STOP_FOREGROUND_REMOVE);
 			notificationManager.cancel(NOTIFICATION_ID);
 			notificationBuilder = null;
+			stopSelf();
 		} else {
 			updateRemainingNotification();
 		}
@@ -421,6 +485,7 @@ public class DownloadService extends Service {
 			stopForeground(STOP_FOREGROUND_DETACH);
 			notificationBuilder = null;
 		}
+		if (activeIds.isEmpty()) stopSelf();
 	}
 
 	private PendingIntent createContentIntent() {

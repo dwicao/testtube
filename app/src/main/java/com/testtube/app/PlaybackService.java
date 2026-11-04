@@ -371,12 +371,26 @@ public class PlaybackService extends Service {
 		}
 	}
 
+	public void detach() {
+		MediaSessionCompat session = mediaSession;
+		if (session != null) {
+			try {
+				session.setCallback(null);
+				session.setActive(false);
+			} catch (RuntimeException ignored) {
+			}
+		}
+	}
+
 	@Override
 	public void onTaskRemoved(Intent rootIntent) {
 		super.onTaskRemoved(rootIntent);
-		stopForeground(true);
-		inForeground = false;
-		stopSelf();
+		// Keep background audio: only stop when nothing wants to play.
+		if (!lastWantsToPlay) {
+			stopForeground(true);
+			inForeground = false;
+			stopSelf();
+		}
 	}
 
 	@Override

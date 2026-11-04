@@ -106,6 +106,8 @@ public class Engine {
 	@NonNull
 	private final PlayerDataSource sources;
 	private final Handler handler = new Handler(Looper.getMainLooper());
+	@Nullable
+	private final TestTubePlayerView boundView;
 	@NonNull
 	private PlayerLoopMode loopMode = PlayerLoopMode.PLAYLIST_NEXT;
 	@Nullable
@@ -265,6 +267,7 @@ public class Engine {
 		this.queueRepository = queueRepository;
 		this.sources = new PlayerDataSource(simpleCache);
 		this.preloader = new StreamPreloader(sources.preloadSource());
+		this.boundView = playerView;
 		DefaultTrackSelector trackSelector = new DefaultTrackSelector(context, new AdaptiveTrackSelection.Factory());
 		trackSelector.setParameters(params(trackSelector).setTunnelingEnabled(true).build());
 		this.player = new ExoPlayer.Builder(context)
@@ -925,10 +928,14 @@ public class Engine {
 		if (id == null || id.equals(preloadTarget) || id.equals(videoId)) return;
 		preloadTarget = id;
 		// The details are a few kilobytes and always fetched ahead; the video's first seconds only
-		// when the video cache setting allows it
+		// when the video cache setting allows it, and never on mobile data (up to ~14MB wasted).
 		extractor.getInfo(url, new ExtractionSession().setBackground(true)).whenComplete((details, error) -> {
 			if (error != null || details == null || !id.equals(preloadTarget)) return;
 			if (!AppSettings.videoCache().preloadsNext) return;
+			try {
+				if (prefs.isOnMobileData()) return;
+			} catch (RuntimeException ignored) {
+			}
 			UnaryOperator<PlaybackDetails> selector = planSelector;
 			try {
 				preloader.preload(selector != null ? selector.apply(details) : details);
@@ -1383,6 +1390,11 @@ public class Engine {
 		saveCurrentProgress();
 		preloadTarget = null;
 		preloader.release();
+		try {
+			if (boundView != null) boundView.setPlayer(null);
+		} catch (RuntimeException ignored) {
+		}
+		player.clearListeners();
 		this.player.release();
 	}
 

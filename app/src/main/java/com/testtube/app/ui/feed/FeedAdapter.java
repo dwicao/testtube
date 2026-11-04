@@ -237,7 +237,9 @@ final class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 		String url = items.get(position).url();
 		Long id = ids.get(url);
 		if (id == null) {
-			id = (long) ids.size();
+			id = (long) url.hashCode();
+			// Bound map: long sessions with pagination could grow it forever.
+			if (ids.size() > 2000) ids.clear();
 			ids.put(url, id);
 		}
 		return id;
@@ -429,7 +431,14 @@ final class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 	private void fetch(@Nullable String url) {
 		Context current = context;
 		if (current == null || url == null || url.isBlank() || !prefetched.add(url)) return;
-		if (prefetched.size() > MAX_PREFETCHED) prefetched.clear();
+		if (prefetched.size() > MAX_PREFETCHED) {
+			// Evict oldest ~100 instead of clearing all 400 (avoids re-prefetch storm).
+			java.util.Iterator<String> it = prefetched.iterator();
+			for (int i = 0; i < 100 && it.hasNext(); i++) {
+				it.next();
+				it.remove();
+			}
+		}
 		ImageUtils.prefetch(current, url);
 	}
 

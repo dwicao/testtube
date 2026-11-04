@@ -15,6 +15,7 @@ import java.util.Objects;
 
 public final class DownloadHistoryRepository {
 	public static final String KEY_DOWNLOAD_HISTORY = "download_history";
+	private static final int MAX_RECORDS = 500;
 
 	private static final Type LIST_TYPE = new TypeToken<List<DownloadRecord>>() {
 	}.getType();
@@ -76,6 +77,24 @@ public final class DownloadHistoryRepository {
 			}
 		}
 		if (!updated) items.add(record);
+		// Cap growth: progress ticks + playlists could otherwise grow without bound.
+		if (items.size() > MAX_RECORDS) {
+			items.sort(Comparator.comparingLong(DownloadRecord::getCreatedAt));
+			while (items.size() > MAX_RECORDS) {
+				// Never evict an actively running record.
+				boolean removed = false;
+				for (int i = 0; i < items.size(); i++) {
+					DownloadStatus status = items.get(i).getStatus();
+					if (status != DownloadStatus.RUNNING && status != DownloadStatus.QUEUED
+									&& status != DownloadStatus.MERGING) {
+						items.remove(i);
+						removed = true;
+						break;
+					}
+				}
+				if (!removed) break;
+			}
+		}
 		writeAllInternal(items);
 	}
 

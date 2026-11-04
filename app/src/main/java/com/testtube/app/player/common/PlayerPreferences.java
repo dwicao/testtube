@@ -62,6 +62,14 @@ public final class PlayerPreferences {
 		return getQuality(onMobileData.getAsBoolean());
 	}
 
+	public boolean isOnMobileData() {
+		try {
+			return onMobileData.getAsBoolean();
+		} catch (RuntimeException e) {
+			return false;
+		}
+	}
+
 	/** A quality picked in the player becomes the one for the network the phone is on. */
 	public void setPreferredQuality(@NonNull String quality) {
 		setQuality(onMobileData.getAsBoolean(), quality);

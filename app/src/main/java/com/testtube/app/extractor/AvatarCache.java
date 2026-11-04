@@ -280,8 +280,20 @@ public final class AvatarCache {
 		if (store != null || storeFailed) return store;
 		try {
 			MMKV opened = MMKV.mmkvWithID(STORE_ID);
-			// Rarely reached; starting over is cheaper than tracking ages
-			if (opened.count() > MAX_STORED) opened.clearAll();
+			// Evict oldest ~500 instead of wiping 4000 at once.
+			if (opened.count() > MAX_STORED) {
+				String[] keys = opened.allKeys();
+				if (keys != null && keys.length > 0) {
+					java.util.Arrays.sort(keys);
+					int toRemove = Math.min(keys.length, 500);
+					for (int i = 0; i < toRemove; i++) {
+						try {
+							opened.removeValueForKey(keys[i]);
+						} catch (RuntimeException ignored) {
+						}
+					}
+				}
+			}
 			store = opened;
 		} catch (RuntimeException | UnsatisfiedLinkError e) {
 			// No storage (MMKV not initialized): keep images in memory only

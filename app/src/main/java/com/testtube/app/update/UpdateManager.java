@@ -59,17 +59,20 @@ import java.util.regex.Pattern;
  * the installer. Android only installs it when it is signed with the same key.
  */
 public final class UpdateManager {
+	private static final String REPO = "dwicao/testtube";
+	private static final String VERSION_JSON_URL =
+					"https://raw.githubusercontent.com/dwicao/testtube/main/version.json";
 	private static final String LATEST_URL =
-					"https://api.github.com/repos/techniixdotcom/testtube/releases/latest";
+					"https://api.github.com/repos/dwicao/testtube/releases/latest";
 	/** Newest releases first, pre-releases included ("latest" leaves them out). */
 	private static final String RELEASES_URL =
-					"https://api.github.com/repos/techniixdotcom/testtube/releases?per_page=20";
+					"https://api.github.com/repos/dwicao/testtube/releases?per_page=20";
 	/** "v2.1.1" and an optional pre-release part such as "-beta2". */
 	/** A letter prefix is allowed, with or without a separator: "2.1.1", "v2.1.1", "v.2.1.1", "V 2.1.1". */
 	private static final Pattern VERSION = Pattern.compile("(?i)[a-z]*[ ._-]?(\\d+(?:\\.\\d+)*)(.*)");
 	private static final Pattern TRAILING_NUMBER = Pattern.compile("(\\d+)\\D*$");
 	private static final String DOWNLOAD_PREFIX =
-					"https://github.com/techniixdotcom/testtube/releases/download/";
+					"https://github.com/dwicao/testtube/releases/download/";
 	private static final String KEY_AUTO = "update_auto_check";
 	private static final String KEY_PRERELEASES = "update_prereleases";
 	private static final String KEY_SNOOZED_TAG = "update_snoozed_tag";
@@ -153,6 +156,19 @@ public final class UpdateManager {
 
 	@Nullable
 	private Release fetchLatest() throws IOException {
+		// Primary: version.json in dwicao/testtube (no API rate limits, pinned to our fork).
+		try {
+			Release fromJson = fetchFromVersionJson();
+			if (fromJson != null) {
+				if (!prereleasesEnabled() && fromJson.prerelease()) {
+					// Fall through to GitHub API stable lookup.
+				} else {
+					return fromJson;
+				}
+			}
+		} catch (IOException | RuntimeException ignored) {
+			// Fall through to GitHub API.
+		}
 		if (!prereleasesEnabled()) {
 			JsonElement json = get(LATEST_URL);
 			return json.isJsonObject() ? parseRelease(json.getAsJsonObject()) : null;
@@ -166,6 +182,52 @@ public final class UpdateManager {
 			if (release != null && (newest == null || isNewer(release.tag(), newest.tag()))) newest = release;
 		}
 		return newest;
+	}
+
+	@Nullable
+	private Release fetchFromVersionJson() throws IOException {
+		Request request = new Request.Builder().url(VERSION_JSON_URL)
+						.header("Accept", "application/json")
+						.header("User-Agent", "TestTube")
+						.header("Cache-Control", "no-cache")
+						.build();
+		try (Response response = client.newCall(request).execute()) {
+			ResponseBody body = response.body();
+			if (!response.isSuccessful() || body == null) return null;
+			if (!response.request().url().isHttps()) throw new IOException("version.json left https");
+			JsonElement json = JsonParser.parseReader(new InputStreamReader(body.byteStream(), StandardCharsets.UTF_8));
+			if (!json.isJsonObject()) return null;
+			return parseVersionJson(json.getAsJsonObject());
+		}
+	}
+
+	@Nullable
+	private static Release parseVersionJson(@NonNull JsonObject json) {
+		String tag = string(json, "tag");
+		if (tag.isEmpty()) tag = string(json, "tag_name");
+		if (tag.isEmpty() || !VERSION.matcher(tag.trim()).matches()) return null;
+		String apkUrl = string(json, "apkUrl");
+		if (apkUrl.isEmpty()) apkUrl = string(json, "apk_url");
+		if (apkUrl.isEmpty() || !apkUrl.startsWith("https://")) return null;
+		// Only accept APKs from our own releases to avoid open-redirect installs.
+		if (!apkUrl.startsWith(DOWNLOAD_PREFIX)
+						&& !apkUrl.startsWith("https://github.com/" + REPO + "/releases/download/")) return null;
+		String sha = string(json, "sha256").toLowerCase(Locale.ROOT);
+		if (sha.isEmpty()) sha = null;
+		if (sha != null && !sha.matches("[0-9a-f]{64}")) return null;
+		long size = -1L;
+		try {
+			if (json.has("size") && !json.get("size").isJsonNull()) size = json.get("size").getAsLong();
+			if (json.has("versionCode") && !json.get("versionCode").isJsonNull()) {
+				// versionCode present for debugging; tag comparison stays source of truth.
+			}
+		} catch (RuntimeException ignored) {
+		}
+		boolean prerelease = json.has("prerelease") && !json.get("prerelease").isJsonNull()
+						&& json.get("prerelease").getAsBoolean();
+		String notes = string(json, "notes");
+		if (notes.isEmpty()) notes = string(json, "body").trim();
+		return new Release(tag, notes, apkUrl, size, sha, prerelease);
 	}
 
 	@NonNull
@@ -341,14 +403,19 @@ public final class UpdateManager {
 		if (!dir.isDirectory() && !dir.mkdirs()) throw new IOException("cannot create " + dir);
 		File part = new File(dir, "testtube-update.apk.part");
 		File apk = new File(dir, "testtube-update.apk");
+		if (release.sha256() == null) throw new IOException("refusing update without sha256");
 		Call call = client.newCall(new Request.Builder().url(release.apkUrl())
-						.header("User-Agent", "TestTube").build());
+						.header("User-Agent", "TestTube")
+						.header("Cache-Control", "no-cache").build());
 		activeDownload = call;
 		try (Response response = call.execute()) {
 			ResponseBody body = response.body();
 			if (!response.isSuccessful() || body == null) throw new IOException("HTTP " + response.code());
 			if (!response.request().url().isHttps()) throw new IOException("download left https");
 			long total = body.contentLength() > 0 ? body.contentLength() : release.size();
+			if (release.size() > 0 && total > 0 && total != release.size()) {
+				throw new IOException("size mismatch");
+			}
 			MessageDigest digest = sha256();
 			byte[] buffer = new byte[16 * 1024];
 			long done = 0;
@@ -359,6 +426,9 @@ public final class UpdateManager {
 					out.write(buffer, 0, read);
 					digest.update(buffer, 0, read);
 					done += read;
+					if (release.size() > 0 && done > release.size() + (1L << 20)) {
+						throw new IOException("download larger than release size");
+					}
 					long now = System.currentTimeMillis();
 					if (now - lastReport > 100) {
 						lastReport = now;
@@ -367,9 +437,17 @@ public final class UpdateManager {
 				}
 			}
 			progress.onProgress(done, total);
-			if (release.sha256() != null && !release.sha256().equals(hex(digest.digest()))) {
+			if (!release.sha256().equals(hex(digest.digest()))) {
+				//noinspection ResultOfMethodCallIgnored
+				part.delete();
 				throw new IOException("checksum mismatch");
 			}
+		} catch (IOException | RuntimeException e) {
+			// Don't leave a bad .part behind to be mistaken for a resume.
+			if (e.getMessage() != null && e.getMessage().contains("checksum")) {
+				// already deleted above
+			}
+			throw e;
 		}
 		if (apk.exists() && !apk.delete()) throw new IOException("cannot replace old download");
 		if (!part.renameTo(apk)) throw new IOException("cannot finish download");

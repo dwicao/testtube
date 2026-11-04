@@ -224,7 +224,8 @@ public class TestTubeDownloaderImpl implements TestTubeDownloader {
 		if (task.video() != null) StreamIOUtils.deleteQuietly(tmp(task, "_v"));
 		if (task.audio() != null) StreamIOUtils.deleteQuietly(tmp(task, "_a"));
 		if (task.video() != null && task.audio() != null) StreamIOUtils.deleteQuietly(tmp(task, "_m"));
-		StreamIOUtils.deleteQuietly(outputFile(task));
+		// Do not delete the final outputFile here: on cancel-before-complete it shouldn't exist,
+		// and on re-download collisions it could be the user's existing file.
 	}
 
 	private File tmp(Task task, String suffix) {

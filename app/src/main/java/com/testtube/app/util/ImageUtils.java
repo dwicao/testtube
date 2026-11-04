@@ -152,7 +152,8 @@ public final class ImageUtils {
 	@NonNull
 	private static RequestBuilder<Drawable> styled(@NonNull RequestBuilder<Drawable> request,
 	                                               @DrawableRes int placeholder, @Nullable Resources.Theme theme) {
-		RequestBuilder<Drawable> out = request.dontTransform()
+		// Cap decoded size for feed thumbs: full-res decode wastes memory, views crop anyway.
+		RequestBuilder<Drawable> out = request.override(480, 270)
 						.transition(DrawableTransitionOptions.withCrossFade(FADE_MS));
 		if (placeholder == 0) return out;
 		out = out.placeholder(placeholder).error(placeholder);

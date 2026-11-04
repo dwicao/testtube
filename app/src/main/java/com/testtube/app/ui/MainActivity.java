@@ -316,6 +316,19 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 			public void logout() {
 				if (loginController != null) loginController.signOut();
 				setSubscriptionsAccount(false);
+				// Authed responses are no-store, but evict any older entries immediately.
+				try {
+					okhttp3.Cache cache = AppGraph.of(MainActivity.this).okHttpClient().cache();
+					if (cache != null) {
+						AppGraph.of(MainActivity.this).executor().execute(() -> {
+							try {
+								cache.evictAll();
+							} catch (Exception ignored) {
+							}
+						});
+					}
+				} catch (RuntimeException ignored) {
+				}
 				ToastUtils.show(MainActivity.this, R.string.subs_logged_out);
 				if (nativeBrowser != null) nativeBrowser.reloadAll();
 			}
@@ -834,6 +847,18 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 	@Override
 	public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, @NonNull Configuration newConfig) {
 		super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
+		handlePiPChanged(isInPictureInPictureMode);
+	}
+
+	// API 34+ calls the 2-arg overload without Configuration; keep a single handler.
+	@Override
+	public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
+		super.onPictureInPictureModeChanged(isInPictureInPictureMode);
+		handlePiPChanged(isInPictureInPictureMode);
+	}
+
+	private void handlePiPChanged(boolean isInPictureInPictureMode) {
+	private void handlePiPChanged(boolean isInPictureInPictureMode) {
 		// Closing the floating window, rather than expanding it, leaves the activity stopped
 		boolean closed = !isInPictureInPictureMode && getLifecycle().getCurrentState() == Lifecycle.State.CREATED;
 		player.onPictureInPictureModeChanged(isInPictureInPictureMode, closed);
@@ -1233,7 +1258,9 @@ public final class MainActivity extends AppCompatActivity implements DownloadPer
 		if (libraryScreen != null) libraryScreen.release();
 		if (bottomChrome != null) bottomChrome.release();
 		if (serviceConnection != null) unbindService(serviceConnection);
-		if ((!isChangingConfigurations() || recreatingForTheme) && player != null) player.release();
+		// Always release: font/density changes recreate without isChangingConfigurations handling,
+		// leaking a second ExoPlayer on the same SimpleCache.
+		if (player != null) player.release();
 		// Closed for good (not rebuilt): the player above let go of the video cache by now
 		if (isFinishing() && !isChangingConfigurations() && AppSettings.clearCacheOnExit()) {
 			AppGraph app = AppGraph.of(this);
