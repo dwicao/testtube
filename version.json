@@ -1,9 +1,9 @@
 {
-  "tag": "v3.0.0",
-  "versionCode": 30000,
-  "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.0/testtube3.0.0.apk",
+  "tag": "v3.0.3",
+  "versionCode": 30003,
+  "apkUrl": "https://github.com/dwicao/testtube/releases/download/v3.0.3/testtube3.0.3.apk",
   "sha256": null,
   "size": -1,
-  "notes": "See https://github.com/dwicao/testtube/releases/tag/v3.0.0 for notes.",
+  "notes": "Security/privacy/stability/performance hardening + dwicao release CI with AOSP test key.",
   "prerelease": false
 }
